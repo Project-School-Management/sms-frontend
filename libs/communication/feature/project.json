@@ -1,0 +1,7 @@
+{
+  "name": "communication-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/communication/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:communication"]
+}

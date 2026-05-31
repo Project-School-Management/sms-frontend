@@ -1,0 +1,7 @@
+{
+  "name": "schedule-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/schedule/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:schedule"]
+}

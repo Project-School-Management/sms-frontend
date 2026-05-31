@@ -1,0 +1,42 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@sms/shared/models":              ["libs/shared/models/src/index.ts"],
+      "@sms/shared/auth":                ["libs/shared/auth/src/index.ts"],
+      "@sms/shared/api":                 ["libs/shared/api/src/index.ts"],
+      "@sms/shared/ui":                  ["libs/shared/ui/src/index.ts"],
+      "@sms/dashboard/feature":          ["libs/dashboard/feature/src/index.ts"],
+      "@sms/users/feature":              ["libs/users/feature/src/index.ts"],
+      "@sms/users/data-access":          ["libs/users/data-access/src/index.ts"],
+      "@sms/students/feature":           ["libs/students/feature/src/index.ts"],
+      "@sms/students/data-access":       ["libs/students/data-access/src/index.ts"],
+      "@sms/academic/feature":           ["libs/academic/feature/src/index.ts"],
+      "@sms/academic/data-access":       ["libs/academic/data-access/src/index.ts"],
+      "@sms/schedule/feature":           ["libs/schedule/feature/src/index.ts"],
+      "@sms/schedule/data-access":       ["libs/schedule/data-access/src/index.ts"],
+      "@sms/communication/feature":      ["libs/communication/feature/src/index.ts"],
+      "@sms/communication/data-access":  ["libs/communication/data-access/src/index.ts"],
+      "@sms/finance/feature":            ["libs/finance/feature/src/index.ts"],
+      "@sms/finance/data-access":        ["libs/finance/data-access/src/index.ts"],
+      "@sms/learning/feature":           ["libs/learning/feature/src/index.ts"],
+      "@sms/learning/data-access":       ["libs/learning/data-access/src/index.ts"],
+      "@sms/analytics/feature":          ["libs/analytics/feature/src/index.ts"],
+      "@sms/analytics/data-access":      ["libs/analytics/data-access/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

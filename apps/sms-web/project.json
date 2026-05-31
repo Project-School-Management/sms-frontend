@@ -1,0 +1,76 @@
+{
+  "name": "sms-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "sms",
+  "sourceRoot": "apps/sms-web/src",
+  "tags": ["type:app", "scope:sms-web"],
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/sms-web",
+        "index":      "apps/sms-web/src/index.html",
+        "browser":    "apps/sms-web/src/main.ts",
+        "tsConfig":   "apps/sms-web/tsconfig.app.json",
+        "assets": [
+          "apps/sms-web/src/favicon.ico",
+          "apps/sms-web/src/assets",
+          { "glob": "**/*", "input": "apps/sms-web/src/assets", "output": "assets" }
+        ],
+        "styles":  ["apps/sms-web/src/styles.scss"],
+        "scripts": [],
+        "serviceWorker": "apps/sms-web/ngsw-config.json"
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            { "type": "initial",     "maximumWarning": "400kB", "maximumError": "500kB" },
+            { "type": "anyComponentStyle", "maximumWarning": "2kB",  "maximumError": "4kB"  }
+          ],
+          "outputHashing":     "all",
+          "fileReplacements": [
+            { "replace": "apps/sms-web/src/environments/environment.ts",
+              "with":    "apps/sms-web/src/environments/environment.prod.ts" }
+          ]
+        },
+        "development": {
+          "optimization":    false,
+          "extractLicenses": false,
+          "sourceMap":       true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production":  { "buildTarget": "sms-web:build:production" },
+        "development": { "buildTarget": "sms-web:build:development" }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "proxyConfig": "apps/sms-web/proxy.conf.json"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": { "buildTarget": "sms-web:build" }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/sms-web"],
+      "options": {
+        "jestConfig": "apps/sms-web/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/sms-web/**/*.ts", "apps/sms-web/**/*.html"]
+      }
+    }
+  }
+}

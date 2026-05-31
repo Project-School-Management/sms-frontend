@@ -1,0 +1,7 @@
+{
+  "name": "finance-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/finance/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:finance"]
+}

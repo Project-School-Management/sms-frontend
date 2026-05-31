@@ -1,0 +1,7 @@
+{
+  "name": "analytics-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/analytics/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:analytics"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "users-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/users/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:users"]
+}

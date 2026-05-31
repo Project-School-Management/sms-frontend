@@ -1,0 +1,7 @@
+{
+  "name": "students-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/students/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:students"]
+}

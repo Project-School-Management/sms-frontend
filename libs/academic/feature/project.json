@@ -1,0 +1,7 @@
+{
+  "name": "academic-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/academic/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:academic"]
+}

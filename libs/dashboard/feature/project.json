@@ -1,0 +1,7 @@
+{
+  "name": "dashboard-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/dashboard/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:dashboard"]
+}

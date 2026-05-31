@@ -1,0 +1,21 @@
+import { inject }         from '@angular/core';
+import { CanActivateFn }  from '@angular/router';
+import { KeycloakService } from 'keycloak-angular';
+
+/**
+ * Vérifie que l'utilisateur est connecté — redirige vers Keycloak sinon.
+ * Utiliser sur toutes les routes protégées.
+ */
+export const authGuard: CanActivateFn = async (_, state) => {
+  const keycloak   = inject(KeycloakService);
+  const isLoggedIn = await keycloak.isLoggedIn();
+
+  if (!isLoggedIn) {
+    await keycloak.login({
+      redirectUri: window.location.origin + state.url,
+    });
+    return false;
+  }
+
+  return true;
+};

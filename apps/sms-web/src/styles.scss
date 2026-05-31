@@ -1,0 +1,39 @@
+// ── Angular Material theme ────────────────────────────────────────────────────
+@use '@angular/material' as mat;
+
+// Include only once globally
+@include mat.core();
+
+// Custom palette (SMS brand — Charte graphique SMS)
+$sms-primary: mat.define-palette(mat.$indigo-palette, 700);
+$sms-accent:  mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$sms-warn:    mat.define-palette(mat.$red-palette);
+
+$sms-theme: mat.define-light-theme((
+  color: (
+    primary: $sms-primary,
+    accent:  $sms-accent,
+    warn:    $sms-warn,
+  ),
+  typography: mat.define-typography-config(
+    $font-family: 'Roboto, sans-serif',
+  ),
+  density: 0,
+));
+
+@include mat.all-component-themes($sms-theme);
+
+// ── Global reset ──────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height:  100%;
+  margin:  0;
+  padding: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}

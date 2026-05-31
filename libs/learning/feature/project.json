@@ -1,0 +1,7 @@
+{
+  "name": "learning-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/learning/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:learning"]
+}
