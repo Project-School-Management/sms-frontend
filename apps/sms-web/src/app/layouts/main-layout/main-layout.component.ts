@@ -34,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
   selector:         'sms-main-layout',
   standalone:       true,
   changeDetection:  ChangeDetectionStrategy.OnPush,
+  styleUrl:         './main-layout.component.scss',
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive,
     MatSidenavModule, MatToolbarModule, MatIconModule,
