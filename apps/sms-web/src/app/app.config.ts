@@ -6,19 +6,20 @@ import { provideServiceWorker }                                            from 
 import { KeycloakService }                                                 from 'keycloak-angular';
 
 import { APP_ROUTES }       from './app.routes';
-import { authInterceptor }   from '@sms/shared/auth';
 import { tenantInterceptor } from '@sms/shared/auth';
 import { errorInterceptor }  from '@sms/shared/auth';
+import { authInterceptor }   from '@sms/shared/auth';
 import { AuthService }       from '@sms/shared/auth';
+import { environment }       from '../environments/environment';
 
 // ── Keycloak initializer ──────────────────────────────────────────────────────
 function initKeycloak(keycloak: KeycloakService, authService: AuthService) {
   return async (): Promise<void> => {
     const authenticated = await keycloak.init({
       config: {
-        url:      'http://localhost:8180',
-        realm:    'sms',
-        clientId: 'sms-frontend',
+        url:      environment.keycloakUrl,
+        realm:    environment.keycloakRealm,
+        clientId: environment.keycloakClient,
       },
       initOptions: {
         onLoad:             'login-required',
@@ -34,40 +35,39 @@ function initKeycloak(keycloak: KeycloakService, authService: AuthService) {
   };
 }
 
+// ── Providers communs (toujours chargés) ─────────────────────────────────────
+const commonProviders = [
+  provideZoneChangeDetection({ eventCoalescing: true }),
+  provideRouter(
+    APP_ROUTES,
+    withComponentInputBinding(),
+    withViewTransitions(),
+  ),
+  provideAnimationsAsync(),
+  provideServiceWorker('ngsw-worker.js', {
+    enabled: false,
+    registrationStrategy: 'registerWhenStable:30000',
+  }),
+];
+
 // ── App config ───────────────────────────────────────────────────────────────
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
-
-    // Router
-    provideRouter(
-      APP_ROUTES,
-      withComponentInputBinding(),
-      withViewTransitions(),
-    ),
-
-    // HTTP + interceptors
-    // NOTE : pas de provideStore — Signal Stores only (@ngrx/signals)
-    provideHttpClient(
-      withInterceptors([authInterceptor, tenantInterceptor, errorInterceptor]),
-    ),
-
-    // Animations (Material)
-    provideAnimationsAsync(),
-
-    // Service Worker (Sprint 10)
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: false, // activé en production config
-      registrationStrategy: 'registerWhenStable:30000',
-    }),
-
-    // Keycloak
-    KeycloakService,
-    {
-      provide:    APP_INITIALIZER,
-      useFactory: initKeycloak,
-      deps:       [KeycloakService, AuthService],
-      multi:      true,
-    },
-  ],
+  providers: environment.skipKeycloak
+    // ── MODE DEV : pas de Keycloak, pas d'intercepteur Bearer ────────────────
+    ? [
+        ...commonProviders,
+        provideHttpClient(withInterceptors([tenantInterceptor, errorInterceptor])),
+      ]
+    // ── MODE PROD : Keycloak + bearer interceptor ─────────────────────────────
+    : [
+        ...commonProviders,
+        provideHttpClient(withInterceptors([authInterceptor, tenantInterceptor, errorInterceptor])),
+        KeycloakService,
+        {
+          provide:    APP_INITIALIZER,
+          useFactory: initKeycloak,
+          deps:       [KeycloakService, AuthService],
+          multi:      true,
+        },
+      ],
 };

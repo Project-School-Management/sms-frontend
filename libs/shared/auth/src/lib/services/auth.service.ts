@@ -7,17 +7,20 @@ import { AuthStore }     from '../store/auth.store';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly keycloak  = inject(KeycloakService);
+  // optional: true → null en mode dev (skipKeycloak), instance réelle en prod
+  private readonly keycloak  = inject(KeycloakService, { optional: true });
   private readonly authStore = inject(AuthStore);
 
   /** Met à jour le token (30s de marge) et retourne le Bearer */
   async getToken(): Promise<string> {
+    if (!this.keycloak) return '';
     await this.keycloak.updateToken(30);
     return this.keycloak.getKeycloakInstance().token!;
   }
 
   /** Parse le token JWT et alimente le AuthStore */
   loadUserProfile(): void {
+    if (!this.keycloak) return;
     const kc          = this.keycloak.getKeycloakInstance();
     const tokenParsed = kc.tokenParsed;
 
@@ -41,7 +44,9 @@ export class AuthService {
 
   async logout(): Promise<void> {
     this.authStore.clearCurrentUser();
-    await this.keycloak.logout(window.location.origin);
+    if (this.keycloak) {
+      await this.keycloak.logout(window.location.origin);
+    }
   }
 
   // ── private ────────────────────────────────────────────────────────────────
