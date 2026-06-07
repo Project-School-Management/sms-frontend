@@ -6,55 +6,74 @@ import {
   StatutFacture
 } from '@sms/shared/models';
 
-// ── Mock data ─────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function fac(
+  n: number, studentId: number, montantTotal: number, montantPaye: number,
+  statut: StatutFacture, dateEcheance: string, createdDate: string
+): IFacture {
+  const num = String(n).padStart(4, '0');
+  const solde = montantTotal - montantPaye;
+  return {
+    publicId: `fac-${num}`,
+    numero: `FAC-2025-${num}`,
+    studentId, anneeAcademiqueId: 1,
+    montantTotal, montantPaye, solde, statut,
+    dateEcheance, createdDate,
+    echeancier: [],
+  };
+}
 
+// ── Mock data ─────────────────────────────────────────────────────────────────
 const MOCK_FACTURES: IFacture[] = [
-  {
-    publicId: 'fac-001', numero: 'FAC-2025-0001', studentId: 1, anneeAcademiqueId: 1,
-    montantTotal: 750000, montantPaye: 500000, solde: 250000, statut: 'PARTIELLEMENT_PAYEE',
-    dateEcheance: '2026-03-31', createdDate: '2026-01-15',
-    echeancier: [
-      { publicId: 'ech-001', numero: 1, montantDu: 250000, dateEcheance: '2026-01-31', datePaiement: '2026-01-28', estPaye: true },
-      { publicId: 'ech-002', numero: 2, montantDu: 250000, dateEcheance: '2026-02-28', datePaiement: '2026-02-25', estPaye: true },
-      { publicId: 'ech-003', numero: 3, montantDu: 250000, dateEcheance: '2026-03-31', estPaye: false },
-    ],
-  },
-  {
-    publicId: 'fac-002', numero: 'FAC-2025-0002', studentId: 2, anneeAcademiqueId: 1,
-    montantTotal: 750000, montantPaye: 0, solde: 750000, statut: 'EN_RETARD',
-    dateEcheance: '2026-02-28', createdDate: '2026-01-15',
-    echeancier: [
-      { publicId: 'ech-004', numero: 1, montantDu: 250000, dateEcheance: '2026-01-31', estPaye: false },
-      { publicId: 'ech-005', numero: 2, montantDu: 250000, dateEcheance: '2026-02-28', estPaye: false },
-      { publicId: 'ech-006', numero: 3, montantDu: 250000, dateEcheance: '2026-03-31', estPaye: false },
-    ],
-  },
-  {
-    publicId: 'fac-003', numero: 'FAC-2025-0003', studentId: 3, anneeAcademiqueId: 1,
-    montantTotal: 750000, montantPaye: 750000, solde: 0, statut: 'PAYEE',
-    dateEcheance: '2026-03-31', createdDate: '2026-01-15',
-    echeancier: [
-      { publicId: 'ech-007', numero: 1, montantDu: 250000, dateEcheance: '2026-01-31', datePaiement: '2026-01-20', estPaye: true },
-      { publicId: 'ech-008', numero: 2, montantDu: 250000, dateEcheance: '2026-02-28', datePaiement: '2026-02-15', estPaye: true },
-      { publicId: 'ech-009', numero: 3, montantDu: 250000, dateEcheance: '2026-03-31', datePaiement: '2026-03-10', estPaye: true },
-    ],
-  },
+  fac(1,  1,  750000, 500000, 'PARTIELLEMENT_PAYEE', '2026-03-31', '2026-01-15'),
+  fac(2,  2,  750000,      0, 'EN_RETARD',           '2026-02-28', '2026-01-15'),
+  fac(3,  3,  750000, 750000, 'PAYEE',               '2026-03-31', '2026-01-15'),
+  fac(4,  4,  600000,      0, 'EMISE',               '2026-04-30', '2026-02-01'),
+  fac(5,  5,  450000, 450000, 'PAYEE',               '2026-03-15', '2026-01-20'),
+  fac(6,  6,  750000, 250000, 'PARTIELLEMENT_PAYEE', '2026-04-30', '2026-02-01'),
+  fac(7,  7,  600000,      0, 'EN_RETARD',           '2026-01-31', '2026-01-10'),
+  fac(8,  8,  750000, 750000, 'PAYEE',               '2026-03-31', '2026-01-12'),
+  fac(9,  9,  450000,      0, 'EMISE',               '2026-05-31', '2026-02-15'),
+  fac(10, 10, 750000,      0, 'EN_RETARD',           '2026-02-15', '2026-01-15'),
+  fac(11, 11, 600000, 600000, 'PAYEE',               '2026-03-31', '2026-01-18'),
+  fac(12, 12, 750000, 375000, 'PARTIELLEMENT_PAYEE', '2026-04-30', '2026-02-01'),
+  fac(13, 13, 450000,      0, 'EN_RETARD',           '2026-01-31', '2026-01-08'),
+  fac(14, 14, 750000, 750000, 'PAYEE',               '2026-03-31', '2026-01-15'),
+  fac(15, 15, 600000,      0, 'ANNULEE',             '2026-04-30', '2026-01-20'),
+  fac(16, 16, 750000, 500000, 'PARTIELLEMENT_PAYEE', '2026-05-31', '2026-02-05'),
+  fac(17, 17, 450000, 450000, 'PAYEE',               '2026-03-15', '2026-01-25'),
+  fac(18, 18, 750000,      0, 'EN_RETARD',           '2026-02-01', '2026-01-10'),
+  fac(19, 19, 600000,      0, 'EMISE',               '2026-06-30', '2026-03-01'),
+  fac(20, 20, 750000, 250000, 'PARTIELLEMENT_PAYEE', '2026-04-30', '2026-02-10'),
 ];
 
+// Attach student names for display
+const STUDENT_NAMES: Record<number, string> = {
+  1: 'Awa Diallo', 2: 'Kofi Mensah', 3: 'Fatou Traoré', 4: 'Moussa Coulibaly',
+  5: 'Aminata Koné', 6: 'Ibrahima Bah', 7: 'Mariam Sanogo', 8: 'Seydou Ouedraogo',
+  9: 'Kadiatou Camara', 10: 'Ousmane Diakité', 11: 'Rokhaya Ndiaye', 12: 'Bakary Kouyaté',
+  13: 'Bintou Keita', 14: 'Aliou Barry', 15: 'Ndeye Faye', 16: 'Lamine Sow',
+  17: 'Aïssatou Baldé', 18: 'Mamadou Sall', 19: 'Oumou Dramé', 20: 'Cheikh Mbaye',
+};
+
+export { STUDENT_NAMES };
+
 const MOCK_PAIEMENTS: IPaiement[] = [
-  { publicId: 'pay-001', facturePublicId: 'fac-001', montant: 250000, operateur: 'WAVE', telephone: '+2250712345678', referenceExterne: 'WAVE-2026-001', statut: 'CONFIRME', createdDate: '2026-01-28' },
-  { publicId: 'pay-002', facturePublicId: 'fac-001', montant: 250000, operateur: 'ORANGE_MONEY', telephone: '+2250712345678', referenceExterne: 'OM-2026-002', statut: 'CONFIRME', createdDate: '2026-02-25' },
-  { publicId: 'pay-003', facturePublicId: 'fac-003', montant: 750000, operateur: 'MTN_MOMO', telephone: '+2250756789012', referenceExterne: 'MTN-2026-003', statut: 'CONFIRME', createdDate: '2026-01-20' },
+  { publicId: 'pay-001', facturePublicId: 'fac-0001', montant: 250000, operateur: 'WAVE', telephone: '+2250712345678', referenceExterne: 'WAVE-2026-001', statut: 'CONFIRME', createdDate: '2026-01-28' },
+  { publicId: 'pay-002', facturePublicId: 'fac-0001', montant: 250000, operateur: 'ORANGE_MONEY', telephone: '+2250712345678', referenceExterne: 'OM-2026-002', statut: 'CONFIRME', createdDate: '2026-02-25' },
+  { publicId: 'pay-003', facturePublicId: 'fac-0003', montant: 750000, operateur: 'MTN_MOMO', telephone: '+2250756789012', referenceExterne: 'MTN-2026-003', statut: 'CONFIRME', createdDate: '2026-01-20' },
 ];
 
 const MOCK_BOURSES: IBourse[] = [
   { publicId: 'bou-001', studentId: 1, typeBourse: 'MERITE', pourcentage: 20, anneeAcademiqueId: 1, motif: 'Mention TB au baccalauréat', createdDate: '2026-01-10' },
   { publicId: 'bou-002', studentId: 3, typeBourse: 'SOCIALE', montantDeduction: 100000, anneeAcademiqueId: 1, motif: 'Situation familiale difficile', createdDate: '2026-01-12' },
+  { publicId: 'bou-003', studentId: 5, typeBourse: 'MERITE', pourcentage: 15, anneeAcademiqueId: 1, motif: '1ère au concours d\'entrée', createdDate: '2026-01-14' },
 ];
 
 const MOCK_FRAIS: IFraisScolarite[] = [
   { publicId: 'fra-001', anneeAcademiqueId: 1, libelle: 'Frais de scolarité L3 GL', typeFrais: 'SCOLARITE', montant: 750000, dateEcheance: '2026-03-31', createdDate: '2025-10-01' },
   { publicId: 'fra-002', anneeAcademiqueId: 1, libelle: 'Frais d\'inscription', typeFrais: 'INSCRIPTION', montant: 50000, createdDate: '2025-10-01' },
+  { publicId: 'fra-003', anneeAcademiqueId: 1, libelle: 'Frais de scolarité L2 GL', typeFrais: 'SCOLARITE', montant: 600000, dateEcheance: '2026-03-31', createdDate: '2025-10-01' },
 ];
 
 // ── Service ───────────────────────────────────────────────────────────────────

@@ -1,66 +1,158 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { LearningStore } from '@sms/learning/data-access';
 
 @Component({
   selector: 'sms-cours-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
   template: `
     <div class="p-6">
+      <!-- Header -->
       <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Cours & E-learning</h1>
-        <a routerLink="/learning/examens"
-           class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">
-          Examens en ligne
-        </a>
+        <div>
+          <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Cours & E-learning</h1>
+          <p class="text-sm mt-0.5" style="color: var(--text-secondary)">Catalogue de cours et ressources pédagogiques</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a routerLink="/learning/examens"
+             class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border hover:opacity-80"
+             style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
+            <mat-icon style="font-size: 16px; height: 16px; width: 16px">quiz</mat-icon>
+            Examens
+          </a>
+          <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white" style="background: var(--accent)">
+            <mat-icon style="font-size: 18px; height: 18px; width: 18px">add</mat-icon>
+            Nouveau cours
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4 mb-6">
-        <div class="bg-white rounded-lg p-4 border border-gray-200">
-          <p class="text-sm text-gray-500">Total cours</p>
-          <p class="text-2xl font-bold text-gray-900">{{ store.nbCours() }}</p>
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-light)">
+            <mat-icon style="color: var(--accent)">menu_book</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.nbCours() }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Total cours</p>
+          </div>
         </div>
-        <div class="bg-white rounded-lg p-4 border border-gray-200">
-          <p class="text-sm text-gray-500">Publiés</p>
-          <p class="text-2xl font-bold text-green-600">{{ store.coursPublies().length }}</p>
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(22,163,74,0.1)">
+            <mat-icon style="color: #16a34a">publish</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.coursPublies().length }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Publiés</p>
+          </div>
         </div>
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(107,114,128,0.1)">
+            <mat-icon style="color: #6b7280">drafts</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ brouillonsCount() }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Brouillons</p>
+          </div>
+        </div>
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(8,145,178,0.1)">
+            <mat-icon style="color: #0891b2">quiz</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.examens().length }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Examens</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-xs font-medium" style="color: var(--text-secondary)">Filtrer :</span>
+        @for (f of matiereFilters; track f) {
+          <button (click)="matiereFilter.set(f)"
+            class="px-3 py-1 rounded-full text-xs font-medium transition-colors"
+            [style.background]="matiereFilter() === f ? 'var(--accent)' : 'var(--surface-2)'"
+            [style.color]="matiereFilter() === f ? '#fff' : 'var(--text-secondary)'"
+            [style.border]="'1px solid ' + (matiereFilter() === f ? 'var(--accent)' : 'var(--border-color)')">
+            {{ f || 'Tous' }}
+          </button>
+        }
       </div>
 
       @if (store.loading()) {
-        <div class="text-gray-500">Chargement...</div>
+        <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
+          <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
+        </div>
       } @else {
-        <div class="grid gap-4">
-          @for (cours of store.cours(); track cours.publicId) {
-            <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-shadow">
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span [class]="statutClass(cours.statut)" class="px-2 py-0.5 rounded-full text-xs font-medium">
+        <!-- Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          @for (cours of filteredCours(); track cours.publicId) {
+            <div class="sms-card flex flex-col overflow-hidden hover:opacity-90 transition-opacity">
+              <!-- Header card -->
+              <div class="px-5 py-4 border-b" style="border-color: var(--border-color)">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex-1 min-w-0">
+                    <span class="px-2 py-0.5 rounded text-xs font-medium" [ngStyle]="statutStyle(cours.statut)">
                       {{ cours.statut }}
                     </span>
-                    <span class="text-xs text-gray-400">{{ cours.matiereLibelle }}</span>
+                    <h3 class="font-semibold mt-1.5 truncate" style="color: var(--text-primary)">{{ cours.titre }}</h3>
                   </div>
-                  <h3 class="font-semibold text-gray-900">{{ cours.titre }}</h3>
-                  <p class="text-sm text-gray-500 mt-1">{{ cours.description }}</p>
-                  <p class="text-xs text-gray-400 mt-1">
-                    {{ cours.chapitres.length }} chapitre(s) · {{ cours.enseignantNom }}
-                  </p>
-                </div>
-                <div class="ml-4 text-right">
-                  <div class="w-24">
-                    <p class="text-xs text-gray-500 mb-1">Progression</p>
-                    <div class="w-full bg-gray-200 rounded-full h-1.5">
-                      <div class="bg-blue-600 h-1.5 rounded-full" [style.width.%]="cours.progression"></div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-0.5">{{ cours.progression }}%</p>
+                  <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: var(--accent-light)">
+                    <mat-icon style="color: var(--accent)">menu_book</mat-icon>
                   </div>
-                  <a [routerLink]="['/learning', cours.publicId]"
-                     class="mt-2 inline-block text-blue-600 hover:underline text-xs">Accéder</a>
                 </div>
               </div>
+              <!-- Body card -->
+              <div class="p-5 flex-1">
+                <p class="text-sm leading-relaxed" style="color: var(--text-secondary)">{{ cours.description }}</p>
+                <div class="mt-3 flex flex-wrap gap-3 text-xs" style="color: var(--text-muted)">
+                  <span class="flex items-center gap-1">
+                    <mat-icon style="font-size: 14px; height: 14px; width: 14px">category</mat-icon>
+                    {{ cours.matiereLibelle }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <mat-icon style="font-size: 14px; height: 14px; width: 14px">person</mat-icon>
+                    {{ cours.enseignantNom }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <mat-icon style="font-size: 14px; height: 14px; width: 14px">schedule</mat-icon>
+                    {{ (cours as any).dureeHeures ?? '?' }}h
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <mat-icon style="font-size: 14px; height: 14px; width: 14px">layers</mat-icon>
+                    {{ cours.chapitres.length }} chapitre(s)
+                  </span>
+                </div>
+              </div>
+              <!-- Footer card -->
+              <div class="px-5 py-3 border-t flex items-center justify-between" style="border-color: var(--border-color)">
+                <div class="flex-1 mr-3">
+                  <div class="flex items-center justify-between text-xs mb-1">
+                    <span style="color: var(--text-muted)">Progression</span>
+                    <span style="color: var(--text-secondary)">{{ cours.progression }}%</span>
+                  </div>
+                  <div class="w-full rounded-full h-1.5" style="background: var(--border-color)">
+                    <div class="h-1.5 rounded-full" style="background: var(--accent)" [style.width.%]="cours.progression"></div>
+                  </div>
+                </div>
+                <a [routerLink]="['/learning', cours.publicId]"
+                   class="px-3 py-1 rounded-lg text-xs font-medium hover:opacity-80 transition-opacity"
+                   style="background: var(--accent-light); color: var(--accent)">
+                  Accéder →
+                </a>
+              </div>
+            </div>
+          } @empty {
+            <div class="col-span-3 flex flex-col items-center justify-center py-16 gap-3">
+              <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">menu_book</mat-icon>
+              <p style="color: var(--text-secondary)">Aucun cours trouvé</p>
             </div>
           }
         </div>
@@ -70,17 +162,28 @@ import { LearningStore } from '@sms/learning/data-access';
 })
 export class CoursListComponent implements OnInit {
   readonly store = inject(LearningStore);
+  readonly matiereFilter = signal('');
+
+  readonly matiereFilters = ['', 'Algorithmique', 'Base de données', 'Réseaux', 'Mathématiques', 'Sécurité'];
+
+  readonly brouillonsCount = computed(() => this.store.cours().filter(c => c.statut === 'BROUILLON').length);
+
+  readonly filteredCours = computed(() => {
+    const f = this.matiereFilter();
+    return f ? this.store.cours().filter(c => c.matiereLibelle === f) : this.store.cours();
+  });
 
   ngOnInit() {
     this.store.loadCours({});
+    this.store.loadExamens();
   }
 
-  statutClass(statut: string): string {
-    const map: Record<string, string> = {
-      PUBLIE:   'bg-green-100 text-green-700',
-      BROUILLON:'bg-gray-100 text-gray-600',
-      ARCHIVE:  'bg-red-100 text-red-600',
+  statutStyle(statut: string): Record<string, string> {
+    const map: Record<string, Record<string, string>> = {
+      PUBLIE:   { background: '#dcfce7', color: '#16a34a' },
+      BROUILLON:{ background: '#f3f4f6', color: '#6b7280' },
+      ARCHIVE:  { background: '#fee2e2', color: '#dc2626' },
     };
-    return map[statut] ?? 'bg-gray-100 text-gray-600';
+    return map[statut] ?? { background: '#f3f4f6', color: '#6b7280' };
   }
 }

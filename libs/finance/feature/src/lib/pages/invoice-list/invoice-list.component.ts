@@ -1,163 +1,223 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { MatTableModule }        from '@angular/material/table';
-import { MatPaginatorModule }    from '@angular/material/paginator';
-import { MatChipsModule }        from '@angular/material/chips';
-import { MatButtonModule }       from '@angular/material/button';
-import { MatIconModule }         from '@angular/material/icon';
-import { MatInputModule }        from '@angular/material/input';
-import { MatFormFieldModule }    from '@angular/material/form-field';
-import { MatSelectModule }       from '@angular/material/select';
+import { Component, inject, OnInit, ChangeDetectionStrategy, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { RouterLink }            from '@angular/router';
-import { FormsModule }           from '@angular/forms';
 
-import { IFacture, StatutFacture }  from '@sms/shared/models';
-import { FinanceStore }             from '@sms/finance/data-access';
-import { PaymentDialogComponent }   from '../../components/payment-dialog/payment-dialog.component';
+import { IFacture, StatutFacture } from '@sms/shared/models';
+import { FinanceStore } from '@sms/finance/data-access';
+import { PaymentDialogComponent } from '../../components/payment-dialog/payment-dialog.component';
+
+const STUDENT_NAMES: Record<number, string> = {
+  1: 'Awa Diallo', 2: 'Kofi Mensah', 3: 'Fatou Traoré', 4: 'Moussa Coulibaly',
+  5: 'Aminata Koné', 6: 'Ibrahima Bah', 7: 'Mariam Sanogo', 8: 'Seydou Ouedraogo',
+  9: 'Kadiatou Camara', 10: 'Ousmane Diakité', 11: 'Rokhaya Ndiaye', 12: 'Bakary Kouyaté',
+  13: 'Bintou Keita', 14: 'Aliou Barry', 15: 'Ndeye Faye', 16: 'Lamine Sow',
+  17: 'Aïssatou Baldé', 18: 'Mamadou Sall', 19: 'Oumou Dramé', 20: 'Cheikh Mbaye',
+};
 
 @Component({
   selector: 'sms-invoice-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule, CurrencyPipe, DatePipe, FormsModule,
-    MatTableModule, MatPaginatorModule, MatChipsModule, MatButtonModule,
-    MatIconModule, MatInputModule, MatFormFieldModule, MatSelectModule,
-    MatDialogModule, RouterLink,
-  ],
+  imports: [CommonModule, RouterLink, FormsModule, MatIconModule, MatDialogModule],
   template: `
-    <div class="page-header">
-      <h1>Factures</h1>
-      <div class="filters">
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>Statut</mat-label>
-          <mat-select [(ngModel)]="filtreStatut" (ngModelChange)="applyFilter()">
-            <mat-option value="">Tous</mat-option>
-            <mat-option value="EMISE">Émises</mat-option>
-            <mat-option value="PARTIELLEMENT_PAYEE">Partiellement payées</mat-option>
-            <mat-option value="PAYEE">Payées</mat-option>
-            <mat-option value="EN_RETARD">En retard</mat-option>
-            <mat-option value="ANNULEE">Annulées</mat-option>
-          </mat-select>
-        </mat-form-field>
+    <div class="p-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Factures</h1>
+          <p class="text-sm mt-0.5" style="color: var(--text-secondary)">Gestion des factures et paiements étudiants</p>
+        </div>
+        <a routerLink="/finance"
+           class="flex items-center gap-1 text-sm hover:opacity-80" style="color: var(--text-secondary)">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px">arrow_back</mat-icon>
+          Tableau de bord Finance
+        </a>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-light)">
+            <mat-icon style="color: var(--accent)">receipt_long</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.factures().length }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Total factures</p>
+          </div>
+        </div>
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(22,163,74,0.1)">
+            <mat-icon style="color: #16a34a">check_circle</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ payeesCount() }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Payées</p>
+          </div>
+        </div>
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(239,68,68,0.1)">
+            <mat-icon style="color: #dc2626">warning</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.facturesEnRetard().length }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">En retard</p>
+          </div>
+        </div>
+        <div class="sms-card p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(217,119,6,0.1)">
+            <mat-icon style="color: #d97706">hourglass_top</mat-icon>
+          </div>
+          <div>
+            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ partiellesCount() }}</p>
+            <p class="text-sm" style="color: var(--text-secondary)">Partielles</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="sms-card overflow-hidden">
+        <div class="px-5 py-4 border-b flex flex-wrap items-center gap-3" style="border-color: var(--border-color)">
+          <h3 class="font-semibold flex-1" style="color: var(--text-primary)">Liste des factures</h3>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="relative">
+              <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size: 16px; height: 16px; width: 16px; color: var(--text-muted)">search</mat-icon>
+              <input
+                type="search" [(ngModel)]="searchQuery"
+                placeholder="Numéro de facture..."
+                class="pl-8 pr-3 py-1.5 rounded-lg border text-sm focus:outline-none"
+                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary); width: 200px" />
+            </div>
+            <select [(ngModel)]="filtreStatut"
+              class="px-3 py-1.5 rounded-lg border text-sm"
+              style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+              <option value="">Tous les statuts</option>
+              <option value="EMISE">Émise</option>
+              <option value="PARTIELLEMENT_PAYEE">Partielle</option>
+              <option value="PAYEE">Payée</option>
+              <option value="EN_RETARD">En retard</option>
+              <option value="ANNULEE">Annulée</option>
+            </select>
+          </div>
+        </div>
+
+        @if (store.loading()) {
+          <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
+            <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
+          </div>
+        } @else if (facturesFiltrees().length === 0) {
+          <div class="flex flex-col items-center justify-center py-16 gap-3">
+            <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">receipt_long</mat-icon>
+            <p style="color: var(--text-secondary)">Aucune facture trouvée</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr style="background: var(--surface-2)">
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Numéro</th>
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Étudiant</th>
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Montant</th>
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Payé</th>
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Solde</th>
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Statut</th>
+                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Échéance</th>
+                  <th class="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of facturesFiltrees(); track f.publicId) {
+                  <tr class="border-t hover:opacity-80 transition-opacity" style="border-color: var(--border-color)">
+                    <td class="px-4 py-3">
+                      <a [routerLink]="['/finance/invoices', f.publicId]" class="font-mono text-xs font-medium hover:underline" style="color: var(--accent)">
+                        {{ f.numero }}
+                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--text-primary)">{{ studentName(f.studentId) }}</td>
+                    <td class="px-4 py-3 text-sm font-medium" style="color: var(--text-primary)">{{ formatXOF(f.montantTotal) }}</td>
+                    <td class="px-4 py-3 text-sm" style="color: #16a34a">{{ formatXOF(f.montantPaye) }}</td>
+                    <td class="px-4 py-3 text-sm font-semibold" [style.color]="f.solde > 0 ? '#dc2626' : '#16a34a'">
+                      {{ formatXOF(f.solde) }}
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold" [ngStyle]="statutStyle(f.statut)">
+                        {{ statutLabel(f.statut) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">
+                      {{ f.dateEcheance ? (f.dateEcheance | date:'dd/MM/yyyy') : '—' }}
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      @if (f.statut !== 'PAYEE' && f.statut !== 'ANNULEE') {
+                        <button (click)="openPaymentDialog(f)"
+                          class="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium hover:opacity-80 transition-opacity"
+                          style="background: rgba(22,163,74,0.1); color: #16a34a">
+                          <mat-icon style="font-size: 14px; height: 14px; width: 14px">payment</mat-icon>
+                          Payer
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
     </div>
-
-    @if (store.loading()) {
-      <div class="loading-state">Chargement...</div>
-    } @else if (facturesFiltrees.length === 0) {
-      <div class="empty-state">
-        <mat-icon>receipt_long</mat-icon>
-        <p>Aucune facture trouvée</p>
-      </div>
-    } @else {
-      <mat-table [dataSource]="facturesFiltrees" class="invoice-table">
-        <ng-container matColumnDef="numero">
-          <mat-header-cell *matHeaderCellDef>Numéro</mat-header-cell>
-          <mat-cell *matCellDef="let f">
-            <a [routerLink]="['/finance/invoices', f.publicId]" class="link">{{ f.numero }}</a>
-          </mat-cell>
-        </ng-container>
-
-        <ng-container matColumnDef="montantTotal">
-          <mat-header-cell *matHeaderCellDef>Montant</mat-header-cell>
-          <mat-cell *matCellDef="let f">
-            {{ f.montantTotal | currency:'XOF':'symbol':'1.0-0':'fr' }}
-          </mat-cell>
-        </ng-container>
-
-        <ng-container matColumnDef="solde">
-          <mat-header-cell *matHeaderCellDef>Solde</mat-header-cell>
-          <mat-cell *matCellDef="let f" [class.solde-zero]="f.solde === 0">
-            {{ f.solde | currency:'XOF':'symbol':'1.0-0':'fr' }}
-          </mat-cell>
-        </ng-container>
-
-        <ng-container matColumnDef="statut">
-          <mat-header-cell *matHeaderCellDef>Statut</mat-header-cell>
-          <mat-cell *matCellDef="let f">
-            <mat-chip [class]="'chip-' + f.statut.toLowerCase()">
-              {{ statutLabel(f.statut) }}
-            </mat-chip>
-          </mat-cell>
-        </ng-container>
-
-        <ng-container matColumnDef="dateEcheance">
-          <mat-header-cell *matHeaderCellDef>Échéance</mat-header-cell>
-          <mat-cell *matCellDef="let f">
-            {{ f.dateEcheance ? (f.dateEcheance | date:'dd/MM/yyyy') : '—' }}
-          </mat-cell>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-          <mat-header-cell *matHeaderCellDef></mat-header-cell>
-          <mat-cell *matCellDef="let f">
-            @if (f.statut !== 'PAYEE' && f.statut !== 'ANNULEE') {
-              <button mat-icon-button color="primary" (click)="openPaymentDialog(f)"
-                      matTooltip="Payer">
-                <mat-icon>payment</mat-icon>
-              </button>
-            }
-          </mat-cell>
-        </ng-container>
-
-        <mat-header-row *matHeaderRowDef="columns"/>
-        <mat-row *matRowDef="let row; columns: columns"/>
-      </mat-table>
-    }
   `,
-  styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    .empty-state { text-align: center; padding: 48px; color: rgba(0,0,0,.5); }
-    .empty-state mat-icon { font-size: 48px; height: 48px; width: 48px; }
-    .loading-state { padding: 24px; text-align: center; }
-    .link { color: #1976d2; text-decoration: none; font-weight: 500; }
-    .link:hover { text-decoration: underline; }
-    .solde-zero { color: #388e3c; font-weight: 600; }
-    .chip-payee { background: #e8f5e9 !important; color: #2e7d32 !important; }
-    .chip-emise { background: #e3f2fd !important; color: #1565c0 !important; }
-    .chip-en_retard { background: #ffebee !important; color: #c62828 !important; }
-    .chip-partiellement_payee { background: #fff3e0 !important; color: #e65100 !important; }
-    .chip-annulee { background: #f5f5f5 !important; color: rgba(0,0,0,.4) !important; }
-    .invoice-table { width: 100%; }
-  `],
 })
 export class InvoiceListComponent implements OnInit {
   protected readonly store = inject(FinanceStore);
   private readonly dialog = inject(MatDialog);
 
-  columns = ['numero', 'montantTotal', 'solde', 'statut', 'dateEcheance', 'actions'];
   filtreStatut = '';
+  searchQuery = '';
 
-  get facturesFiltrees(): IFacture[] {
-    const all = this.store.factures();
-    if (!this.filtreStatut) return all;
-    return all.filter(f => f.statut === this.filtreStatut);
-  }
+  readonly payeesCount    = computed(() => this.store.factures().filter(f => f.statut === 'PAYEE').length);
+  readonly partiellesCount = computed(() => this.store.factures().filter(f => f.statut === 'PARTIELLEMENT_PAYEE').length);
+
+  readonly facturesFiltrees = computed(() => {
+    let all = this.store.factures();
+    if (this.filtreStatut) all = all.filter(f => f.statut === this.filtreStatut);
+    if (this.searchQuery)  all = all.filter(f => f.numero.toLowerCase().includes(this.searchQuery.toLowerCase()));
+    return all;
+  });
 
   ngOnInit() {
     this.store.loadFactures(0);
   }
 
-  applyFilter(): void { /* filtre appliqué via getter facturesFiltrees */ }
+  studentName(id: number): string {
+    return STUDENT_NAMES[id] ?? `Étudiant #${id}`;
+  }
+
+  formatXOF(amount: number): string {
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount) + ' XOF';
+  }
 
   statutLabel(statut: StatutFacture): string {
     const labels: Record<StatutFacture, string> = {
-      BROUILLON:          'Brouillon',
-      EMISE:              'Émise',
-      PARTIELLEMENT_PAYEE:'Partiel',
-      PAYEE:              'Payée',
-      EN_RETARD:          'En retard',
-      ANNULEE:            'Annulée',
+      BROUILLON: 'Brouillon', EMISE: 'Émise', PARTIELLEMENT_PAYEE: 'Partielle',
+      PAYEE: 'Payée', EN_RETARD: 'En retard', ANNULEE: 'Annulée',
     };
     return labels[statut] ?? statut;
   }
 
+  statutStyle(statut: string): Record<string, string> {
+    const map: Record<string, Record<string, string>> = {
+      PAYEE:              { background: '#dcfce7', color: '#16a34a' },
+      EMISE:              { background: '#dbeafe', color: '#2563eb' },
+      EN_RETARD:          { background: '#fee2e2', color: '#dc2626' },
+      PARTIELLEMENT_PAYEE:{ background: '#fef3c7', color: '#d97706' },
+      ANNULEE:            { background: '#f3f4f6', color: '#6b7280' },
+    };
+    return map[statut] ?? { background: '#f3f4f6', color: '#6b7280' };
+  }
+
   openPaymentDialog(facture: IFacture): void {
-    this.dialog.open(PaymentDialogComponent, {
-      width: '500px',
-      data: { facture },
-    });
+    this.dialog.open(PaymentDialogComponent, { width: '500px', data: { facture } });
   }
 }
