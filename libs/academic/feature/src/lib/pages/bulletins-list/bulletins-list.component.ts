@@ -110,7 +110,7 @@ import { AcademicStore } from '@sms/academic/data-access';
                     <span class="font-bold text-sm" [style.color]="moyenneColor(b.moyenne)">{{ b.moyenne }}/20</span>
                   </td>
                   <td class="px-4 py-3 text-sm font-medium" style="color: var(--text-secondary)">{{ b.rang }}{{ b.rang === 1 ? 'er' : 'ème' }}</td>
-                  <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ (b as any).mention ?? '—' }}</td>
+                  <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ b.mention ?? '—' }}</td>
                   <td class="px-4 py-3">
                     <span class="px-2 py-0.5 rounded-full text-xs font-semibold" [ngStyle]="statutStyle(b.statut)">
                       {{ b.statut }}

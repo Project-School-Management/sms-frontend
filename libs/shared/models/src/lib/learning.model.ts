@@ -1,7 +1,8 @@
-export type StatutCours = 'BROUILLON' | 'PUBLIE' | 'ARCHIVE';
-export type TypeQuestion = 'QCM' | 'VRAI_FAUX' | 'REPONSE_COURTE' | 'REPONSE_LONGUE';
+export type StatutCours   = 'BROUILLON' | 'PUBLIE' | 'ARCHIVE';
+export type StatutExamen  = 'A_VENIR' | 'EN_COURS' | 'TERMINE';
+export type TypeQuestion  = 'QCM' | 'VRAI_FAUX' | 'REPONSE_COURTE' | 'REPONSE_LONGUE';
 export type StatutSession = 'EN_COURS' | 'SOUMIS' | 'EXPIRE' | 'CORRIGE';
-export type TypeRessource = 'PDF' | 'VIDEO' | 'LIEN' | 'IMAGE';
+export type TypeRessource = 'PDF' | 'VIDEO' | 'LIEN' | 'IMAGE' | 'ZIP' | 'AUDIO' | 'EXERCICE';
 
 export interface IRessource {
   publicId:  string;
@@ -31,6 +32,8 @@ export interface ICours {
   chapitres:         IChapitre[];
   progression:       number;
   createdDate:       string;
+  dureeHeures?:      number;
+  niveauLibelle?:    string;
 }
 
 export interface IQuestion {
@@ -51,6 +54,10 @@ export interface IExamen {
   dateDebut:         string;
   dateFin:           string;
   questions:         IQuestion[];
+  statut:            StatutExamen;
+  sallePublicId?:    string;
+  salleLibelle?:     string;
+  niveauLibelle?:    string;
 }
 
 export interface IExamSession {

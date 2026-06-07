@@ -40,7 +40,7 @@ type NotifFilter = 'all' | 'unread' | 'read';
 
       <!-- Filters -->
       <div class="flex gap-2 mb-4">
-        @for (f of filters; track f.key) {
+        @for (f of filters(); track f.key) {
           <button (click)="activeFilter.set(f.key)"
             class="px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
             [style.background]="activeFilter() === f.key ? 'var(--accent)' : 'var(--surface-2)'"

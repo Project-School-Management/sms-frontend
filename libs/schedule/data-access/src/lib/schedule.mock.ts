@@ -5,7 +5,7 @@ export const MOCK_SALLES: ISalle[] = [
   { publicId: 'sal-002', code: 'B12', libelle: 'Salle TD B12', capacite: 35, type: 'TD' },
   { publicId: 'sal-003', code: 'LABO-1', libelle: 'Labo Informatique 1', capacite: 25, type: 'LABO' },
   { publicId: 'sal-004', code: 'TP-2', libelle: 'Salle TP 2', capacite: 20, type: 'TP' },
-  { publicId: 'sal-005', code: 'C201', libelle: 'Salle de Cours C201', capacite: 50, type: 'CM' },
+  { publicId: 'sal-005', code: 'C201', libelle: 'Salle de Cours C201', capacite: 50, type: 'TD' },
 ];
 
 export const MOCK_TIME_SLOTS: ITimeSlot[] = [

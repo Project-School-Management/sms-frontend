@@ -1,5 +1,17 @@
 export type StatutRapport = 'EN_COURS' | 'TERMINE' | 'ERREUR';
-export type TypeRapport = 'BULLETIN_PROMOTION' | 'RELEVE_NOTES' | 'RAPPORT_FINANCIER' | 'EFFECTIFS';
+export type TypeRapport =
+  | 'BULLETIN_PROMOTION'
+  | 'RELEVE_NOTES'
+  | 'RAPPORT_FINANCIER'
+  | 'EFFECTIFS'
+  | 'STATISTIQUES_GLOBALES'
+  | 'RESULTATS_EXAMENS'
+  | 'PRESENCES'
+  | 'RAPPORT_SCOLARITE'
+  | 'RECOUVREMENT'
+  | 'NOTES_PROMOTION'
+  | 'ABSENCES'
+  | 'EMPLOI_DU_TEMPS';
 export type FormatRapport = 'PDF' | 'EXCEL';
 
 export interface IKpiOverview {

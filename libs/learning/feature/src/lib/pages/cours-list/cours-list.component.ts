@@ -123,7 +123,7 @@ import { LearningStore } from '@sms/learning/data-access';
                   </span>
                   <span class="flex items-center gap-1">
                     <mat-icon style="font-size: 14px; height: 14px; width: 14px">schedule</mat-icon>
-                    {{ (cours as any).dureeHeures ?? '?' }}h
+                    {{ cours.dureeHeures ?? '?' }}h
                   </span>
                   <span class="flex items-center gap-1">
                     <mat-icon style="font-size: 14px; height: 14px; width: 14px">layers</mat-icon>

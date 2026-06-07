@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { AuthStore }   from '@sms/shared/auth';
 import { AuthService } from '@sms/shared/auth';
+// (PageLoaderComponent is already mounted in AppComponent — no need to duplicate here)
 import { Role }        from '@sms/shared/models';
 
 // ── Types ─────────────────────────────────────────────────────────────────────

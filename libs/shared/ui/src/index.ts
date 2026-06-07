@@ -1,3 +1,12 @@
 // Public API — @sms/shared/ui
-// buttons · dialogs · tables · cards · inputs · chips · badges
-// Interdiction : aucun appel API, aucune dépendance vers */data-access
+// Loading system · Skeletons · Shared UI components
+
+export { LoadingService }          from './lib/loading.service';
+export { NavigationLoaderService } from './lib/navigation-loader.service';
+export { PageLoaderComponent }     from './lib/page-loader.component';
+export { loadingInterceptor }      from './lib/loading.interceptor';
+export {
+  SkeletonComponent,
+  SkeletonCardComponent,
+  SkeletonTableComponent,
+} from './lib/skeleton.component';

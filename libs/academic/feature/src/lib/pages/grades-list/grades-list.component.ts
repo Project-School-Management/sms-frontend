@@ -132,13 +132,13 @@ import { AcademicStore } from '@sms/academic/data-access';
                         <span class="font-bold text-sm" [style.color]="noteColor(note.valeur)">{{ note.valeur }}/20</span>
                       }
                     </td>
-                    <td class="px-4 py-3 text-sm" style="color: var(--text-secondary)">{{ (note as any).coefficient ?? 1 }}</td>
+                    <td class="px-4 py-3 text-sm" style="color: var(--text-secondary)">{{ note.coefficient ?? 1 }}</td>
                     <td class="px-4 py-3">
                       <span class="px-2 py-0.5 rounded-full text-xs font-semibold" [ngStyle]="statutStyle(note.statut)">
                         {{ note.statut }}
                       </span>
                     </td>
-                    <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ (note as any).enseignantNom ?? '—' }}</td>
+                    <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ note.enseignantNom ?? '—' }}</td>
                     <td class="px-4 py-3 text-xs" style="color: var(--text-muted)">{{ note.createdDate | date:'dd/MM/yyyy' }}</td>
                   </tr>
                 } @empty {

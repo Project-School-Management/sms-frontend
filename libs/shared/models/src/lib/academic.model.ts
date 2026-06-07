@@ -30,7 +30,12 @@ export interface INote {
   statut:           StatutNote;
   evaluationPublicId?: string;
   createdDate:      string;
+  coefficient?:     number;
+  enseignantNom?:   string;
+  studentNom?:      string;
 }
+
+export type MentionBulletin = 'Très Bien' | 'Bien' | 'Assez Bien' | 'Passable' | 'Insuffisant';
 
 export interface IBulletin {
   publicId:         string;
@@ -46,6 +51,7 @@ export interface IBulletin {
   pdfUrl?:          string;
   createdDate:      string;
   notes:            INote[];
+  mention?:         MentionBulletin;
 }
 
 export interface IPromotion {

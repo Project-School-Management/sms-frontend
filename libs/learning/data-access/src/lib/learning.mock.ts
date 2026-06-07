@@ -196,7 +196,7 @@ export const MOCK_EXAMENS: IExamen[] = [
     dateDebut: '2026-06-05T08:00:00', dateFin: '2026-06-05T10:00:00',
     statut: 'TERMINE',
     questions: [
-      { publicId: 'q-007', enonce: 'Calculer la dérivée de f(x) = x³ + 2x² - 5x + 1', type: 'REDACTION', options: [], bonnesReponses: ['3x² + 4x - 5'], points: 5 },
+      { publicId: 'q-007', enonce: 'Calculer la dérivée de f(x) = x³ + 2x² - 5x + 1', type: 'REPONSE_LONGUE', options: [], bonnesReponses: ['3x² + 4x - 5'], points: 5 },
     ],
   },
   {
@@ -207,7 +207,7 @@ export const MOCK_EXAMENS: IExamen[] = [
     dateDebut: '2026-06-20T09:00:00', dateFin: '2026-06-20T12:00:00',
     statut: 'A_VENIR',
     questions: [
-      { publicId: 'q-008', enonce: 'Qu\'est-ce qu\'une attaque de type Man-in-the-Middle ?', type: 'REDACTION', options: [], bonnesReponses: [], points: 5 },
+      { publicId: 'q-008', enonce: 'Qu\'est-ce qu\'une attaque de type Man-in-the-Middle ?', type: 'REPONSE_LONGUE', options: [], bonnesReponses: [], points: 5 },
       { publicId: 'q-009', enonce: 'RSA est un algorithme à clé symétrique.', type: 'VRAI_FAUX', options: ['Vrai', 'Faux'], bonnesReponses: ['Faux'], points: 2 },
     ],
   },

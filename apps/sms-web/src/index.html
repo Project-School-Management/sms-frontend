@@ -19,6 +19,70 @@
     />
   </head>
   <body class="mat-typography">
+
+    <!-- ── App Splash Screen ──────────────────────────────────────────────── -->
+    <!-- Displayed before Angular bootstraps. AppComponent removes it. -->
+    <div id="sms-splash" aria-hidden="true">
+      <div class="sms-splash__brand">
+        <div class="sms-splash__logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3L1 9l4 2.18V17h14v-5.82L21 9zm6 12H6v-4.63L12 13.5l6-3.13V15z"/>
+          </svg>
+        </div>
+        <span class="sms-splash__name">SchoolMS</span>
+      </div>
+      <div class="sms-splash__spinner" role="progressbar" aria-label="Chargement"></div>
+      <p class="sms-splash__text">Chargement de l'application…</p>
+    </div>
+
+    <style>
+      #sms-splash {
+        position: fixed; inset: 0; z-index: 999999;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 24px;
+        background: #f1f5f9;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        transition: opacity 0.45s ease, visibility 0.45s ease;
+      }
+      #sms-splash.sms-splash--hidden {
+        opacity: 0; visibility: hidden; pointer-events: none;
+      }
+      .sms-splash__brand {
+        display: flex; align-items: center; gap: 12px;
+      }
+      .sms-splash__logo {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: #6366f1;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+      }
+      .sms-splash__name {
+        font-size: 22px; font-weight: 700;
+        color: #0f172a; letter-spacing: -0.025em;
+      }
+      .sms-splash__spinner {
+        width: 36px; height: 36px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: sms-spin 0.75s linear infinite;
+      }
+      .sms-splash__text {
+        font-size: 13px; color: #64748b;
+        margin: 0; letter-spacing: 0.01em;
+      }
+      @keyframes sms-spin {
+        to { transform: rotate(360deg); }
+      }
+      /* Dark mode splash */
+      @media (prefers-color-scheme: dark) {
+        #sms-splash { background: #0f172a; }
+        .sms-splash__name { color: #f1f5f9; }
+        .sms-splash__spinner { border-color: #334155; border-top-color: #818cf8; }
+        .sms-splash__text { color: #94a3b8; }
+      }
+    </style>
+
     <sms-root></sms-root>
   </body>
 </html>
