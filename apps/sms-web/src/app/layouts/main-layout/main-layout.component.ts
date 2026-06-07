@@ -10,6 +10,7 @@ import { AuthStore }   from '@sms/shared/auth';
 import { AuthService } from '@sms/shared/auth';
 // (PageLoaderComponent is already mounted in AppComponent — no need to duplicate here)
 import { Role }        from '@sms/shared/models';
+import { NotificationService, NotificationPanelComponent } from '@sms/shared/ui';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface NavChild { path: string; label: string; }
@@ -153,19 +154,21 @@ const ROLE_LABELS: Partial<Record<Role, string>> = {
   templateUrl:     './main-layout.component.html',
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive, CommonModule,
-    MatIconModule, MatTooltipModule,
+    MatIconModule, MatTooltipModule, NotificationPanelComponent,
   ],
 })
 export class MainLayoutComponent {
-  protected readonly authStore   = inject(AuthStore);
-  protected readonly authService = inject(AuthService);
-  protected readonly router      = inject(Router);
+  protected readonly authStore    = inject(AuthStore);
+  protected readonly authService  = inject(AuthService);
+  protected readonly router       = inject(Router);
+  readonly notifService           = inject(NotificationService);
 
   // ── UI state ──────────────────────────────────────────────────────────────
-  protected readonly isCollapsed  = signal(false);
-  protected readonly isDarkMode   = signal(false);
-  protected readonly isMobileOpen = signal(false);
-  protected readonly expandedSet  = signal<Set<string>>(new Set());
+  protected readonly isCollapsed   = signal(false);
+  protected readonly isDarkMode    = signal(false);
+  protected readonly isMobileOpen  = signal(false);
+  protected readonly expandedSet   = signal<Set<string>>(new Set());
+  readonly notifPanelOpen          = signal(false);
 
   // ── Computed ──────────────────────────────────────────────────────────────
   protected readonly visibleGroups = computed(() => {
@@ -196,6 +199,11 @@ export class MainLayoutComponent {
   // ── Actions ───────────────────────────────────────────────────────────────
   protected toggleSidebar():   void { this.isCollapsed.update(v => !v); }
   protected closeMobileMenu(): void { this.isMobileOpen.set(false); }
+
+  protected toggleNotifPanel(event: Event): void {
+    event.stopPropagation();
+    this.notifPanelOpen.update(v => !v);
+  }
 
   protected toggleDarkMode(): void {
     this.isDarkMode.update(v => !v);

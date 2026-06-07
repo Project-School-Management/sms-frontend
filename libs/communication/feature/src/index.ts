@@ -1,1 +1,9 @@
-export { COMMUNICATION_ROUTES } from './lib/communication.routes';
+export { COMMUNICATION_ROUTES }         from './lib/communication.routes';
+export { CommunicationLayoutComponent } from './lib/communication-layout.component';
+export { InboxComponent }               from './lib/pages/inbox/inbox.component';
+export { MessageDetailComponent }       from './lib/pages/message-detail/message-detail.component';
+export { SentComponent }                from './lib/pages/sent/sent.component';
+export { DraftsComponent }              from './lib/pages/drafts/drafts.component';
+export { ComposeComponent }             from './lib/pages/compose/compose.component';
+export { BroadcastListComponent }       from './lib/pages/broadcast/broadcast-list.component';
+export { BroadcastComposeComponent }    from './lib/pages/broadcast/broadcast-compose.component';

@@ -1,10 +1,33 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { CommunicationStore } from '@sms/communication/data-access';
-import { IConversation } from '@sms/shared/models';
+
+type InboxFilter = 'all' | 'unread' | 'attachment';
+
+interface IMockConversation {
+  id: string;
+  from: string;
+  fromRole: string;
+  subject: string;
+  preview: string;
+  date: Date;
+  unread: boolean;
+  hasAttachment: boolean;
+}
+
+const MOCK_INBOX: IMockConversation[] = [
+  { id: 'msg-001', from: 'Mamadou Koné',      fromRole: 'Parent',     subject: 'Demande de certificat de scolarité', preview: 'Bonjour, je me permets de vous contacter...', date: new Date(Date.now() - 2 * 3600 * 1000),    unread: true,  hasAttachment: false },
+  { id: 'msg-002', from: 'Fatoumata Bah',      fromRole: 'Étudiante',  subject: 'Question sur les résultats du semestre 1', preview: 'Bonjour, je n\'ai pas encore reçu...', date: new Date(Date.now() - 5 * 3600 * 1000),    unread: true,  hasAttachment: false },
+  { id: 'msg-003', from: 'Ibrahim Coulibaly',  fromRole: 'Parent',     subject: 'Re: Dossier de bourse', preview: 'Merci pour les informations, je vais préparer...', date: new Date(Date.now() - 1 * 86400 * 1000),  unread: true,  hasAttachment: true  },
+  { id: 'msg-004', from: 'Aminata Traoré',     fromRole: 'Étudiante',  subject: 'Absence justifiée — semaine du 02/06', preview: 'Bonjour, veuillez trouver ci-joint...', date: new Date(Date.now() - 2 * 86400 * 1000),  unread: false, hasAttachment: true  },
+  { id: 'msg-005', from: 'Seydou Diallo',      fromRole: 'Parent',     subject: 'Inscription Licence 2 — 2025/2026', preview: 'Bonjour, mon fils Oumar voudrait s\'inscrire...', date: new Date(Date.now() - 3 * 86400 * 1000), unread: false, hasAttachment: false },
+  { id: 'msg-006', from: 'Kadiatou Bamba',     fromRole: 'Étudiante',  subject: 'Problème avec le portail étudiant', preview: 'Bonjour, je n\'arrive pas à accéder...', date: new Date(Date.now() - 4 * 86400 * 1000),  unread: false, hasAttachment: false },
+  { id: 'msg-007', from: 'Ousmane Traoré',     fromRole: 'Parent',     subject: 'Demande de rendez-vous', preview: 'Bonjour, je souhaiterais prendre rendez-vous...', date: new Date(Date.now() - 5 * 86400 * 1000),  unread: false, hasAttachment: false },
+  { id: 'msg-008', from: 'Aissatou Barry',     fromRole: 'Étudiante',  subject: 'Attestation de réussite — Licence 3', preview: 'Bonjour, pourriez-vous me délivrer...', date: new Date(Date.now() - 7 * 86400 * 1000),  unread: false, hasAttachment: false },
+];
 
 @Component({
   selector: 'sms-inbox',
@@ -12,174 +35,88 @@ import { IConversation } from '@sms/shared/models';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
   template: `
-    <div class="p-6 h-full flex flex-col">
+    <div class="p-6">
       <!-- Header -->
-      <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center justify-between mb-6">
         <div>
-          <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Messagerie</h1>
-          <p class="text-sm mt-0.5" style="color: var(--text-secondary)">{{ store.conversations().length }} conversations actives</p>
+          <h1 class="text-xl font-bold" style="color: var(--text-primary)">Boîte de réception</h1>
+          <p class="text-sm mt-0.5" style="color: var(--text-secondary)">
+            {{ unreadCount() }} non-lu(s) sur {{ mockMessages.length }} messages
+          </p>
         </div>
-        <div class="flex items-center gap-2">
-          <a routerLink="/communication/notifications" class="relative px-4 py-2 rounded-lg text-sm border hover:opacity-80 transition-opacity"
-             style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
-            <mat-icon style="font-size: 18px; height: 18px; width: 18px">notifications</mat-icon>
-            @if (store.unreadCount() > 0) {
-              <span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold">
-                {{ store.unreadCount() }}
-              </span>
-            }
-          </a>
-          <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white" style="background: var(--accent)">
-            <mat-icon style="font-size: 18px; height: 18px; width: 18px">edit</mat-icon>
-            Nouvelle conversation
-          </button>
+        <a routerLink="/communication/compose"
+           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white hover:opacity-90"
+           style="background: var(--accent)">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px">edit</mat-icon>
+          Nouveau message
+        </a>
+      </div>
+
+      <!-- Search + Filters -->
+      <div class="flex flex-col sm:flex-row gap-3 mb-5">
+        <div class="relative flex-1 max-w-sm">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2"
+                    style="font-size: 16px; height: 16px; width: 16px; color: var(--text-muted)">search</mat-icon>
+          <input [(ngModel)]="search" type="search" placeholder="Rechercher un message..."
+            class="w-full pl-9 pr-3 py-2 rounded-lg border text-sm focus:outline-none"
+            style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)" />
+        </div>
+        <div class="flex gap-2">
+          @for (f of filters; track f.key) {
+            <button (click)="activeFilter.set(f.key)"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border"
+              [style.background]="activeFilter() === f.key ? 'var(--accent)' : 'var(--surface-2)'"
+              [style.color]="activeFilter() === f.key ? '#fff' : 'var(--text-secondary)'"
+              [style.border-color]="activeFilter() === f.key ? 'var(--accent)' : 'var(--border-color)'">
+              {{ f.label }}
+            </button>
+          }
         </div>
       </div>
 
-      <!-- 3-Column Layout -->
-      <div class="flex gap-4 flex-1 min-h-0" style="height: calc(100vh - 200px)">
-        <!-- Column 1: Conversation list -->
-        <div class="w-72 sms-card flex flex-col overflow-hidden">
-          <!-- Search -->
-          <div class="p-3 border-b" style="border-color: var(--border-color)">
-            <div class="relative">
-              <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size: 16px; height: 16px; width: 16px; color: var(--text-muted)">search</mat-icon>
-              <input [(ngModel)]="searchConv" type="search" placeholder="Rechercher..."
-                class="w-full pl-8 pr-3 py-1.5 rounded-lg border text-sm focus:outline-none"
-                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)" />
+      <!-- Message List -->
+      <div class="sms-card overflow-hidden">
+        @for (msg of filtered(); track msg.id) {
+          <a [routerLink]="['/communication/inbox', msg.id]"
+             class="flex items-start gap-3 px-5 py-4 border-b transition-all hover:opacity-80"
+             [style.background]="msg.unread ? 'rgba(var(--accent-rgb, 59,130,246),0.04)' : 'transparent'"
+             style="border-color: var(--border-color); text-decoration: none">
+            <!-- Avatar -->
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+                 [style.background]="avatarColor(msg.fromRole)">
+              {{ msg.from[0] }}
             </div>
-          </div>
-          <!-- Conversations -->
-          <div class="flex-1 overflow-y-auto">
-            @for (conv of filteredConvs(); track conv.publicId) {
-              <button (click)="selectConv(conv)"
-                class="w-full text-left p-3 border-b transition-all"
-                [style.background]="store.selectedConversation()?.publicId === conv.publicId ? 'var(--accent-light)' : 'transparent'"
-                [style.border-left]="store.selectedConversation()?.publicId === conv.publicId ? '3px solid var(--accent)' : '3px solid transparent'"
-                style="border-bottom-color: var(--border-color)">
-                <div class="flex items-start gap-2.5">
-                  <!-- Avatar -->
-                  <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                       [style.background]="conv.type === 'GROUPE' ? '#6366f1' : '#0891b2'">
-                    {{ conv.type === 'GROUPE' ? 'G' : convInitials(conv) }}
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between">
-                      <p class="text-sm font-semibold truncate" style="color: var(--text-primary)">
-                        {{ conv.titre ?? convTitle(conv) }}
-                      </p>
-                      @if (conv.nbNonLus > 0) {
-                        <span class="ml-1 w-5 h-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center shrink-0 font-bold">
-                          {{ conv.nbNonLus }}
-                        </span>
-                      }
-                    </div>
-                    @if (conv.dernierMessage) {
-                      <p class="text-xs truncate mt-0.5" style="color: var(--text-secondary)">
-                        {{ conv.dernierMessage.contenu }}
-                      </p>
-                      <p class="text-xs mt-0.5" style="color: var(--text-muted)">
-                        {{ conv.dernierMessage.createdAt | date:'HH:mm' }}
-                      </p>
-                    }
-                  </div>
-                </div>
-              </button>
-            } @empty {
-              <div class="flex flex-col items-center justify-center py-8 gap-2">
-                <mat-icon style="color: var(--text-muted)">chat_bubble_outline</mat-icon>
-                <p class="text-xs" style="color: var(--text-secondary)">Aucune conversation</p>
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Column 2: Messages -->
-        <div class="flex-1 sms-card flex flex-col overflow-hidden">
-          @if (store.selectedConversation(); as conv) {
-            <!-- Header conversation -->
-            <div class="px-4 py-3 border-b flex items-center gap-3" style="border-color: var(--border-color)">
-              <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                   [style.background]="conv.type === 'GROUPE' ? '#6366f1' : '#0891b2'">
-                {{ conv.type === 'GROUPE' ? 'G' : convInitials(conv) }}
-              </div>
-              <div>
-                <p class="font-semibold" style="color: var(--text-primary)">{{ conv.titre ?? convTitle(conv) }}</p>
-                <p class="text-xs" style="color: var(--text-secondary)">
-                  {{ conv.type === 'GROUPE' ? conv.participants.length + ' participants' : 'Conversation privée' }}
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-sm truncate"
+                   [style.font-weight]="msg.unread ? '600' : '400'"
+                   style="color: var(--text-primary)">
+                  {{ msg.from }}
+                  <span class="text-xs font-normal ml-1" style="color: var(--text-muted)">({{ msg.fromRole }})</span>
                 </p>
-              </div>
-            </div>
-            <!-- Messages -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-3">
-              @for (msg of store.messages(); track msg.publicId) {
-                <div [class]="msg.expediteurPublicId === 'usr-001' ? 'flex justify-end' : 'flex justify-start'">
-                  <div [style.background]="msg.expediteurPublicId === 'usr-001' ? 'var(--accent)' : 'var(--surface-2)'"
-                       [style.color]="msg.expediteurPublicId === 'usr-001' ? '#fff' : 'var(--text-primary)'"
-                       [style.border]="msg.expediteurPublicId === 'usr-001' ? 'none' : '1px solid var(--border-color)'"
-                       class="max-w-xs rounded-2xl px-4 py-2.5 text-sm">
-                    @if (msg.expediteurPublicId !== 'usr-001') {
-                      <p class="text-xs font-semibold mb-1" style="color: var(--accent)">{{ msg.expediteurNom }}</p>
-                    }
-                    <p>{{ msg.contenu }}</p>
-                    <p class="text-xs mt-1 opacity-60 text-right">{{ msg.createdAt | date:'HH:mm' }}</p>
-                  </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  @if (msg.hasAttachment) {
+                    <mat-icon style="font-size: 14px; height: 14px; width: 14px; color: var(--text-muted)">attach_file</mat-icon>
+                  }
+                  <p class="text-xs" style="color: var(--text-muted)">{{ formatDate(msg.date) }}</p>
                 </div>
-              } @empty {
-                <div class="flex flex-col items-center justify-center h-full gap-3">
-                  <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">chat</mat-icon>
-                  <p style="color: var(--text-secondary)">Aucun message</p>
-                </div>
-              }
-            </div>
-            <!-- Input -->
-            <div class="px-4 py-3 border-t flex gap-2" style="border-color: var(--border-color)">
-              <input [(ngModel)]="newMessage" type="text" placeholder="Écrire un message..."
-                class="flex-1 px-4 py-2 rounded-xl border text-sm focus:outline-none"
-                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)" />
-              <button class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: var(--accent)">
-                <mat-icon style="color: #fff; font-size: 18px; height: 18px; width: 18px">send</mat-icon>
-              </button>
-            </div>
-          } @else {
-            <div class="flex-1 flex flex-col items-center justify-center gap-3">
-              <mat-icon style="font-size: 64px; height: 64px; width: 64px; color: var(--text-muted)">chat_bubble_outline</mat-icon>
-              <p class="text-lg font-medium" style="color: var(--text-secondary)">Sélectionnez une conversation</p>
-              <p class="text-sm" style="color: var(--text-muted)">ou créez-en une nouvelle</p>
-            </div>
-          }
-        </div>
-
-        <!-- Column 3: Infos conversation -->
-        @if (store.selectedConversation(); as conv) {
-          <div class="w-64 sms-card p-4 flex flex-col gap-4 overflow-y-auto">
-            <div class="text-center">
-              <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white mx-auto mb-2"
-                   [style.background]="conv.type === 'GROUPE' ? '#6366f1' : '#0891b2'">
-                {{ conv.type === 'GROUPE' ? 'G' : convInitials(conv) }}
               </div>
-              <p class="font-semibold" style="color: var(--text-primary)">{{ conv.titre ?? convTitle(conv) }}</p>
-              <span class="text-xs px-2 py-0.5 rounded-full mt-1 inline-block"
-                    [style.background]="conv.type === 'GROUPE' ? 'var(--accent-light)' : 'rgba(8,145,178,0.1)'"
-                    [style.color]="conv.type === 'GROUPE' ? 'var(--accent)' : '#0891b2'">
-                {{ conv.type === 'GROUPE' ? 'Groupe' : 'Privé' }}
-              </span>
+              <p class="text-sm mt-0.5 truncate"
+                 [style.font-weight]="msg.unread ? '500' : '400'"
+                 style="color: var(--text-primary)">{{ msg.subject }}</p>
+              <p class="text-xs mt-0.5 truncate" style="color: var(--text-secondary)">{{ msg.preview }}</p>
             </div>
-            <div class="border-t pt-4" style="border-color: var(--border-color)">
-              <p class="text-xs font-semibold mb-2" style="color: var(--text-secondary)">PARTICIPANTS ({{ conv.participants.length }})</p>
-              <div class="flex flex-col gap-2">
-                @for (p of conv.participants.slice(0, 6); track p) {
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                         style="background: #6366f1">{{ p[0].toUpperCase() }}</div>
-                    <span class="text-xs" style="color: var(--text-secondary)">{{ p }}</span>
-                  </div>
-                }
-                @if (conv.participants.length > 6) {
-                  <p class="text-xs" style="color: var(--text-muted)">+ {{ conv.participants.length - 6 }} autres</p>
-                }
-              </div>
-            </div>
+            <!-- Unread dot -->
+            @if (msg.unread) {
+              <div class="w-2.5 h-2.5 rounded-full shrink-0 mt-1.5" style="background: var(--accent)"></div>
+            }
+          </a>
+        } @empty {
+          <div class="flex flex-col items-center justify-center py-16 gap-3">
+            <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">inbox</mat-icon>
+            <p class="font-medium" style="color: var(--text-secondary)">Aucun message</p>
+            <p class="text-sm" style="color: var(--text-muted)">Votre boîte de réception est vide</p>
           </div>
         }
       </div>
@@ -188,34 +125,54 @@ import { IConversation } from '@sms/shared/models';
 })
 export class InboxComponent implements OnInit {
   readonly store = inject(CommunicationStore);
-  searchConv = '';
-  newMessage = '';
+  private router = inject(Router);
 
-  ngOnInit() {
+  readonly mockMessages = MOCK_INBOX;
+  search = '';
+  readonly activeFilter = signal<InboxFilter>('all');
+
+  readonly unreadCount = computed(() => this.mockMessages.filter(m => m.unread).length);
+
+  readonly filters: { key: InboxFilter; label: string }[] = [
+    { key: 'all',        label: 'Tous' },
+    { key: 'unread',     label: 'Non lus' },
+    { key: 'attachment', label: 'Avec PJ' },
+  ];
+
+  ngOnInit(): void {
     this.store.loadConversations();
-    this.store.loadNotifications();
   }
 
-  filteredConvs() {
-    const s = this.searchConv.toLowerCase();
-    if (!s) return this.store.conversations();
-    return this.store.conversations().filter(c =>
-      (c.titre ?? '').toLowerCase().includes(s) ||
-      c.dernierMessage?.contenu?.toLowerCase().includes(s)
-    );
+  filtered(): IMockConversation[] {
+    let list = this.mockMessages;
+    if (this.activeFilter() === 'unread') list = list.filter(m => m.unread);
+    if (this.activeFilter() === 'attachment') list = list.filter(m => m.hasAttachment);
+    if (this.search.trim()) {
+      const s = this.search.toLowerCase();
+      list = list.filter(m =>
+        m.from.toLowerCase().includes(s) ||
+        m.subject.toLowerCase().includes(s) ||
+        m.preview.toLowerCase().includes(s)
+      );
+    }
+    return list;
   }
 
-  selectConv(conv: IConversation) {
-    this.store.selectConversation(conv);
-    this.store.loadMessages(conv.publicId);
+  avatarColor(role: string): string {
+    const map: Record<string, string> = {
+      'Parent': '#0891b2', 'Étudiante': '#6366f1', 'Enseignant': '#d97706',
+    };
+    return map[role] ?? '#6b7280';
   }
 
-  convTitle(conv: IConversation): string {
-    return conv.type === 'GROUPE' ? 'Groupe' : 'Conversation privée';
-  }
-
-  convInitials(conv: IConversation): string {
-    if (conv.titre) return conv.titre[0].toUpperCase();
-    return conv.participants[0]?.[0]?.toUpperCase() ?? '?';
+  formatDate(date: Date): string {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    if (diff < 86400 * 1000) return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    if (diff < 7 * 86400 * 1000) {
+      const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+      return days[date.getDay()];
+    }
+    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
   }
 }

@@ -115,9 +115,16 @@
           <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
         </button>
 
-        <button class="icon-btn" matTooltip="Notifications">
-          <mat-icon>notifications_none</mat-icon>
-        </button>
+        <div class="relative">
+          <button class="icon-btn relative" (click)="toggleNotifPanel($event)" matTooltip="Notifications">
+            <mat-icon>notifications_none</mat-icon>
+            @if (notifService.unreadCount() > 0) {
+              <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
+                    style="background: #ef4444">{{ notifService.unreadCount() }}</span>
+            }
+          </button>
+          <sms-notification-panel [open]="notifPanelOpen()" (closePanel)="notifPanelOpen.set(false)" />
+        </div>
 
         <div class="topbar-avatar" [matTooltip]="userFullName()">
           {{ userInitials() }}
