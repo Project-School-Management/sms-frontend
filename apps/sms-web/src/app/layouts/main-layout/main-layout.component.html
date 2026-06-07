@@ -1,50 +1,135 @@
-<mat-sidenav-container class="sidenav-container">
+<div class="app-shell"
+     [class.collapsed]="isCollapsed()"
+     [class.mobile-open]="isMobileOpen()">
 
-  <!-- ── Sidenav ──────────────────────────────────────────────────────────── -->
-  <mat-sidenav #sidenav mode="side" opened class="sidenav">
-    <mat-toolbar color="primary" class="sidenav-header">
-      <span>SMS</span>
-    </mat-toolbar>
+  <!-- ── Mobile overlay ──────────────────────────────────────────────────── -->
+  <div class="sidebar-overlay" (click)="closeMobileMenu()"></div>
 
-    <mat-nav-list>
-      @for (item of visibleNavItems; track item.path) {
-        <a
-          mat-list-item
-          [routerLink]="item.path"
-          routerLinkActive="active-link"
-        >
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-          <span matListItemTitle>{{ item.label }}</span>
-        </a>
+  <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <mat-icon>school</mat-icon>
+      </div>
+      <span class="brand-name">SchoolMS</span>
+      <button class="collapse-btn"
+              (click)="toggleSidebar()"
+              [matTooltip]="isCollapsed() ? 'Développer' : 'Réduire'"
+              matTooltipPosition="right">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      @for (group of visibleGroups(); track group.label) {
+        <div class="nav-group">
+          <span class="nav-group-label">{{ group.label }}</span>
+
+          @for (item of group.items; track item.id) {
+            <div class="nav-item-wrapper">
+
+              @if (!item.children) {
+                <!-- ── Simple item ── -->
+                <a class="nav-item"
+                   [routerLink]="item.path"
+                   routerLinkActive="active"
+                   [matTooltip]="isCollapsed() ? item.label : ''"
+                   matTooltipPosition="right">
+                  <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+                  <span class="nav-label">{{ item.label }}</span>
+                </a>
+
+              } @else {
+                <!-- ── Parent with submenu ── -->
+                <button class="nav-item nav-parent"
+                        [class.expanded]="isExpanded(item.id)"
+                        [class.active]="isItemActive(item)"
+                        (click)="toggleItem(item.id)"
+                        [matTooltip]="isCollapsed() ? item.label : ''"
+                        matTooltipPosition="right">
+                  <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+                  <span class="nav-label">{{ item.label }}</span>
+                  <mat-icon class="chevron">expand_more</mat-icon>
+                </button>
+
+                @if (isExpanded(item.id) && !isCollapsed()) {
+                  <div class="submenu">
+                    @for (child of item.children; track child.path) {
+                      <a class="submenu-item"
+                         [routerLink]="child.path"
+                         routerLinkActive="active"
+                         [routerLinkActiveOptions]="{ exact: true }">
+                        <span class="submenu-dot"></span>
+                        <span>{{ child.label }}</span>
+                      </a>
+                    }
+                  </div>
+                }
+              }
+
+            </div>
+          }
+        </div>
       }
-    </mat-nav-list>
-  </mat-sidenav>
+    </nav>
 
-  <!-- ── Main content ─────────────────────────────────────────────────────── -->
-  <mat-sidenav-content>
+    <!-- User footer -->
+    <div class="sidebar-footer">
+      <div class="user-card"
+           [matTooltip]="isCollapsed() ? userFullName() : ''"
+           matTooltipPosition="right">
+        <div class="user-avatar">{{ userInitials() }}</div>
+        <div class="user-meta">
+          <span class="user-name">{{ userFullName() }}</span>
+          <span class="user-role-badge">{{ userRoleLabel() }}</span>
+        </div>
+        <button class="logout-btn"
+                (click)="authService.logout()"
+                matTooltip="Se déconnecter"
+                matTooltipPosition="right">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CONTENT ──────────────────────────────────────────────────────────── -->
+  <div class="content-area">
+
     <!-- Topbar -->
-    <mat-toolbar color="primary" class="topbar">
-      <button mat-icon-button (click)="sidenav.toggle()" aria-label="Menu">
+    <header class="topbar">
+      <button class="icon-btn mobile-only" (click)="isMobileOpen.set(true)">
         <mat-icon>menu</mat-icon>
       </button>
 
-      <span class="topbar-title">School Management System</span>
-      <span class="spacer"></span>
+      <div class="topbar-spacer"></div>
 
-      <!-- Utilisateur -->
-      <span class="user-name">
-        {{ authStore.currentUser()?.firstName }} {{ authStore.currentUser()?.lastName }}
-      </span>
+      <div class="topbar-actions">
+        <button class="icon-btn"
+                (click)="toggleDarkMode()"
+                [matTooltip]="isDarkMode() ? 'Mode clair' : 'Mode sombre'">
+          <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
 
-      <button mat-icon-button (click)="logout()" aria-label="Se déconnecter">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </mat-toolbar>
+        <button class="icon-btn" matTooltip="Notifications">
+          <mat-icon>notifications_none</mat-icon>
+        </button>
 
-    <!-- Page content -->
-    <main class="main-content">
+        <div class="topbar-avatar" [matTooltip]="userFullName()">
+          {{ userInitials() }}
+        </div>
+      </div>
+    </header>
+
+    <!-- Page -->
+    <main class="page-content">
       <router-outlet />
     </main>
-  </mat-sidenav-content>
 
-</mat-sidenav-container>
+  </div>
+
+</div>
