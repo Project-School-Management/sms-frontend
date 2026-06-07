@@ -17,27 +17,37 @@ module.exports = [
           enforceBuildableLibDependency: true,
           allow:                         ['^.*/environments/.*$'],
           depConstraints: [
-            // app ne peut dépendre que de feature, data-access, ui, shared
+            // app dépend de feature, layout, shared
             {
               sourceTag:            'type:app',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:data-access', 'type:ui', 'type:models', 'scope:shared'],
+              onlyDependOnLibsWithTags: ['type:feature', 'type:layout', 'type:data-access', 'type:ui', 'type:models', 'scope:shared'],
             },
-            // feature peut dépendre de data-access, ui, models, shared
+            // layout dépend de shared et core uniquement — jamais de */data-access métier
+            {
+              sourceTag:            'type:layout',
+              onlyDependOnLibsWithTags: ['type:ui', 'type:models', 'scope:shared', 'type:core'],
+            },
+            // core dépend de shared uniquement
+            {
+              sourceTag:            'type:core',
+              onlyDependOnLibsWithTags: ['scope:shared'],
+            },
+            // feature dépend de data-access, ui, models, shared
             {
               sourceTag:            'type:feature',
               onlyDependOnLibsWithTags: ['type:data-access', 'type:ui', 'type:models', 'scope:shared'],
             },
-            // data-access peut dépendre de models et shared uniquement
+            // data-access dépend de models et shared uniquement
             {
               sourceTag:            'type:data-access',
               onlyDependOnLibsWithTags: ['type:models', 'scope:shared'],
             },
-            // ui peut dépendre de models et shared uniquement
+            // ui dépend de models et shared uniquement
             {
               sourceTag:            'type:ui',
               onlyDependOnLibsWithTags: ['type:models', 'scope:shared'],
             },
-            // shared peut dépendre de shared uniquement
+            // shared dépend de shared uniquement
             {
               sourceTag:            'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared'],
@@ -56,9 +66,9 @@ module.exports = [
       },
     },
     rules: {
-      '@typescript-eslint/no-explicit-any':         'warn',
+      '@typescript-eslint/no-explicit-any':              'warn',
       '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/no-unused-vars':          ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars':               ['error', { argsIgnorePattern: '^_' }],
     },
   },
 ];

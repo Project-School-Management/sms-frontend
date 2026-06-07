@@ -8,7 +8,7 @@ import { MatButtonModule }              from '@angular/material/button';
 import { MatIconModule }                from '@angular/material/icon';
 import { MatDialog, MatDialogModule }   from '@angular/material/dialog';
 
-import { FinanceStore }           from '../../store/finance.store';
+import { FinanceStore }           from '@sms/finance/data-access';
 import { PaymentDialogComponent } from '../../components/payment-dialog/payment-dialog.component';
 
 @Component({

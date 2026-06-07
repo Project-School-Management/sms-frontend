@@ -13,7 +13,7 @@ import { RouterLink }            from '@angular/router';
 import { FormsModule }           from '@angular/forms';
 
 import { IFacture, StatutFacture }  from '@sms/shared/models';
-import { FinanceStore }             from '../../store/finance.store';
+import { FinanceStore }             from '@sms/finance/data-access';
 import { PaymentDialogComponent }   from '../../components/payment-dialog/payment-dialog.component';
 
 @Component({
@@ -140,7 +140,7 @@ export class InvoiceListComponent implements OnInit {
     this.store.loadFactures(0);
   }
 
-  applyFilter() {}
+  applyFilter(): void { /* filtre appliqué via getter facturesFiltrees */ }
 
   statutLabel(statut: StatutFacture): string {
     const labels: Record<StatutFacture, string> = {

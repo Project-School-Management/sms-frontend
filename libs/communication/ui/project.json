@@ -1,0 +1,7 @@
+{
+  "name": "communication-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/communication/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:communication"]
+}

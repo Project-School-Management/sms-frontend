@@ -1,0 +1,7 @@
+{
+  "name": "schedule-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/schedule/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:schedule"]
+}

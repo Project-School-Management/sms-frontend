@@ -6,4 +6,6 @@ export const environment = {
   keycloakClient: 'sms-frontend',
   wsUrl:          'http://localhost:8080/ws',
   minioUrl:       'http://localhost:9000',
+  // Dev mode: bypass Keycloak if not running
+  skipKeycloak:   true,
 };

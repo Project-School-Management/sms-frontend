@@ -1,0 +1,7 @@
+{
+  "name": "core-auth",
+  "projectType": "library",
+  "sourceRoot": "libs/core/auth/src",
+  "prefix": "sms",
+  "tags": ["type:core", "scope:shared"]
+}

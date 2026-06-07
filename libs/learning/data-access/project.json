@@ -1,0 +1,7 @@
+{
+  "name": "learning-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/learning/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:learning"]
+}

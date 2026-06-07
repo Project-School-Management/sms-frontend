@@ -1,0 +1,7 @@
+{
+  "name": "users-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/users/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:users"]
+}

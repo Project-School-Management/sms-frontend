@@ -1,0 +1,7 @@
+{
+  "name": "communication-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/communication/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:communication"]
+}

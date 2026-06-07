@@ -1,0 +1,7 @@
+{
+  "name": "shared-util",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/util/src",
+  "prefix": "sms",
+  "tags": ["type:shared", "scope:shared"]
+}

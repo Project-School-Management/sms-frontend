@@ -9,7 +9,7 @@ import { MatButtonModule }      from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { IFacture, IInitierPaiementRequest, OperateurMobileMoney } from '@sms/shared/models';
-import { FinanceStore } from '../../store/finance.store';
+import { FinanceStore } from '@sms/finance/data-access';
 
 interface DialogData { facture: IFacture; }
 

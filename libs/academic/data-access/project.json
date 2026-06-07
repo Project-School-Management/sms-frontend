@@ -1,0 +1,7 @@
+{
+  "name": "academic-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/academic/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:academic"]
+}

@@ -1,4 +1,3 @@
-// ── Public API — @sms/shared/models ──────────────────────────────────────────
 export * from './lib/role.enum';
 export * from './lib/current-user.model';
 export * from './lib/student.model';
@@ -6,3 +5,9 @@ export * from './lib/page.model';
 export * from './lib/problem.model';
 export * from './lib/notification.model';
 export * from './lib/finance.model';
+export * from './lib/academic.model';
+export * from './lib/schedule.model';
+export * from './lib/learning.model';
+export * from './lib/communication.model';
+export * from './lib/analytics.model';
+export * from './lib/users.model';

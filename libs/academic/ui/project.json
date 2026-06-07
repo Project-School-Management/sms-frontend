@@ -1,0 +1,7 @@
+{
+  "name": "academic-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/academic/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:academic"]
+}

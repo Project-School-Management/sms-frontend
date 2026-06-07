@@ -1,0 +1,7 @@
+{
+  "name": "dashboard-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/dashboard/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:dashboard"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "core-config",
+  "projectType": "library",
+  "sourceRoot": "libs/core/config/src",
+  "prefix": "sms",
+  "tags": ["type:core", "scope:shared"]
+}

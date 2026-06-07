@@ -6,4 +6,5 @@ export const environment = {
   keycloakClient: 'sms-frontend',
   wsUrl:          '/ws',
   minioUrl:       'https://storage.sms.mirahtec.ci',
+  skipKeycloak:   false,
 };

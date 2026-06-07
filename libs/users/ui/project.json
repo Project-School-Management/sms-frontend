@@ -1,0 +1,7 @@
+{
+  "name": "users-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/users/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:users"]
+}

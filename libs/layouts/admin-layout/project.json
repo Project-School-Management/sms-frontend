@@ -1,0 +1,7 @@
+{
+  "name": "layouts-admin-layout",
+  "projectType": "library",
+  "sourceRoot": "libs/layouts/admin-layout/src",
+  "prefix": "sms",
+  "tags": ["type:layout", "scope:shared"]
+}

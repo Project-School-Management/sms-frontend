@@ -1,0 +1,7 @@
+{
+  "name": "dashboard-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/dashboard/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:dashboard"]
+}

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule }        from '@angular/material/table';
 import { MatButtonModule }       from '@angular/material/button';
 import { MatIconModule }         from '@angular/material/icon';
@@ -10,8 +10,8 @@ import { MatSelectModule }       from '@angular/material/select';
 import { MatDialogModule }       from '@angular/material/dialog';
 import { MatChipsModule }        from '@angular/material/chips';
 
-import { IBourse, TypeBourse }   from '@sms/shared/models';
-import { FinanceStore }          from '../../store/finance.store';
+import { TypeBourse }   from '@sms/shared/models';
+import { FinanceStore }          from '@sms/finance/data-access';
 import { AuthStore }             from '@sms/shared/auth';
 
 @Component({

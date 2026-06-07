@@ -15,27 +15,54 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@sms/shared/models":              ["libs/shared/models/src/index.ts"],
-      "@sms/shared/auth":                ["libs/shared/auth/src/index.ts"],
-      "@sms/shared/api":                 ["libs/shared/api/src/index.ts"],
-      "@sms/shared/ui":                  ["libs/shared/ui/src/index.ts"],
-      "@sms/dashboard/feature":          ["libs/dashboard/feature/src/index.ts"],
-      "@sms/users/feature":              ["libs/users/feature/src/index.ts"],
-      "@sms/users/data-access":          ["libs/users/data-access/src/index.ts"],
-      "@sms/students/feature":           ["libs/students/feature/src/index.ts"],
-      "@sms/students/data-access":       ["libs/students/data-access/src/index.ts"],
-      "@sms/academic/feature":           ["libs/academic/feature/src/index.ts"],
-      "@sms/academic/data-access":       ["libs/academic/data-access/src/index.ts"],
-      "@sms/schedule/feature":           ["libs/schedule/feature/src/index.ts"],
-      "@sms/schedule/data-access":       ["libs/schedule/data-access/src/index.ts"],
-      "@sms/communication/feature":      ["libs/communication/feature/src/index.ts"],
-      "@sms/communication/data-access":  ["libs/communication/data-access/src/index.ts"],
-      "@sms/finance/feature":            ["libs/finance/feature/src/index.ts"],
-      "@sms/finance/data-access":        ["libs/finance/data-access/src/index.ts"],
-      "@sms/learning/feature":           ["libs/learning/feature/src/index.ts"],
-      "@sms/learning/data-access":       ["libs/learning/data-access/src/index.ts"],
-      "@sms/analytics/feature":          ["libs/analytics/feature/src/index.ts"],
-      "@sms/analytics/data-access":      ["libs/analytics/data-access/src/index.ts"]
+      "@sms/core/auth":                    ["libs/core/auth/src/index.ts"],
+      "@sms/core/config":                  ["libs/core/config/src/index.ts"],
+
+      "@sms/layouts/dashboard-layout":     ["libs/layouts/dashboard-layout/src/index.ts"],
+      "@sms/layouts/public-layout":        ["libs/layouts/public-layout/src/index.ts"],
+      "@sms/layouts/admin-layout":         ["libs/layouts/admin-layout/src/index.ts"],
+
+      "@sms/shared/models":                ["libs/shared/models/src/index.ts"],
+      "@sms/shared/auth":                  ["libs/shared/auth/src/index.ts"],
+      "@sms/shared/api":                   ["libs/shared/api/src/index.ts"],
+      "@sms/shared/ui":                    ["libs/shared/ui/src/index.ts"],
+      "@sms/shared/util":                  ["libs/shared/util/src/index.ts"],
+
+      "@sms/dashboard/feature":            ["libs/dashboard/feature/src/index.ts"],
+      "@sms/dashboard/data-access":        ["libs/dashboard/data-access/src/index.ts"],
+      "@sms/dashboard/ui":                 ["libs/dashboard/ui/src/index.ts"],
+
+      "@sms/users/feature":                ["libs/users/feature/src/index.ts"],
+      "@sms/users/data-access":            ["libs/users/data-access/src/index.ts"],
+      "@sms/users/ui":                     ["libs/users/ui/src/index.ts"],
+
+      "@sms/students/feature":             ["libs/students/feature/src/index.ts"],
+      "@sms/students/data-access":         ["libs/students/data-access/src/index.ts"],
+      "@sms/students/ui":                  ["libs/students/ui/src/index.ts"],
+
+      "@sms/academic/feature":             ["libs/academic/feature/src/index.ts"],
+      "@sms/academic/data-access":         ["libs/academic/data-access/src/index.ts"],
+      "@sms/academic/ui":                  ["libs/academic/ui/src/index.ts"],
+
+      "@sms/schedule/feature":             ["libs/schedule/feature/src/index.ts"],
+      "@sms/schedule/data-access":         ["libs/schedule/data-access/src/index.ts"],
+      "@sms/schedule/ui":                  ["libs/schedule/ui/src/index.ts"],
+
+      "@sms/learning/feature":             ["libs/learning/feature/src/index.ts"],
+      "@sms/learning/data-access":         ["libs/learning/data-access/src/index.ts"],
+      "@sms/learning/ui":                  ["libs/learning/ui/src/index.ts"],
+
+      "@sms/finance/feature":              ["libs/finance/feature/src/index.ts"],
+      "@sms/finance/data-access":          ["libs/finance/data-access/src/index.ts"],
+      "@sms/finance/ui":                   ["libs/finance/ui/src/index.ts"],
+
+      "@sms/communication/feature":        ["libs/communication/feature/src/index.ts"],
+      "@sms/communication/data-access":    ["libs/communication/data-access/src/index.ts"],
+      "@sms/communication/ui":             ["libs/communication/ui/src/index.ts"],
+
+      "@sms/analytics/feature":            ["libs/analytics/feature/src/index.ts"],
+      "@sms/analytics/data-access":        ["libs/analytics/data-access/src/index.ts"],
+      "@sms/analytics/ui":                 ["libs/analytics/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

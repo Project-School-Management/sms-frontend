@@ -1,0 +1,7 @@
+{
+  "name": "layouts-public-layout",
+  "projectType": "library",
+  "sourceRoot": "libs/layouts/public-layout/src",
+  "prefix": "sms",
+  "tags": ["type:layout", "scope:shared"]
+}

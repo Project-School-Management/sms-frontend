@@ -1,0 +1,7 @@
+{
+  "name": "students-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/students/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:students"]
+}

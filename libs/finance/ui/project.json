@@ -1,0 +1,7 @@
+{
+  "name": "finance-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/finance/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:finance"]
+}

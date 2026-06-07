@@ -1,0 +1,7 @@
+{
+  "name": "students-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/students/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:students"]
+}

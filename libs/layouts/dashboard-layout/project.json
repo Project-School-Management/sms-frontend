@@ -1,0 +1,7 @@
+{
+  "name": "layouts-dashboard-layout",
+  "projectType": "library",
+  "sourceRoot": "libs/layouts/dashboard-layout/src",
+  "prefix": "sms",
+  "tags": ["type:layout", "scope:shared"]
+}

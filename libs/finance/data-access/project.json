@@ -1,0 +1,7 @@
+{
+  "name": "finance-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/finance/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:finance"]
+}

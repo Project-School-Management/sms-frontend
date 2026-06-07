@@ -1,0 +1,7 @@
+{
+  "name": "analytics-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/analytics/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:analytics"]
+}

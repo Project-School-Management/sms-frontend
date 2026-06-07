@@ -5,7 +5,7 @@ import { MatIconModule }                 from '@angular/material/icon';
 import { MatButtonModule }               from '@angular/material/button';
 import { RouterLink }                    from '@angular/router';
 
-import { FinanceStore }   from '../../store/finance.store';
+import { FinanceStore }   from '@sms/finance/data-access';
 import { AuthStore }      from '@sms/shared/auth';
 
 @Component({

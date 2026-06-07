@@ -1,0 +1,7 @@
+{
+  "name": "analytics-ui",
+  "projectType": "library",
+  "sourceRoot": "libs/analytics/ui/src",
+  "prefix": "sms",
+  "tags": ["type:ui", "scope:analytics"]
+}

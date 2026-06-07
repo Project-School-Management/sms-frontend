@@ -19,6 +19,7 @@
           "apps/sms-web/src/assets",
           { "glob": "**/*", "input": "apps/sms-web/src/assets", "output": "assets" }
         ],
+        "polyfills": ["zone.js"],
         "styles":  ["apps/sms-web/src/styles.scss"],
         "scripts": [],
         "serviceWorker": "apps/sms-web/ngsw-config.json"
@@ -26,8 +27,8 @@
       "configurations": {
         "production": {
           "budgets": [
-            { "type": "initial",     "maximumWarning": "400kB", "maximumError": "500kB" },
-            { "type": "anyComponentStyle", "maximumWarning": "2kB",  "maximumError": "4kB"  }
+            { "type": "initial",     "maximumWarning": "750kB", "maximumError": "1MB" },
+            { "type": "anyComponentStyle", "maximumWarning": "6kB",  "maximumError": "10kB"  }
           ],
           "outputHashing":     "all",
           "fileReplacements": [

@@ -1,0 +1,7 @@
+{
+  "name": "schedule-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/schedule/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:schedule"]
+}
