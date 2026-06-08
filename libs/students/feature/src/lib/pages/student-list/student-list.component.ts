@@ -224,31 +224,66 @@ const ALL_STATUTS = Object.entries(STATUT_CFG).map(([key, val]) => ({ value: key
                 </td>
                 <!-- Actions -->
                 <td class="px-4 py-3">
-                  <div class="flex items-center gap-1.5 justify-end flex-wrap">
+                  <div class="flex items-center gap-1.5 justify-end">
+
+                    <!-- Voir -->
                     <a [routerLink]="['/students', s.publicId]"
-                       class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
+                       class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
                        style="background:var(--accent-light);color:var(--accent)">
+                      <mat-icon style="font-size:14px;height:14px;width:14px">visibility</mat-icon>
                       Voir
                     </a>
-                    <a [routerLink]="['/students', s.publicId, 'edit']"
-                       class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-opacity hover:opacity-70"
-                       style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
-                      Modifier
-                    </a>
-                    @if (canCancel(s.statut)) {
-                      <button (click)="openCancelFor(s.publicId, s.firstName + ' ' + s.lastName)"
-                              class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-opacity hover:opacity-70"
-                              style="border-color:rgba(239,68,68,0.3);color:#dc2626;background:rgba(239,68,68,0.06)">
-                        Annuler
+
+                    <!-- Kebab ⋮ -->
+                    <div class="relative">
+                      <button (click)="toggleRowMenu(s.publicId)"
+                              class="flex items-center justify-center w-7 h-7 rounded-lg transition-all hover:opacity-80"
+                              [style.background]="activeMenuId() === s.publicId ? 'var(--accent-light)' : 'var(--surface-2)'"
+                              [style.color]="activeMenuId() === s.publicId ? 'var(--accent)' : 'var(--text-muted)'">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">more_vert</mat-icon>
                       </button>
-                    }
-                    @if (canReactivate(s.statut)) {
-                      <button (click)="reactivate(s.publicId)"
-                              class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-opacity hover:opacity-70"
-                              style="border-color:rgba(22,163,74,0.3);color:#16a34a;background:rgba(22,163,74,0.06)">
-                        Réactiver
-                      </button>
-                    }
+
+                      @if (activeMenuId() === s.publicId) {
+                        <!-- Backdrop -->
+                        <div class="fixed inset-0 z-40" (click)="activeMenuId.set(null)"></div>
+
+                        <!-- Dropdown -->
+                        <div class="absolute right-0 z-50 w-44 rounded-xl overflow-hidden"
+                             style="top:calc(100% + 4px);background:var(--surface-1);
+                                    border:1px solid var(--border-color);
+                                    box-shadow:0 8px 24px rgba(0,0,0,0.10)">
+
+                          <a [routerLink]="['/students', s.publicId, 'edit']"
+                             (click)="activeMenuId.set(null)"
+                             class="flex items-center gap-2.5 px-3 py-2.5 text-sm hover:opacity-80 transition-opacity"
+                             style="color:var(--text-primary)">
+                            <mat-icon style="font-size:15px;height:15px;width:15px;color:var(--accent)">edit</mat-icon>
+                            Modifier
+                          </a>
+
+                          @if (canReactivate(s.statut)) {
+                            <button (click)="reactivate(s.publicId); activeMenuId.set(null)"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                                    style="background:transparent">
+                              <mat-icon style="font-size:15px;height:15px;width:15px;color:#16a34a">restart_alt</mat-icon>
+                              <span style="color:#16a34a">Réactiver</span>
+                            </button>
+                          }
+
+                          @if (canCancel(s.statut)) {
+                            <div style="height:1px;background:var(--border-color)" class="mx-2"></div>
+                            <button (click)="openCancelFor(s.publicId, s.firstName + ' ' + s.lastName); activeMenuId.set(null)"
+                                    class="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                                    style="background:transparent">
+                              <mat-icon style="font-size:15px;height:15px;width:15px;color:#dc2626">cancel</mat-icon>
+                              <span style="color:#dc2626">Annuler l'inscription</span>
+                            </button>
+                          }
+
+                        </div>
+                      }
+                    </div>
+
                   </div>
                 </td>
               </tr>
@@ -363,6 +398,9 @@ export class StudentListComponent implements OnInit {
   readonly currentPage  = signal(0);
   readonly pageSize     = 10;
 
+  // Row kebab menu state — stores the publicId of the open row's menu
+  readonly activeMenuId = signal<string | null>(null);
+
   // Cancel dialog state
   readonly cancelTarget     = signal('');
   readonly cancelTargetName = signal('');
@@ -424,6 +462,10 @@ export class StudentListComponent implements OnInit {
   }
 
   // ── Workflow conditions ───────────────────────────────────────────────────
+  toggleRowMenu(id: string): void {
+    this.activeMenuId.set(this.activeMenuId() === id ? null : id);
+  }
+
   canCancel(statut: StudentStatut): boolean {
     return ['PRE_INSCRIT', 'INSCRIT', 'INSCRIPTION_VALIDEE', 'ACTIF', 'SUSPENDU'].includes(statut);
   }
