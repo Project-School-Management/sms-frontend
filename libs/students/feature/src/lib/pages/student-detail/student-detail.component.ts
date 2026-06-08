@@ -167,50 +167,122 @@ interface MockBulletin {
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col gap-2 flex-shrink-0">
+        <div class="flex items-start gap-2 flex-shrink-0">
+
+          <!-- Bouton principal : Modifier -->
           <a [routerLink]="['/students', s.publicId, 'edit']"
-             class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
-             style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
-            <mat-icon style="font-size:16px;height:16px;width:16px">edit</mat-icon>Modifier
+             class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-80"
+             style="background:var(--accent)">
+            <mat-icon style="font-size:16px;height:16px;width:16px">edit</mat-icon>
+            Modifier
           </a>
-          @if (canCancel(s.statut)) {
-            <button (click)="showCancelDialog.set(true)"
-                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
-                    style="border-color:rgba(239,68,68,0.4);color:#dc2626;background:rgba(239,68,68,0.06)">
-              <mat-icon style="font-size:16px;height:16px;width:16px">cancel</mat-icon>Annuler l'inscription
+
+          <!-- Menu kebab ⋮ -->
+          <div class="relative">
+            <button (click)="toggleMenu()"
+                    class="flex items-center justify-center w-9 h-9 rounded-lg border transition-all hover:opacity-80"
+                    [style.background]="menuOpen() ? 'var(--accent-light)' : 'var(--surface-2)'"
+                    [style.border-color]="menuOpen() ? 'var(--accent)' : 'var(--border-color)'"
+                    [style.color]="menuOpen() ? 'var(--accent)' : 'var(--text-secondary)'"
+                    title="Plus d'actions">
+              <mat-icon style="font-size:20px;height:20px;width:20px">more_vert</mat-icon>
             </button>
-          }
-          @if (canReactivate(s.statut)) {
-            <button (click)="reactivate(s.publicId)"
-                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-80"
-                    style="background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.3)">
-              <mat-icon style="font-size:16px;height:16px;width:16px">restart_alt</mat-icon>Réactiver
-            </button>
-          }
-          @if (canReinscrire(s.statut)) {
-            <a [routerLink]="['/students', s.publicId, 'edit']"
-               class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-80"
-               style="background:rgba(99,102,241,0.1);color:#6366f1;border:1px solid rgba(99,102,241,0.3)">
-              <mat-icon style="font-size:16px;height:16px;width:16px">assignment_turned_in</mat-icon>Réinscrire
-            </a>
-          }
-          @if (s.statut === 'ACTIF' || s.statut === 'INSCRIT' || s.statut === 'INSCRIPTION_VALIDEE') {
-            <button (click)="showChangeClasseDialog.set(true)"
-                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
-                    style="border-color:rgba(217,119,6,0.4);color:#d97706;background:rgba(217,119,6,0.06)">
-              <mat-icon style="font-size:16px;height:16px;width:16px">swap_horiz</mat-icon>Changer classe
-            </button>
-          }
-          <button (click)="exportPdf(s)"
-                  class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
-                  style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
-            <mat-icon style="font-size:16px;height:16px;width:16px">picture_as_pdf</mat-icon>Exporter PDF
-          </button>
-          <button (click)="printCard(s)"
-                  class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
-                  style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
-            <mat-icon style="font-size:16px;height:16px;width:16px">print</mat-icon>Carte étudiant
-          </button>
+
+            @if (menuOpen()) {
+              <!-- Backdrop invisible pour fermer au clic extérieur -->
+              <div class="fixed inset-0 z-40" (click)="menuOpen.set(false)"></div>
+
+              <!-- Dropdown -->
+              <div class="absolute right-0 top-11 z-50 w-56 rounded-xl overflow-hidden"
+                   style="background:var(--surface-1);border:1px solid var(--border-color);
+                          box-shadow:0 8px 32px rgba(0,0,0,0.12)">
+
+                <!-- ── Scolarité ── -->
+                <p class="px-3 pt-2.5 pb-1 text-xs font-semibold uppercase tracking-wider"
+                   style="color:var(--text-muted);background:var(--surface-2)">Scolarité</p>
+
+                @if (canReactivate(s.statut)) {
+                  <button (click)="reactivate(s.publicId); menuOpen.set(false)"
+                          class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                          style="background:transparent">
+                    <mat-icon style="font-size:16px;height:16px;width:16px;color:#16a34a">restart_alt</mat-icon>
+                    <span style="color:#16a34a;font-weight:500">Réactiver</span>
+                  </button>
+                }
+                @if (canReinscrire(s.statut)) {
+                  <a [routerLink]="['/students', s.publicId, 'edit']" (click)="menuOpen.set(false)"
+                     class="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity">
+                    <mat-icon style="font-size:16px;height:16px;width:16px;color:#6366f1">assignment_turned_in</mat-icon>
+                    <span style="color:#6366f1;font-weight:500">Réinscrire</span>
+                  </a>
+                }
+                @if (s.statut === 'ACTIF' || s.statut === 'INSCRIT' || s.statut === 'INSCRIPTION_VALIDEE') {
+                  <button (click)="showChangeClasseDialog.set(true); menuOpen.set(false)"
+                          class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                          style="background:transparent">
+                    <mat-icon style="font-size:16px;height:16px;width:16px;color:#d97706">swap_horiz</mat-icon>
+                    <span style="color:var(--text-primary)">Changer de classe</span>
+                  </button>
+                }
+                @if (canCancel(s.statut)) {
+                  <button (click)="showCancelDialog.set(true); menuOpen.set(false)"
+                          class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                          style="background:transparent">
+                    <mat-icon style="font-size:16px;height:16px;width:16px;color:#dc2626">cancel</mat-icon>
+                    <span style="color:#dc2626">Annuler l'inscription</span>
+                  </button>
+                }
+
+                <!-- ── Divider ── -->
+                <div class="my-1" style="height:1px;background:var(--border-color)"></div>
+
+                <!-- ── Navigation rapide ── -->
+                <p class="px-3 pt-1.5 pb-1 text-xs font-semibold uppercase tracking-wider"
+                   style="color:var(--text-muted);background:var(--surface-2)">Consulter</p>
+
+                <button (click)="activeTab.set('notes'); menuOpen.set(false)"
+                        class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                        style="background:transparent;color:var(--text-primary)">
+                  <mat-icon style="font-size:16px;height:16px;width:16px;color:var(--accent)">grade</mat-icon>
+                  Notes & résultats
+                </button>
+                <button (click)="activeTab.set('bulletins'); menuOpen.set(false)"
+                        class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                        style="background:transparent;color:var(--text-primary)">
+                  <mat-icon style="font-size:16px;height:16px;width:16px;color:var(--accent)">description</mat-icon>
+                  Bulletins scolaires
+                </button>
+                <button (click)="activeTab.set('factures'); menuOpen.set(false)"
+                        class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                        style="background:transparent;color:var(--text-primary)">
+                  <mat-icon style="font-size:16px;height:16px;width:16px;color:var(--accent)">receipt_long</mat-icon>
+                  Paiements & factures
+                </button>
+
+                <!-- ── Divider ── -->
+                <div class="my-1" style="height:1px;background:var(--border-color)"></div>
+
+                <!-- ── Documents ── -->
+                <p class="px-3 pt-1.5 pb-1 text-xs font-semibold uppercase tracking-wider"
+                   style="color:var(--text-muted);background:var(--surface-2)">Imprimer / Exporter</p>
+
+                <button (click)="exportPdf(s); menuOpen.set(false)"
+                        class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                        style="background:transparent;color:var(--text-primary)">
+                  <mat-icon style="font-size:16px;height:16px;width:16px;color:#6366f1">picture_as_pdf</mat-icon>
+                  Exporter PDF complet
+                </button>
+                <button (click)="printCard(s); menuOpen.set(false)"
+                        class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left pb-2.5"
+                        style="background:transparent;color:var(--text-primary)">
+                  <mat-icon style="font-size:16px;height:16px;width:16px;color:#6366f1">badge</mat-icon>
+                  Imprimer la carte
+                </button>
+
+              </div>
+            }
+          </div>
+
         </div>
       </div>
     </div>
@@ -1205,6 +1277,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   // ── UI state ──────────────────────────────────────────────────────────────
   protected readonly activeTab              = signal<Tab>('infos');
+  protected readonly menuOpen               = signal(false);
   protected readonly showCancelDialog       = signal(false);
   protected readonly cancelMotifTouched     = signal(false);
   protected readonly showChangeClasseDialog = signal(false);
@@ -1345,6 +1418,8 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   protected canReinscrire(statut: StudentStatut): boolean {
     return ['DIPLOME', 'TRANSFERE', 'EXCLUS'].includes(statut);
   }
+
+  protected toggleMenu(): void { this.menuOpen.set(!this.menuOpen()); }
 
   // ── Confirm change classe ──────────────────────────────────────────────────
   protected confirmChangeClasse(): void {
