@@ -24,7 +24,33 @@ export const MOCK_ETABLISSEMENTS: IEtablissement[] = [
 ];
 
 export const MOCK_ANNEES: IAnneeAcademique[] = [
-  { publicId: 'annee-001', libelle: '2025-2026', dateDebut: '2025-10-01', dateFin: '2026-06-30', active: true },
-  { publicId: 'annee-002', libelle: '2024-2025', dateDebut: '2024-10-01', dateFin: '2025-06-30', active: false },
-  { publicId: 'annee-003', libelle: '2023-2024', dateDebut: '2023-10-01', dateFin: '2024-06-30', active: false },
+  {
+    publicId: 'annee-001', libelle: '2025-2026',
+    dateDebut: '2025-10-01', dateFin: '2026-06-30', active: true,
+    nbEtudiants: 847, nbEnseignants: 54, nbCours: 68, nbInscriptions: 903, tauxReussite: 78,
+    description: 'Année en cours — 5 promotions actives, session d\'examen en juin',
+  },
+  {
+    publicId: 'annee-002', libelle: '2024-2025',
+    dateDebut: '2024-10-01', dateFin: '2025-06-30', active: false,
+    nbEtudiants: 812, nbEnseignants: 51, nbCours: 65, nbInscriptions: 856, tauxReussite: 81,
+    description: 'Clôturée — 135 diplômés, taux de réussite en progression',
+  },
+  {
+    publicId: 'annee-003', libelle: '2023-2024',
+    dateDebut: '2023-10-01', dateFin: '2024-06-30', active: false,
+    nbEtudiants: 749, nbEnseignants: 48, nbCours: 62, nbInscriptions: 793, tauxReussite: 76,
+    description: 'Clôturée — Première année avec le nouveau programme LMD',
+  },
+  {
+    publicId: 'annee-004', libelle: '2022-2023',
+    dateDebut: '2022-10-01', dateFin: '2023-06-30', active: false,
+    nbEtudiants: 680, nbEnseignants: 44, nbCours: 58, nbInscriptions: 710, tauxReussite: 73,
+    description: 'Clôturée — Reprise post-COVID, effectifs en hausse',
+  },
+  {
+    publicId: 'annee-005', libelle: '2026-2027',
+    dateDebut: '2026-10-01', dateFin: '2027-06-30', active: false,
+    description: 'Prochaine année — inscriptions prévues à partir de juillet 2026',
+  },
 ];

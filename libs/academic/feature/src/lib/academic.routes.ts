@@ -6,6 +6,12 @@ export const ACADEMIC_ROUTES: Routes = [
     loadComponent: () => import('./pages/grades-list/grades-list.component').then(m => m.GradesListComponent),
   },
   {
+    path: 'saisie',
+    loadComponent: () =>
+      import('./pages/saisie-notes/saisie-notes.component').then(m => m.SaisieNotesComponent),
+    title: 'Saisie des notes',
+  },
+  {
     path: 'bulletins',
     loadComponent: () => import('./pages/bulletins-list/bulletins-list.component').then(m => m.BulletinsListComponent),
   },

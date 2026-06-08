@@ -7,12 +7,13 @@ import { LearningApiService } from './learning-api.service';
 
 interface LearningState {
   cours: ICours[]; selectedCours: ICours | null;
-  examens: IExamen[]; loading: boolean; error: string | null;
+  examens: IExamen[]; selectedExamen: IExamen | null;
+  loading: boolean; error: string | null;
 }
 
 export const LearningStore = signalStore(
   { providedIn: 'root' },
-  withState<LearningState>({ cours: [], selectedCours: null, examens: [], loading: false, error: null }),
+  withState<LearningState>({ cours: [], selectedCours: null, examens: [], selectedExamen: null, loading: false, error: null }),
   withComputed(({ cours }) => ({
     coursPublies: computed(() => cours().filter(c => c.statut === 'PUBLIE')),
     nbCours:      computed(() => cours().length),
@@ -39,6 +40,14 @@ export const LearningStore = signalStore(
         catchError((e: Error) => { patchState(store, { loading: false, error: e.message }); return EMPTY; })
       ))
     )),
-    clearError: () => patchState(store, { error: null }),
+    selectExamen: rxMethod<string>(pipe(
+      tap(() => patchState(store, { loading: true })),
+      switchMap(id => api.getExamen(id).pipe(
+        tap(e => patchState(store, { selectedExamen: e, loading: false })),
+        catchError((e: Error) => { patchState(store, { loading: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+    clearError:           () => patchState(store, { error: null }),
+    clearSelectedExamen:  () => patchState(store, { selectedExamen: null }),
   }))
 );

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -81,7 +81,9 @@ const MOCK_DRAFTS: IDraft[] = [
                   <mat-icon style="font-size: 14px; height: 14px; width: 14px">edit</mat-icon>
                   Reprendre
                 </a>
-                <button class="p-1.5 rounded-lg hover:opacity-70 transition-opacity"
+                <button (click)="deleteDraft(draft.id)"
+                        class="p-1.5 rounded-lg hover:opacity-70 transition-opacity"
+                        title="Supprimer ce brouillon"
                         style="color: #dc2626">
                   <mat-icon style="font-size: 18px; height: 18px; width: 18px">delete_outline</mat-icon>
                 </button>
@@ -99,5 +101,11 @@ const MOCK_DRAFTS: IDraft[] = [
   `,
 })
 export class DraftsComponent {
-  readonly drafts = MOCK_DRAFTS;
+  readonly draftList = signal([...MOCK_DRAFTS]);
+  // expose as getter so template can use it
+  get drafts() { return this.draftList(); }
+
+  deleteDraft(id: string): void {
+    this.draftList.update(list => list.filter(d => d.id !== id));
+  }
 }

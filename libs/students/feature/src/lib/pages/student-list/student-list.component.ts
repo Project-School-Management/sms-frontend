@@ -1,259 +1,461 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { StudentsStore } from '@sms/students/data-access';
+import {
+  ChangeDetectionStrategy, Component, inject, OnInit, computed, signal,
+} from '@angular/core';
+import { CommonModule }   from '@angular/common';
+import { RouterLink }     from '@angular/router';
+import { FormsModule }    from '@angular/forms';
+import { MatIconModule }  from '@angular/material/icon';
+import { StudentsStore, CLASSES_MAP } from '@sms/students/data-access';
+import { StudentStatut }  from '@sms/shared/models';
+import { SkeletonTableComponent, EmptyStateComponent, ErrorStateComponent } from '@sms/shared/ui';
 
+// ── Statut config ─────────────────────────────────────────────────────────────
+const STATUT_CFG: Record<string, { label: string; bg: string; color: string; group: string }> = {
+  PRE_INSCRIT:         { label: 'Pré-inscrit',      bg: 'rgba(245,158,11,0.12)', color: '#d97706', group: 'En attente' },
+  INSCRIT:             { label: 'Inscrit',           bg: 'rgba(59,130,246,0.12)', color: '#2563eb', group: 'En attente' },
+  INSCRIPTION_VALIDEE: { label: 'Validé',            bg: 'rgba(16,185,129,0.12)', color: '#059669', group: 'En attente' },
+  ACTIF:               { label: 'Actif',             bg: 'rgba(22,163,74,0.12)',  color: '#16a34a', group: 'Scolarisé'  },
+  INACTIF:             { label: 'Inactif',           bg: 'rgba(107,114,128,0.12)',color: '#6b7280', group: 'Scolarisé'  },
+  INSCRIPTION_ANNULEE: { label: 'Inscr. annulée',    bg: 'rgba(239,68,68,0.12)',  color: '#dc2626', group: 'Clôturé'   },
+  SUSPENDU:            { label: 'Suspendu',          bg: 'rgba(217,119,6,0.12)',  color: '#d97706', group: 'Clôturé'   },
+  ABANDONNE:           { label: 'Abandonné',         bg: 'rgba(239,68,68,0.10)',  color: '#ef4444', group: 'Clôturé'   },
+  TRANSFERE:           { label: 'Transféré',         bg: 'rgba(99,102,241,0.12)', color: '#6366f1', group: 'Clôturé'   },
+  DIPLOME:             { label: 'Diplômé',           bg: 'rgba(99,102,241,0.15)', color: '#4f46e5', group: 'Clôturé'   },
+  EXCLUS:              { label: 'Exclu',             bg: 'rgba(239,68,68,0.15)',  color: '#dc2626', group: 'Clôturé'   },
+};
+
+const ALL_STATUTS = Object.entries(STATUT_CFG).map(([key, val]) => ({ value: key, ...val }));
+
+// ── Component ─────────────────────────────────────────────────────────────────
 @Component({
-  selector: 'sms-student-list',
-  standalone: true,
+  selector:        'sms-student-list',
+  standalone:      true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
+  imports:         [CommonModule, RouterLink, FormsModule, MatIconModule, SkeletonTableComponent, EmptyStateComponent, ErrorStateComponent],
   template: `
-    <div class="p-6">
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Étudiants</h1>
-          <p class="text-sm mt-0.5" style="color: var(--text-secondary)">Gestion des étudiants inscrits</p>
-        </div>
-        <a routerLink="/students/new"
-           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
-           style="background: var(--accent)">
-          <mat-icon style="font-size: 18px; height: 18px; width: 18px">add</mat-icon>
-          Nouvel étudiant
-        </a>
+<div class="p-6">
+
+  <!-- ── Header ── -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Élèves & Inscriptions</h1>
+      <p class="text-sm mt-0.5" style="color: var(--text-secondary)">
+        Gestion du cycle de vie scolaire — {{ store.students().length }} étudiants
+      </p>
+    </div>
+    <a routerLink="/students/new"
+       class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
+       style="background: var(--accent)">
+      <mat-icon style="font-size: 18px; height: 18px; width: 18px">person_add</mat-icon>
+      Nouvelle inscription
+    </a>
+  </div>
+
+  <!-- ── KPI Cards ── -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <!-- Total -->
+    <div class="sms-card p-5 flex items-start gap-4 cursor-pointer hover:opacity-90 transition-opacity"
+         (click)="store.setStatutFilter('')">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-light)">
+        <mat-icon style="color: var(--accent)">people</mat-icon>
       </div>
-
-      <!-- KPI Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="sms-card p-5 flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-light)">
-            <mat-icon style="color: var(--accent)">people</mat-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.students().length }}</p>
-            <p class="text-sm" style="color: var(--text-secondary)">Total étudiants</p>
-          </div>
-        </div>
-        <div class="sms-card p-5 flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(22,163,74,0.1)">
-            <mat-icon style="color: #16a34a">check_circle</mat-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.actifsCount() }}</p>
-            <p class="text-sm" style="color: var(--text-secondary)">Actifs</p>
-          </div>
-        </div>
-        <div class="sms-card p-5 flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(107,114,128,0.1)">
-            <mat-icon style="color: #6b7280">pause_circle</mat-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.inactifsCount() }}</p>
-            <p class="text-sm" style="color: var(--text-secondary)">Inactifs</p>
-          </div>
-        </div>
-        <div class="sms-card p-5 flex items-start gap-4">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(37,99,235,0.1)">
-            <mat-icon style="color: #2563eb">workspace_premium</mat-icon>
-          </div>
-          <div>
-            <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ diplomeCount() }}</p>
-            <p class="text-sm" style="color: var(--text-secondary)">Diplômés</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div class="sms-card overflow-hidden">
-        <div class="px-5 py-4 border-b flex flex-wrap items-center gap-3" style="border-color: var(--border-color)">
-          <h3 class="font-semibold flex-1" style="color: var(--text-primary)">Liste des étudiants</h3>
-          <div class="flex items-center gap-2 flex-wrap">
-            <div class="relative">
-              <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2" style="font-size: 16px; height: 16px; width: 16px; color: var(--text-muted)">search</mat-icon>
-              <input
-                type="search"
-                placeholder="Rechercher nom, matricule..."
-                class="pl-8 pr-3 py-1.5 rounded-lg border text-sm focus:outline-none"
-                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary); width: 220px"
-                [ngModel]="store.searchQuery()"
-                (ngModelChange)="store.setSearchQuery($event)"
-              />
-            </div>
-            <select
-              class="px-3 py-1.5 rounded-lg border text-sm focus:outline-none"
-              style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)"
-              [ngModel]="store.statutFilter()"
-              (ngModelChange)="store.setStatutFilter($event)"
-            >
-              <option value="">Tous les statuts</option>
-              <option value="ACTIF">Actif</option>
-              <option value="INACTIF">Inactif</option>
-              <option value="DIPLOME">Diplômé</option>
-              <option value="EXCLUS">Exclus</option>
-              <option value="TRANSFERE">Transféré</option>
-            </select>
-            <select
-              class="px-3 py-1.5 rounded-lg border text-sm focus:outline-none"
-              style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)"
-              [ngModel]="classeFilter()"
-              (ngModelChange)="classeFilter.set($event)"
-            >
-              <option value="">Toutes les promos</option>
-              <option value="promo-001">L3 GL 2025</option>
-              <option value="promo-002">L2 GL 2025</option>
-              <option value="promo-003">M1 RI 2025</option>
-              <option value="promo-004">L1 GL 2025</option>
-              <option value="promo-005">M2 RI 2025</option>
-            </select>
-          </div>
-        </div>
-
-        @if (store.loading()) {
-          <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
-            <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
-          </div>
-        } @else {
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr style="background: var(--surface-2)">
-                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Étudiant</th>
-                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Matricule</th>
-                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Promotion</th>
-                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Genre</th>
-                  <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Statut</th>
-                  <th class="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (student of displayedStudents(); track student.publicId) {
-                  <tr class="border-t hover:opacity-80 transition-opacity" style="border-color: var(--border-color)">
-                    <td class="px-4 py-3">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                             [style.background]="avatarColor(student.genre)">
-                          {{ student.firstName[0] }}{{ student.lastName[0] }}
-                        </div>
-                        <div>
-                          <p class="font-medium" style="color: var(--text-primary)">{{ student.firstName }} {{ student.lastName }}</p>
-                          <p class="text-xs" style="color: var(--text-secondary)">{{ student.email ?? '—' }}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="px-4 py-3 font-mono text-xs" style="color: var(--text-secondary)">{{ student.matricule }}</td>
-                    <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ promoLabel(student.classePublicId) }}</td>
-                    <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ student.genre === 'M' ? 'Masculin' : 'Féminin' }}</td>
-                    <td class="px-4 py-3">
-                      <span class="px-2 py-0.5 rounded-full text-xs font-semibold" [ngStyle]="statutStyle(student.statut)">
-                        {{ student.statut }}
-                      </span>
-                    </td>
-                    <td class="px-4 py-3 text-right">
-                      <div class="flex items-center gap-2 justify-end">
-                        <a [routerLink]="['/students', student.publicId]"
-                           class="px-2 py-1 rounded text-xs font-medium hover:opacity-80 transition-opacity"
-                           style="background: var(--accent-light); color: var(--accent)">
-                          Voir
-                        </a>
-                        <a [routerLink]="['/students', student.publicId, 'edit']"
-                           class="px-2 py-1 rounded text-xs font-medium hover:opacity-80 transition-opacity"
-                           style="background: var(--surface-2); color: var(--text-secondary)">
-                          Modifier
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="6">
-                      <div class="flex flex-col items-center justify-center py-16 gap-3">
-                        <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">people_outline</mat-icon>
-                        <p style="color: var(--text-secondary)">Aucun étudiant trouvé</p>
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <div class="px-5 py-3 border-t flex items-center justify-between" style="border-color: var(--border-color)">
-            <p class="text-sm" style="color: var(--text-secondary)">
-              {{ displayedStudents().length }} sur {{ store.filteredStudents().length }} étudiant(s)
-            </p>
-            <div class="flex items-center gap-1">
-              <button (click)="prevPage()" [disabled]="currentPage() === 0"
-                class="px-3 py-1 rounded text-xs border disabled:opacity-40"
-                style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
-                ← Préc.
-              </button>
-              <span class="px-3 py-1 text-xs" style="color: var(--text-secondary)">
-                Page {{ currentPage() + 1 }} / {{ totalPages() }}
-              </span>
-              <button (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1"
-                class="px-3 py-1 rounded text-xs border disabled:opacity-40"
-                style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
-                Suiv. →
-              </button>
-            </div>
-          </div>
-        }
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.students().length }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Total</p>
       </div>
     </div>
+    <!-- Actifs -->
+    <div class="sms-card p-5 flex items-start gap-4 cursor-pointer hover:opacity-90 transition-opacity"
+         (click)="store.setStatutFilter('ACTIF')">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(22,163,74,0.10)">
+        <mat-icon style="color: #16a34a">check_circle</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.actifsCount() }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Actifs</p>
+      </div>
+    </div>
+    <!-- En attente / Pré-inscrits -->
+    <div class="sms-card p-5 flex items-start gap-4 cursor-pointer hover:opacity-90 transition-opacity"
+         (click)="store.setStatutFilter('PRE_INSCRIT')">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(245,158,11,0.10)">
+        <mat-icon style="color: #d97706">pending</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.preInscritsCount() }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">En attente</p>
+      </div>
+    </div>
+    <!-- Annulés / Clôturés -->
+    <div class="sms-card p-5 flex items-start gap-4 cursor-pointer hover:opacity-90 transition-opacity"
+         (click)="store.setStatutFilter('INSCRIPTION_ANNULEE')">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(239,68,68,0.10)">
+        <mat-icon style="color: #dc2626">cancel</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.annulationsCount() }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Annulés</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Table card ── -->
+  <div class="sms-card overflow-hidden">
+
+    <!-- Toolbar -->
+    <div class="px-5 py-4 border-b flex flex-wrap items-center gap-3" style="border-color: var(--border-color)">
+      <h3 class="font-semibold" style="color: var(--text-primary)">Liste des étudiants</h3>
+
+      <div class="flex-1"></div>
+
+      <!-- Search -->
+      <div class="relative">
+        <mat-icon class="absolute left-2.5 top-1/2 -translate-y-1/2"
+                  style="font-size:16px;height:16px;width:16px;color:var(--text-muted)">search</mat-icon>
+        <input type="search"
+               placeholder="Nom, matricule, email…"
+               class="pl-8 pr-3 py-1.5 rounded-lg border text-sm focus:outline-none"
+               style="background:var(--surface-2);border-color:var(--border-color);color:var(--text-primary);width:220px"
+               [ngModel]="store.searchQuery()"
+               (ngModelChange)="onSearch($event)" />
+      </div>
+
+      <!-- Status filter -->
+      <select class="px-3 py-1.5 rounded-lg border text-sm focus:outline-none"
+              style="background:var(--surface-2);border-color:var(--border-color);color:var(--text-primary)"
+              [ngModel]="store.statutFilter()"
+              (ngModelChange)="store.setStatutFilter($event)">
+        <option value="">Tous les statuts</option>
+        <optgroup label="En attente">
+          <option value="PRE_INSCRIT">Pré-inscrit</option>
+          <option value="INSCRIT">Inscrit</option>
+          <option value="INSCRIPTION_VALIDEE">Inscription validée</option>
+        </optgroup>
+        <optgroup label="Scolarisé">
+          <option value="ACTIF">Actif</option>
+          <option value="INACTIF">Inactif</option>
+          <option value="SUSPENDU">Suspendu</option>
+        </optgroup>
+        <optgroup label="Clôturé">
+          <option value="INSCRIPTION_ANNULEE">Inscription annulée</option>
+          <option value="ABANDONNE">Abandonné</option>
+          <option value="TRANSFERE">Transféré</option>
+          <option value="DIPLOME">Diplômé</option>
+          <option value="EXCLUS">Exclu</option>
+        </optgroup>
+      </select>
+
+      <!-- Classe filter -->
+      <select class="px-3 py-1.5 rounded-lg border text-sm focus:outline-none"
+              style="background:var(--surface-2);border-color:var(--border-color);color:var(--text-primary)"
+              [ngModel]="classeFilter()"
+              (ngModelChange)="classeFilter.set($event); currentPage.set(0)">
+        <option value="">Toutes les classes</option>
+        @for (entry of classeOptions; track entry.id) {
+          <option [value]="entry.id">{{ entry.libelle }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Loading -->
+    @if (store.loading()) {
+      <sms-skeleton-table />
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr style="background:var(--surface-2)">
+              <th class="text-left px-4 py-3 font-medium" style="color:var(--text-secondary)">Étudiant</th>
+              <th class="text-left px-4 py-3 font-medium hidden md:table-cell" style="color:var(--text-secondary)">Matricule</th>
+              <th class="text-left px-4 py-3 font-medium hidden lg:table-cell" style="color:var(--text-secondary)">Classe</th>
+              <th class="text-left px-4 py-3 font-medium hidden sm:table-cell" style="color:var(--text-secondary)">Nationalité</th>
+              <th class="text-left px-4 py-3 font-medium" style="color:var(--text-secondary)">Statut</th>
+              <th class="px-4 py-3 text-right" style="color:var(--text-secondary)">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (s of displayedStudents(); track s.publicId) {
+              <tr class="border-t hover:opacity-90 transition-opacity" style="border-color:var(--border-color)">
+                <!-- Étudiant -->
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                         [style.background]="avatarBg(s.genre)">
+                      {{ s.firstName[0] }}{{ s.lastName[0] }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-semibold truncate" style="color:var(--text-primary)">
+                        {{ s.firstName }} {{ s.lastName }}
+                      </p>
+                      <p class="text-xs truncate" style="color:var(--text-secondary)">
+                        {{ s.email ?? s.phone ?? '—' }}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <!-- Matricule -->
+                <td class="px-4 py-3 font-mono text-xs hidden md:table-cell" style="color:var(--text-secondary)">
+                  {{ s.matricule }}
+                </td>
+                <!-- Classe -->
+                <td class="px-4 py-3 text-xs hidden lg:table-cell">
+                  <div style="color:var(--text-primary)">{{ s.classeLibelle ?? classeLabel(s.classePublicId) }}</div>
+                  @if (s.niveauLibelle) {
+                    <div style="color:var(--text-muted)">{{ s.niveauLibelle }} · {{ s.filiereLibelle }}</div>
+                  }
+                </td>
+                <!-- Nationalité -->
+                <td class="px-4 py-3 text-xs hidden sm:table-cell" style="color:var(--text-secondary)">
+                  {{ s.nationalite ?? '—' }}
+                </td>
+                <!-- Statut -->
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap"
+                        [style.background]="statutBg(s.statut)"
+                        [style.color]="statutColor(s.statut)">
+                    {{ statutLabel(s.statut) }}
+                  </span>
+                  @if (s.motifStatut) {
+                    <p class="text-xs mt-0.5 truncate max-w-32" style="color:var(--text-muted)"
+                       [title]="s.motifStatut">
+                      {{ s.motifStatut }}
+                    </p>
+                  }
+                </td>
+                <!-- Actions -->
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-1.5 justify-end flex-wrap">
+                    <a [routerLink]="['/students', s.publicId]"
+                       class="px-2.5 py-1 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80"
+                       style="background:var(--accent-light);color:var(--accent)">
+                      Voir
+                    </a>
+                    <a [routerLink]="['/students', s.publicId, 'edit']"
+                       class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-opacity hover:opacity-70"
+                       style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
+                      Modifier
+                    </a>
+                    @if (canCancel(s.statut)) {
+                      <button (click)="openCancelFor(s.publicId, s.firstName + ' ' + s.lastName)"
+                              class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-opacity hover:opacity-70"
+                              style="border-color:rgba(239,68,68,0.3);color:#dc2626;background:rgba(239,68,68,0.06)">
+                        Annuler
+                      </button>
+                    }
+                    @if (canReactivate(s.statut)) {
+                      <button (click)="reactivate(s.publicId)"
+                              class="px-2.5 py-1 rounded-lg text-xs font-medium border transition-opacity hover:opacity-70"
+                              style="border-color:rgba(22,163,74,0.3);color:#16a34a;background:rgba(22,163,74,0.06)">
+                        Réactiver
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">
+                  <sms-empty-state
+                    [type]="store.searchQuery() || store.statutFilter() || classeFilter() ? 'search' : 'students'"
+                    [actionLabel]="store.searchQuery() || store.statutFilter() || classeFilter() ? 'Effacer les filtres' : 'Nouvelle inscription'"
+                    [actionLink]="store.searchQuery() || store.statutFilter() || classeFilter() ? null : '/students/new'"
+                    (action)="clearFilters()">
+                  </sms-empty-state>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-5 py-3 border-t flex items-center justify-between flex-wrap gap-2"
+           style="border-color:var(--border-color)">
+        <p class="text-sm" style="color:var(--text-secondary)">
+          {{ displayedStudents().length }} sur {{ filteredByClasse().length }} étudiant(s)
+          @if (store.statutFilter()) {
+            — filtre : <strong>{{ statutLabel(store.statutFilter()) }}</strong>
+          }
+        </p>
+        <div class="flex items-center gap-1">
+          <button (click)="prevPage()" [disabled]="currentPage() === 0"
+                  class="px-3 py-1 rounded text-xs border disabled:opacity-40 hover:opacity-80"
+                  style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
+            ← Préc.
+          </button>
+          <span class="px-3 py-1 text-xs" style="color:var(--text-secondary)">
+            {{ currentPage() + 1 }} / {{ totalPages() }}
+          </span>
+          <button (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1"
+                  class="px-3 py-1 rounded text-xs border disabled:opacity-40 hover:opacity-80"
+                  style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
+            Suiv. →
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ═══ DIALOG : Annulation rapide depuis la liste ═══ -->
+@if (cancelTarget()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background:rgba(0,0,0,0.45);backdrop-filter:blur(4px)">
+    <div class="sms-card w-full max-w-md overflow-hidden">
+      <div class="px-6 py-5 border-b flex items-center gap-3" style="border-color:var(--border-color)">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(239,68,68,0.10)">
+          <mat-icon style="color:#dc2626;font-size:20px;height:20px;width:20px">cancel</mat-icon>
+        </div>
+        <div>
+          <p class="font-bold" style="color:var(--text-primary)">Annuler l'inscription</p>
+          <p class="text-sm" style="color:var(--text-secondary)">{{ cancelTargetName() }}</p>
+        </div>
+      </div>
+
+      <div class="px-6 py-5">
+        <div class="flex items-start gap-3 mb-4 p-3 rounded-xl"
+             style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.25)">
+          <mat-icon style="color:#d97706;font-size:16px;height:16px;width:16px;flex-shrink:0;margin-top:2px">warning</mat-icon>
+          <p class="text-sm" style="color:var(--text-secondary)">
+            L'inscription sera annulée. L'élève pourra être réactivé ultérieurement.
+          </p>
+        </div>
+        <label class="block text-sm font-semibold mb-2" style="color:var(--text-primary)">
+          Motif <span style="color:#ef4444">*</span>
+        </label>
+        <textarea [(ngModel)]="cancelMotifStr" rows="3"
+                  placeholder="Raison de l'annulation (déménagement, erreur, abandon avant rentrée…)"
+                  class="w-full px-4 py-3 rounded-xl border text-sm outline-none resize-none"
+                  style="border-color:var(--border-color);background:var(--surface-2);color:var(--text-primary)">
+        </textarea>
+        @if (cancelTouched() && !cancelMotifStr.trim()) {
+          <p class="text-xs mt-1.5" style="color:#ef4444">Le motif est obligatoire</p>
+        }
+      </div>
+
+      <div class="px-6 py-4 border-t flex gap-3 justify-end" style="border-color:var(--border-color)">
+        <button (click)="closeCancelDialog()"
+                class="px-4 py-2 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
+                style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
+          Annuler
+        </button>
+        <button (click)="confirmCancel()"
+                [disabled]="store.saving()"
+                class="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50"
+                style="background:#dc2626">
+          @if (store.saving()) {
+            <mat-icon class="animate-spin" style="font-size:16px;height:16px;width:16px">refresh</mat-icon>
+          } @else {
+            <mat-icon style="font-size:16px;height:16px;width:16px">cancel</mat-icon>
+          }
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+}
   `,
 })
 export class StudentListComponent implements OnInit {
-  readonly store = inject(StudentsStore);
+  protected readonly store = inject(StudentsStore);
+
   readonly classeFilter = signal('');
-  readonly currentPage = signal(0);
-  readonly pageSize = 10;
+  readonly currentPage  = signal(0);
+  readonly pageSize     = 10;
 
-  readonly diplomeCount = computed(() => this.store.students().filter(s => s.statut === 'DIPLOME').length);
+  // Cancel dialog state
+  readonly cancelTarget     = signal('');
+  readonly cancelTargetName = signal('');
+  cancelMotifStr            = '';
+  readonly cancelTouched    = signal(false);
 
+  // ── Static data ───────────────────────────────────────────────────────────
+  readonly classeOptions = Object.entries(CLASSES_MAP).map(([id, v]) => ({ id, libelle: v.libelle }));
+
+  // ── Computed ──────────────────────────────────────────────────────────────
   readonly filteredByClasse = computed(() => {
     const cls = this.classeFilter();
-    const students = this.store.filteredStudents();
-    return cls ? students.filter(s => s.classePublicId === cls) : students;
+    return cls
+      ? this.store.filteredStudents().filter(s => s.classePublicId === cls)
+      : this.store.filteredStudents();
   });
 
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredByClasse().length / this.pageSize)));
+  readonly totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.filteredByClasse().length / this.pageSize))
+  );
 
   readonly displayedStudents = computed(() => {
-    const page = this.currentPage();
-    return this.filteredByClasse().slice(page * this.pageSize, (page + 1) * this.pageSize);
+    const p = this.currentPage();
+    return this.filteredByClasse().slice(p * this.pageSize, (p + 1) * this.pageSize);
   });
 
-  ngOnInit() {
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  ngOnInit(): void {
     this.store.loadStudents({ page: 0 });
   }
 
-  prevPage() { this.currentPage.update(p => Math.max(0, p - 1)); }
-  nextPage() { this.currentPage.update(p => Math.min(this.totalPages() - 1, p + 1)); }
+  // ── Pagination ────────────────────────────────────────────────────────────
+  prevPage(): void { this.currentPage.update(p => Math.max(0, p - 1)); }
+  nextPage(): void { this.currentPage.update(p => Math.min(this.totalPages() - 1, p + 1)); }
 
-  avatarColor(genre: string): string {
+  onSearch(q: string): void {
+    this.store.setSearchQuery(q);
+    this.currentPage.set(0);
+  }
+
+  clearFilters(): void {
+    this.store.setSearchQuery('');
+    this.store.setStatutFilter('');
+    this.classeFilter.set('');
+    this.currentPage.set(0);
+  }
+
+  // ── Statut helpers ────────────────────────────────────────────────────────
+  statutLabel(s: string): string { return STATUT_CFG[s]?.label ?? s; }
+  statutBg(s: string):    string { return STATUT_CFG[s]?.bg    ?? 'rgba(107,114,128,0.1)'; }
+  statutColor(s: string): string { return STATUT_CFG[s]?.color ?? '#6b7280'; }
+
+  classeLabel(id?: string): string {
+    return id ? (CLASSES_MAP[id]?.libelle ?? id) : '—';
+  }
+
+  avatarBg(genre: string): string {
     return genre === 'F' ? '#ec4899' : '#6366f1';
   }
 
-  promoLabel(id?: string): string {
-    const map: Record<string, string> = {
-      'promo-001': 'L3 GL 2025', 'promo-002': 'L2 GL 2025',
-      'promo-003': 'M1 RI 2025', 'promo-004': 'L1 GL 2025', 'promo-005': 'M2 RI 2025',
-    };
-    return id ? (map[id] ?? id) : '—';
+  // ── Workflow conditions ───────────────────────────────────────────────────
+  canCancel(statut: StudentStatut): boolean {
+    return ['PRE_INSCRIT', 'INSCRIT', 'INSCRIPTION_VALIDEE', 'ACTIF', 'SUSPENDU'].includes(statut);
   }
 
-  statutStyle(statut: string): Record<string, string> {
-    const map: Record<string, Record<string, string>> = {
-      ACTIF:     { background: '#dcfce7', color: '#16a34a' },
-      INACTIF:   { background: '#f3f4f6', color: '#6b7280' },
-      DIPLOME:   { background: '#dbeafe', color: '#2563eb' },
-      EXCLUS:    { background: '#fee2e2', color: '#dc2626' },
-      TRANSFERE: { background: '#fef3c7', color: '#d97706' },
-    };
-    return map[statut] ?? { background: '#f3f4f6', color: '#6b7280' };
+  canReactivate(statut: StudentStatut): boolean {
+    return ['INSCRIPTION_ANNULEE', 'SUSPENDU', 'INACTIF', 'ABANDONNE'].includes(statut);
+  }
+
+  // ── Cancel dialog ─────────────────────────────────────────────────────────
+  openCancelFor(publicId: string, name: string): void {
+    this.cancelTarget.set(publicId);
+    this.cancelTargetName.set(name);
+    this.cancelMotifStr = '';
+    this.cancelTouched.set(false);
+  }
+
+  closeCancelDialog(): void {
+    this.cancelTarget.set('');
+    this.cancelMotifStr = '';
+    this.cancelTouched.set(false);
+  }
+
+  confirmCancel(): void {
+    this.cancelTouched.set(true);
+    if (!this.cancelMotifStr.trim()) return;
+    const publicId = this.cancelTarget();
+    if (!publicId) return;
+    this.store.cancelInscription({ publicId, motif: this.cancelMotifStr.trim() });
+    setTimeout(() => this.closeCancelDialog(), 350);
+  }
+
+  reactivate(publicId: string): void {
+    this.store.reactiverInscription(publicId);
   }
 }

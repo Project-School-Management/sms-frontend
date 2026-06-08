@@ -65,11 +65,16 @@ export class NotificationService implements OnDestroy {
     this.all.update(list => list.map(n => ({ ...n, archived: true, read: true })));
   }
 
+  delete(id: string): void {
+    this.all.update(list => list.filter(n => n.id !== id));
+  }
+
   addNotification(n: INotification): void {
     this.all.update(list => [n, ...list]);
   }
 
   init(): void {
+    if (this.subscription) return; // idempotent — prevents double subscription
     this.ws.connect();
     this.subscription = this.ws.incoming$.subscribe(n => this.addNotification(n));
   }

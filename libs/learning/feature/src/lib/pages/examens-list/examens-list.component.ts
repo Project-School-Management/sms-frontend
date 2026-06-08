@@ -4,6 +4,7 @@ import { RouterLink }   from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { LearningStore } from '@sms/learning/data-access';
 import { IExamen, StatutExamen } from '@sms/shared/models';
+import { SkeletonTableComponent, EmptyStateComponent } from '@sms/shared/ui';
 
 // ── Statut config ─────────────────────────────────────────────────────────────
 const STATUT_CONFIG: Record<StatutExamen, { bg: string; color: string; icon: string; label: string }> = {
@@ -17,7 +18,7 @@ const STATUT_CONFIG: Record<StatutExamen, { bg: string; color: string; icon: str
   selector:        'sms-examens-list',
   standalone:      true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports:         [CommonModule, RouterLink, MatIconModule],
+  imports:         [CommonModule, RouterLink, MatIconModule, SkeletonTableComponent, EmptyStateComponent],
   template: `
 <div class="p-6">
 
@@ -75,10 +76,7 @@ const STATUT_CONFIG: Record<StatutExamen, { bg: string; color: string; icon: str
 
   <!-- List -->
   @if (store.loading()) {
-    <div class="flex items-center justify-center py-16 gap-2" style="color: var(--text-secondary)">
-      <mat-icon class="animate-spin">refresh</mat-icon>
-      Chargement...
-    </div>
+    <sms-skeleton-table />
   } @else {
     <div class="flex flex-col gap-4">
       @for (exam of store.examens(); track exam.publicId) {
@@ -134,11 +132,19 @@ const STATUT_CONFIG: Record<StatutExamen, { bg: string; color: string; icon: str
             <!-- Right: actions -->
             <div class="flex flex-col gap-2 flex-shrink-0">
               @if (exam.statut !== 'TERMINE') {
-                <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
-                        style="background: var(--accent)">
+                <a [routerLink]="['/learning/examens', exam.publicId]"
+                   class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
+                   style="background: var(--accent)">
                   <mat-icon style="font-size: 16px; height: 16px; width: 16px">play_arrow</mat-icon>
                   Démarrer
-                </button>
+                </a>
+              } @else {
+                <a [routerLink]="['/learning/examens', exam.publicId]"
+                   class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
+                   style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px">visibility</mat-icon>
+                  Voir
+                </a>
               }
               <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border transition-opacity hover:opacity-70"
                       style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
@@ -149,10 +155,7 @@ const STATUT_CONFIG: Record<StatutExamen, { bg: string; color: string; icon: str
           </div>
         </div>
       } @empty {
-        <div class="flex flex-col items-center justify-center py-16 gap-3">
-          <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">quiz</mat-icon>
-          <p style="color: var(--text-secondary)">Aucun examen disponible</p>
-        </div>
+        <sms-empty-state type="exams" actionLabel="Créer un examen" />
       }
     </div>
   }

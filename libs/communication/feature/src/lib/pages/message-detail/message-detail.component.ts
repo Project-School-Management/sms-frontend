@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -107,22 +107,59 @@ Fatoumata Bah - L2 Gestion`,
               <mat-icon style="font-size: 16px; height: 16px; width: 16px">reply</mat-icon>
               Répondre
             </button>
-            <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border hover:opacity-80 transition-opacity"
+            <button (click)="forward()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border hover:opacity-80 transition-opacity"
               style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
               <mat-icon style="font-size: 16px; height: 16px; width: 16px">forward</mat-icon>
               Transférer
             </button>
-            <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border hover:opacity-80 transition-opacity"
-              style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
-              <mat-icon style="font-size: 16px; height: 16px; width: 16px">archive</mat-icon>
-              Archiver
+            <button (click)="archive()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border hover:opacity-80 transition-opacity"
+              [style.border-color]="archived() ? 'rgba(22,163,74,0.4)' : 'var(--border-color)'"
+              [style.color]="archived() ? '#16a34a' : 'var(--text-secondary)'"
+              [style.background]="archived() ? 'rgba(22,163,74,0.06)' : 'var(--surface-2)'">
+              <mat-icon style="font-size: 16px; height: 16px; width: 16px">{{ archived() ? 'unarchive' : 'archive' }}</mat-icon>
+              {{ archived() ? 'Désarchiver' : 'Archiver' }}
             </button>
-            <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border hover:opacity-80 transition-opacity ml-auto"
+            <button (click)="confirmDelete()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border hover:opacity-80 transition-opacity ml-auto"
               style="border-color: var(--border-color); color: #dc2626; background: rgba(239,68,68,0.08)">
               <mat-icon style="font-size: 16px; height: 16px; width: 16px">delete_outline</mat-icon>
               Supprimer
             </button>
           </div>
+
+          <!-- Toast notification -->
+          @if (toast()) {
+            <div class="mt-3 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium"
+                 style="background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.2); color: #16a34a">
+              <mat-icon style="font-size: 16px; height: 16px; width: 16px">check_circle</mat-icon>
+              {{ toast() }}
+            </div>
+          }
+
+          <!-- Delete confirm -->
+          @if (showDeleteConfirm()) {
+            <div class="mt-3 p-4 rounded-xl" style="background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2)">
+              <p class="text-sm font-semibold mb-3" style="color: #dc2626">Confirmer la suppression ?</p>
+              <p class="text-xs mb-3" style="color: var(--text-secondary)">
+                Ce message sera supprimé définitivement. Cette action ne peut pas être annulée.
+              </p>
+              <div class="flex gap-2">
+                <button (click)="deleteMessage()"
+                  class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+                  style="background: #dc2626">
+                  <mat-icon style="font-size: 14px; height: 14px; width: 14px">delete</mat-icon>
+                  Oui, supprimer
+                </button>
+                <button (click)="showDeleteConfirm.set(false)"
+                  class="px-3 py-1.5 rounded-lg text-xs border"
+                  style="border-color: var(--border-color); color: var(--text-secondary)">
+                  Annuler
+                </button>
+              </div>
+            </div>
+          }
         </div>
 
         <!-- Reply form -->
@@ -185,10 +222,14 @@ Fatoumata Bah - L2 Gestion`,
   `,
 })
 export class MessageDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
+  private route  = inject(ActivatedRoute);
+  private router = inject(Router);
 
-  readonly msg = signal<IMessage | null>(null);
-  readonly showReply = signal(false);
+  readonly msg               = signal<IMessage | null>(null);
+  readonly showReply         = signal(false);
+  readonly archived          = signal(false);
+  readonly toast             = signal('');
+  readonly showDeleteConfirm = signal(false);
   replyText = '';
 
   ngOnInit(): void {
@@ -196,16 +237,41 @@ export class MessageDetailComponent implements OnInit {
     this.msg.set(MOCK_MESSAGES[id] ?? null);
   }
 
+  private showToast(msg: string): void {
+    this.toast.set(msg);
+    setTimeout(() => this.toast.set(''), 3000);
+  }
+
   sendReply(): void {
     const m = this.msg();
     if (!m || !this.replyText.trim()) return;
-    const reply: IReply = {
-      from: 'Moi',
-      body: this.replyText,
-      date: new Date(),
-    };
+    const reply: IReply = { from: 'Moi', body: this.replyText, date: new Date() };
     this.msg.set({ ...m, thread: [...(m.thread ?? []), reply] });
     this.replyText = '';
     this.showReply.set(false);
+    this.showToast('Réponse envoyée avec succès');
+  }
+
+  forward(): void {
+    const m = this.msg();
+    if (!m) return;
+    this.router.navigate(['/communication/compose'], {
+      queryParams: { subject: `Fwd: ${m.subject}`, body: `--- Message transféré ---\nDe : ${m.from}\n\n${m.body}` },
+    });
+  }
+
+  archive(): void {
+    this.archived.update(v => !v);
+    this.showToast(this.archived() ? 'Message archivé' : 'Message désarchivé');
+  }
+
+  confirmDelete(): void {
+    this.showDeleteConfirm.set(true);
+  }
+
+  deleteMessage(): void {
+    this.showDeleteConfirm.set(false);
+    this.showToast('Message supprimé');
+    setTimeout(() => this.router.navigate(['/communication/inbox']), 1200);
   }
 }

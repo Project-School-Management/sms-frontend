@@ -46,22 +46,42 @@ type ViewMode = 'semaine' | 'jour' | 'liste' | 'enseignant' | 'salle';
       <p class="text-sm mt-0.5" style="color: var(--text-secondary)">{{ classeInfo()?.libelle }} — {{ classeInfo()?.niveau }} {{ classeInfo()?.filiere }}</p>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
-      <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm hover:opacity-80"
+      <button (click)="printSchedule()"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm hover:opacity-80 transition-opacity"
               style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px">print</mat-icon> Imprimer
       </button>
-      <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm hover:opacity-80"
+      <button (click)="exportSimulated('PDF')"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm hover:opacity-80 transition-opacity"
               style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px">download</mat-icon> Export PDF
       </button>
-      <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm hover:opacity-80"
+      <button (click)="exportSimulated('Excel')"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm hover:opacity-80 transition-opacity"
               style="border-color: var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px">table_chart</mat-icon> Excel
       </button>
-      <button class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-white" style="background: var(--accent)">
-        <mat-icon style="font-size: 16px; height: 16px; width: 16px">auto_awesome</mat-icon> Générer auto
+      <button (click)="autoGenerate()"
+              [disabled]="generating()"
+              class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-50"
+              style="background: var(--accent)">
+        @if (generating()) {
+          <mat-icon class="animate-spin" style="font-size: 16px; height: 16px; width: 16px">refresh</mat-icon>
+          Génération…
+        } @else {
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px">auto_awesome</mat-icon>
+          Générer auto
+        }
       </button>
     </div>
+
+    @if (scheduleToast()) {
+      <div class="mt-2 text-xs px-3 py-1.5 rounded-lg inline-flex items-center gap-1"
+           style="background: rgba(22,163,74,0.08); color: #16a34a; border: 1px solid rgba(22,163,74,0.2)">
+        <mat-icon style="font-size: 13px; height: 13px; width: 13px">check_circle</mat-icon>
+        {{ scheduleToast() }}
+      </div>
+    }
   </div>
 
   <!-- ── Sélecteur de contexte ─────────────────────────────────────────── -->
@@ -622,5 +642,30 @@ export class ScheduleViewComponent implements OnInit {
       .slice(0, 2)
       .join('')
       .toUpperCase();
+  }
+
+  // ── Nouvelles actions ─────────────────────────────────────────────────────
+  readonly generating    = signal(false);
+  readonly scheduleToast = signal('');
+
+  private showToast(msg: string): void {
+    this.scheduleToast.set(msg);
+    setTimeout(() => this.scheduleToast.set(''), 3500);
+  }
+
+  printSchedule(): void {
+    window.print();
+  }
+
+  exportSimulated(format: 'PDF' | 'Excel'): void {
+    this.showToast(`Export ${format} généré — téléchargement simulé`);
+  }
+
+  autoGenerate(): void {
+    this.generating.set(true);
+    setTimeout(() => {
+      this.generating.set(false);
+      this.showToast('Emploi du temps auto-généré avec succès');
+    }, 2000);
   }
 }

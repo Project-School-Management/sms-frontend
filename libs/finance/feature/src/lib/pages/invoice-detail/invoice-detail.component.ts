@@ -134,6 +134,11 @@ export class InvoiceDetailComponent implements OnInit {
   openPaymentDialog(): void {
     const f = this.facture();
     if (!f) return;
-    this.dialog.open(PaymentDialogComponent, { width: '500px', data: { facture: f } });
+    this.dialog.open(PaymentDialogComponent, {
+      width: '480px',
+      maxWidth: '96vw',
+      panelClass: 'sms-payment-dialog',
+      data: { facture: f },
+    });
   }
 }

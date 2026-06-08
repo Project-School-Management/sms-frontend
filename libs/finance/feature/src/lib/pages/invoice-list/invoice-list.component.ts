@@ -8,6 +8,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { IFacture, StatutFacture } from '@sms/shared/models';
 import { FinanceStore } from '@sms/finance/data-access';
 import { PaymentDialogComponent } from '../../components/payment-dialog/payment-dialog.component';
+import { SkeletonTableComponent, EmptyStateComponent, ErrorStateComponent } from '@sms/shared/ui';
 
 const STUDENT_NAMES: Record<number, string> = {
   1: 'Awa Diallo', 2: 'Kofi Mensah', 3: 'Fatou Traoré', 4: 'Moussa Coulibaly',
@@ -21,7 +22,7 @@ const STUDENT_NAMES: Record<number, string> = {
   selector: 'sms-invoice-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, FormsModule, MatIconModule, MatDialogModule],
+  imports: [CommonModule, RouterLink, FormsModule, MatIconModule, MatDialogModule, SkeletonTableComponent, EmptyStateComponent, ErrorStateComponent],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -104,14 +105,9 @@ const STUDENT_NAMES: Record<number, string> = {
         </div>
 
         @if (store.loading()) {
-          <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
-            <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
-          </div>
+          <sms-skeleton-table />
         } @else if (facturesFiltrees().length === 0) {
-          <div class="flex flex-col items-center justify-center py-16 gap-3">
-            <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">receipt_long</mat-icon>
-            <p style="color: var(--text-secondary)">Aucune facture trouvée</p>
-          </div>
+          <sms-empty-state type="invoices" actionLabel="Retour au tableau de bord" actionLink="/finance" />
         } @else {
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -218,6 +214,11 @@ export class InvoiceListComponent implements OnInit {
   }
 
   openPaymentDialog(facture: IFacture): void {
-    this.dialog.open(PaymentDialogComponent, { width: '500px', data: { facture } });
+    this.dialog.open(PaymentDialogComponent, {
+      width: '480px',
+      maxWidth: '96vw',
+      panelClass: 'sms-payment-dialog',
+      data: { facture },
+    });
   }
 }

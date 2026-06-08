@@ -24,10 +24,19 @@ export interface IEtablissement {
   logoUrl?:  string;
 }
 
+export type StatutAnnee = 'A_VENIR' | 'EN_COURS' | 'CLOTUREE';
+
 export interface IAnneeAcademique {
-  publicId:  string;
-  libelle:   string;
-  dateDebut: string;
-  dateFin:   string;
-  active:    boolean;
+  publicId:       string;
+  libelle:        string;
+  dateDebut:      string;
+  dateFin:        string;
+  active:         boolean;
+  // Statistiques
+  nbEtudiants?:   number;
+  nbEnseignants?: number;
+  nbCours?:       number;
+  nbInscriptions?: number;
+  tauxReussite?:  number;
+  description?:   string;
 }

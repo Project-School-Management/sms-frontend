@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { AnalyticsStore } from '@sms/analytics/data-access';
+import { AnalyticsStore, MOCK_EVOLUTION_MENSUELLE, IEvolutionMensuelle } from '@sms/analytics/data-access';
+import { SkeletonCardComponent, SkeletonTableComponent } from '@sms/shared/ui';
 
 @Component({
   selector: 'sms-kpi-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, MatIconModule],
+  imports: [CommonModule, RouterLink, MatIconModule, SkeletonCardComponent, SkeletonTableComponent],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -25,9 +26,13 @@ import { AnalyticsStore } from '@sms/analytics/data-access';
       </div>
 
       @if (store.loading()) {
-        <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
-          <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          @for (_ of [1,2,3,4]; track $_) { <sms-skeleton-card /> }
         </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          @for (_ of [1,2,3]; track $_) { <sms-skeleton-card /> }
+        </div>
+        <sms-skeleton-table />
       }
 
       @if (store.kpiOverview(); as kpi) {
@@ -109,6 +114,92 @@ import { AnalyticsStore } from '@sms/analytics/data-access';
         </div>
       }
 
+      <!-- ── Ligne 2 : Opérateurs Mobile Money + Évolution mensuelle ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+        <!-- Répartition par opérateur -->
+        @if (store.kpiFinancier(); as fin) {
+          <div class="sms-card overflow-hidden">
+            <div class="px-5 py-4 border-b" style="border-color: var(--border-color)">
+              <h3 class="font-semibold" style="color: var(--text-primary)">Répartition Mobile Money</h3>
+              <p class="text-xs mt-0.5" style="color: var(--text-secondary)">
+                {{ formatXOF(fin.totalEncaisse) }} encaissé · taux {{ fin.tauxRecouvrement }}%
+              </p>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+              @for (op of fin.parOperateur; track op.operateur) {
+                <div>
+                  <div class="flex items-center justify-between text-xs mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full"
+                            [style.background]="operateurColor(op.operateur)"></span>
+                      <span class="font-medium" style="color: var(--text-primary)">{{ op.operateur }}</span>
+                    </div>
+                    <span style="color: var(--text-secondary)">{{ formatXOF(op.montant) }}</span>
+                  </div>
+                  <div class="w-full rounded-full h-2" style="background: var(--border-color)">
+                    <div class="h-2 rounded-full transition-all"
+                         [style.width.%]="fin.totalEncaisse > 0 ? (op.montant / fin.totalEncaisse) * 100 : 0"
+                         [style.background]="operateurColor(op.operateur)"></div>
+                  </div>
+                  <p class="text-xs mt-0.5 text-right" style="color: var(--text-muted)">
+                    {{ fin.totalEncaisse > 0 ? ((op.montant / fin.totalEncaisse) * 100).toFixed(1) : '0' }}%
+                  </p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Évolution mensuelle -->
+        <div class="sms-card overflow-hidden">
+          <div class="px-5 py-4 border-b" style="border-color: var(--border-color)">
+            <h3 class="font-semibold" style="color: var(--text-primary)">Évolution des inscriptions</h3>
+            <p class="text-xs mt-0.5" style="color: var(--text-secondary)">Cumul mensuel 2025-2026</p>
+          </div>
+          <div class="p-5">
+            <!-- Histogram inscriptions -->
+            <div class="flex items-end gap-1.5" style="height: 100px">
+              @for (m of evolution; track m.mois) {
+                <div class="flex-1 flex flex-col items-center gap-1 min-w-0">
+                  <span class="text-xs font-semibold truncate" style="color: var(--accent)">
+                    {{ m.inscriptions }}
+                  </span>
+                  <div class="w-full rounded-t transition-all"
+                       style="background: var(--accent); opacity: 0.75"
+                       [style.height.px]="maxEvol > 0 ? Math.max(4, (m.inscriptions / maxEvol) * 72) : 4">
+                  </div>
+                  <span class="text-xs" style="color: var(--text-muted)">{{ m.mois.slice(0,3) }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Paiements horizontal bars -->
+            <div class="mt-5">
+              <p class="text-xs font-medium mb-2.5" style="color: var(--text-secondary)">Paiements mensuels</p>
+              <div class="flex flex-col gap-2">
+                @for (m of evolution; track m.mois) {
+                  <div class="flex items-center gap-2 text-xs">
+                    <span class="w-9 shrink-0 font-medium" style="color: var(--text-muted)">
+                      {{ m.mois.slice(0,3) }}
+                    </span>
+                    <div class="flex-1 rounded-full h-1.5" style="background: var(--border-color)">
+                      <div class="h-1.5 rounded-full transition-all" style="background: #16a34a"
+                           [style.width.%]="maxPaiement > 0 ? (m.paiements / maxPaiement) * 100 : 0">
+                      </div>
+                    </div>
+                    <span class="w-20 text-right shrink-0" style="color: var(--text-secondary)">
+                      {{ formatXOF(m.paiements) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- Résultats par promotion -->
       @if (store.kpiAcademique().length > 0) {
         <div class="sms-card overflow-hidden">
@@ -180,9 +271,14 @@ export class KpiDashboardComponent implements OnInit {
   readonly store = inject(AnalyticsStore);
   readonly Math = Math;
 
-  ngOnInit() {
+  readonly evolution: IEvolutionMensuelle[] = MOCK_EVOLUTION_MENSUELLE;
+  readonly maxEvol     = Math.max(...MOCK_EVOLUTION_MENSUELLE.map(m => m.inscriptions), 1);
+  readonly maxPaiement = Math.max(...MOCK_EVOLUTION_MENSUELLE.map(m => m.paiements), 1);
+
+  ngOnInit(): void {
     this.store.loadKpiOverview();
     this.store.loadKpiAcademique();
+    this.store.loadKpiFinancier();
   }
 
   formatXOF(amount: number): string {
@@ -190,7 +286,17 @@ export class KpiDashboardComponent implements OnInit {
     return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount) + ' XOF';
   }
 
-  maxCount(promo: any): number {
-    return Math.max(...promo.distribution.map((d: any) => d.count), 1);
+  maxCount(promo: { distribution: { count: number }[] }): number {
+    return Math.max(...promo.distribution.map(d => d.count), 1);
+  }
+
+  operateurColor(op: string): string {
+    const map: Record<string, string> = {
+      WAVE:         '#0891b2',
+      ORANGE_MONEY: '#ea580c',
+      MTN_MOMO:     '#d97706',
+      MOOV_MONEY:   '#16a34a',
+    };
+    return map[op] ?? 'var(--accent)';
   }
 }

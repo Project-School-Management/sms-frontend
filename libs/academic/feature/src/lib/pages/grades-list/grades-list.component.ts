@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { AcademicStore } from '@sms/academic/data-access';
 import { MOCK_PROMOTIONS } from '@sms/academic/data-access';
+import { SkeletonTableComponent } from '@sms/shared/ui';
 
 const CLASSES = [
   { id: 'cls-terminale-s1', libelle: 'Terminale S1', niveau: 'Terminale' },
@@ -16,7 +17,7 @@ const CLASSES = [
   selector: 'sms-grades-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
+  imports: [CommonModule, RouterLink, FormsModule, MatIconModule, SkeletonTableComponent],
   template: `
 <div class="p-6">
 
@@ -33,15 +34,18 @@ const CLASSES = [
         <mat-icon style="font-size: 16px; height: 16px; width: 16px">description</mat-icon>
         Bulletins
       </a>
-      <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+      <button (click)="exportCsv()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-80"
               style="border: 1px solid var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px">download</mat-icon>
         Export CSV
       </button>
-      <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white" style="background: var(--accent)">
-        <mat-icon style="font-size: 18px; height: 18px; width: 18px">add</mat-icon>
-        Saisir une note
-      </button>
+      <a routerLink="/academic/saisie"
+         class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
+         style="background: var(--accent)">
+        <mat-icon style="font-size: 18px; height: 18px; width: 18px">edit_note</mat-icon>
+        Saisir des notes
+      </a>
     </div>
   </div>
 
@@ -213,9 +217,7 @@ const CLASSES = [
     </div>
 
     @if (store.loading()) {
-      <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
-        <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
-      </div>
+      <sms-skeleton-table />
     } @else {
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -322,5 +324,28 @@ export class GradesListComponent implements OnInit {
 
   initiales(nom: string): string {
     return nom.split(' ').map(p => p[0] ?? '').slice(0, 2).join('').toUpperCase();
+  }
+
+  exportCsv(): void {
+    const notes = this.store.filteredNotes();
+    if (!notes.length) return;
+    const header = ['Élève', 'Matière', 'Note /20', 'Coefficient', 'Statut', 'Enseignant', 'Date'];
+    const rows = notes.map(n => [
+      n.studentNom ?? n.studentPublicId,
+      n.matiereLibelle,
+      n.absent ? 'ABS' : (n.valeur ?? '—'),
+      n.coefficient ?? 1,
+      n.statut,
+      n.enseignantNom ?? '—',
+      n.createdDate,
+    ]);
+    const csv = [header, ...rows].map(r => r.join(';')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `notes-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

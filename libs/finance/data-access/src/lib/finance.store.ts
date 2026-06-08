@@ -4,6 +4,7 @@ import { rxMethod }                  from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, EMPTY } from 'rxjs';
 import { IFacture, IPaiement, IBourse, IFraisScolarite, IInitierPaiementRequest, StatutFacture } from '@sms/shared/models';
 import { FinanceApiService }         from './finance-api.service';
+import { ToastService }              from '@sms/shared/ui';
 
 interface FinanceState {
   factures: IFacture[]; selectedFacture: IFacture | null;
@@ -30,7 +31,7 @@ export const FinanceStore = signalStore(
     }),
     hasMore: computed(() => (currentPage() + 1) * 20 < totalCount()),
   })),
-  withMethods((store, api = inject(FinanceApiService)) => ({
+  withMethods((store, api = inject(FinanceApiService), toast = inject(ToastService)) => ({
     loadFactures: rxMethod<number>(pipe(
       tap(() => patchState(store, { loading: true, error: null })),
       switchMap(page => api.getFactures(page).pipe(
@@ -55,8 +56,23 @@ export const FinanceStore = signalStore(
     initierPaiement: rxMethod<IInitierPaiementRequest>(pipe(
       tap(() => patchState(store, { saving: true, error: null })),
       switchMap(req => api.initierPaiement(req).pipe(
-        tap(p => patchState(store, s => ({ paiements: [...s.paiements, p], saving: false }))),
-        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+        tap(p => {
+          patchState(store, s => ({
+            paiements: [...s.paiements, p],
+            saving: false,
+            factures: s.factures.map(f => f.publicId === req.facturePublicId
+              ? { ...f, montantPaye: (f.montantPaye ?? 0) + req.montant,
+                  solde: Math.max(0, (f.solde ?? f.montantTotal) - req.montant),
+                  statut: ((f.solde ?? f.montantTotal) - req.montant <= 0 ? 'PAYEE' : 'PARTIELLEMENT_PAYEE') as IFacture['statut'] }
+              : f),
+          }));
+          toast.success(`Paiement de ${new Intl.NumberFormat('fr-FR').format(req.montant)} XOF initié via ${req.operateur}.`);
+        }),
+        catchError((e: Error) => {
+          patchState(store, { saving: false, error: e.message });
+          toast.error(`Erreur lors du paiement : ${e.message}`);
+          return EMPTY;
+        })
       ))
     )),
     loadBourses: rxMethod<number>(pipe(

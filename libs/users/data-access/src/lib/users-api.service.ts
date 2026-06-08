@@ -44,6 +44,30 @@ export class UsersApiService {
   }
 
   getAnnees(): Observable<IAnneeAcademique[]> {
-    return of(MOCK_ANNEES).pipe(delay(200));
+    return of([...MOCK_ANNEES].sort((a, b) => b.libelle.localeCompare(a.libelle))).pipe(delay(200));
+  }
+
+  createAnnee(req: Partial<IAnneeAcademique>): Observable<IAnneeAcademique> {
+    const annee: IAnneeAcademique = {
+      publicId:  `annee-${Date.now()}`,
+      libelle:   req.libelle ?? '',
+      dateDebut: req.dateDebut ?? '',
+      dateFin:   req.dateFin ?? '',
+      active:    false,
+      description: req.description,
+    };
+    MOCK_ANNEES.push(annee);
+    return of(annee).pipe(delay(300));
+  }
+
+  updateAnnee(publicId: string, req: Partial<IAnneeAcademique>): Observable<IAnneeAcademique> {
+    const idx = MOCK_ANNEES.findIndex(a => a.publicId === publicId);
+    if (idx >= 0) Object.assign(MOCK_ANNEES[idx], req);
+    return of(MOCK_ANNEES[idx >= 0 ? idx : 0]).pipe(delay(300));
+  }
+
+  activerAnnee(publicId: string): Observable<IAnneeAcademique[]> {
+    MOCK_ANNEES.forEach(a => (a.active = a.publicId === publicId));
+    return of([...MOCK_ANNEES]).pipe(delay(400));
   }
 }

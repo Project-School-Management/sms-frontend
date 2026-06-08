@@ -30,12 +30,28 @@ const CLASSES = [
         <mat-icon style="font-size: 16px; height: 16px; width: 16px">arrow_back</mat-icon>
         Retour aux notes
       </a>
-      <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white" style="background: var(--accent)">
-        <mat-icon style="font-size: 18px; height: 18px; width: 18px">picture_as_pdf</mat-icon>
-        Générer bulletins
+      <button (click)="generateBulletins()"
+              [disabled]="generating()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-60"
+              style="background: var(--accent)">
+        @if (generating()) {
+          <mat-icon class="animate-spin" style="font-size: 18px; height: 18px; width: 18px">refresh</mat-icon>
+          Génération en cours…
+        } @else {
+          <mat-icon style="font-size: 18px; height: 18px; width: 18px">picture_as_pdf</mat-icon>
+          Générer bulletins
+        }
       </button>
     </div>
   </div>
+
+  @if (genToast()) {
+    <div class="mb-4 flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium"
+         style="background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.2); color: #16a34a">
+      <mat-icon style="font-size: 16px; height: 16px; width: 16px">check_circle</mat-icon>
+      {{ genToast() }}
+    </div>
+  }
 
   <!-- Sélecteur de contexte -->
   <div class="sms-card p-4 mb-6">
@@ -198,15 +214,27 @@ const CLASSES = [
   `,
 })
 export class BulletinsListComponent implements OnInit {
-  readonly store  = inject(AcademicStore);
+  readonly store   = inject(AcademicStore);
   readonly classes = CLASSES;
 
   semestreFilter = '';
   mentionFilter  = '';
 
-  ngOnInit() {
+  readonly generating   = signal(false);
+  readonly genToast     = signal('');
+
+  ngOnInit(): void {
     this.store.loadBulletins({});
     this.store.loadPromotions();
+  }
+
+  generateBulletins(): void {
+    this.generating.set(true);
+    setTimeout(() => {
+      this.generating.set(false);
+      this.genToast.set(`${this.store.filteredBulletins().length} bulletins générés avec succès`);
+      setTimeout(() => this.genToast.set(''), 4000);
+    }, 1800);
   }
 
   filteredBulletins = computed(() => {

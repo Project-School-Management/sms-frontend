@@ -124,3 +124,31 @@ html, body {
   border-radius: 12px;
   transition: background-color 200ms ease, border-color 200ms ease;
 }
+
+// ── Toast notifications (MatSnackBar) ────────────────────────────────────────
+.sms-toast {
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  min-width: 280px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18) !important;
+
+  .mat-mdc-snack-bar-label { padding: 14px 0 14px 16px !important; }
+  .mat-mdc-button { color: rgba(255,255,255,0.75) !important; }
+}
+.sms-toast--success .mdc-snackbar__surface { background: #16a34a !important; color: #fff !important; }
+.sms-toast--error   .mdc-snackbar__surface { background: #dc2626 !important; color: #fff !important; }
+.sms-toast--warning .mdc-snackbar__surface { background: #d97706 !important; color: #fff !important; }
+.sms-toast--info    .mdc-snackbar__surface { background: #2563eb !important; color: #fff !important; }
+
+// ── Payment dialog — strip Material padding / border-radius ──────────────────
+.sms-payment-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18) !important;
+}
+.sms-payment-dialog .mdc-dialog__surface {
+  border-radius: 16px !important;
+  background: var(--surface-1) !important;
+}

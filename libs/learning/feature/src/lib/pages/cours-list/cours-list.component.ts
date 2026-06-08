@@ -4,12 +4,13 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { LearningStore } from '@sms/learning/data-access';
+import { SkeletonCardComponent, EmptyStateComponent } from '@sms/shared/ui';
 
 @Component({
   selector: 'sms-cours-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
+  imports: [CommonModule, RouterLink, FormsModule, MatIconModule, SkeletonCardComponent, EmptyStateComponent],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -87,8 +88,8 @@ import { LearningStore } from '@sms/learning/data-access';
       </div>
 
       @if (store.loading()) {
-        <div class="flex items-center justify-center py-16" style="color: var(--text-secondary)">
-          <mat-icon class="animate-spin">refresh</mat-icon>&nbsp;Chargement...
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          @for (_ of [1,2,3,4,5,6]; track $_) { <sms-skeleton-card /> }
         </div>
       } @else {
         <!-- Grid -->
@@ -150,9 +151,12 @@ import { LearningStore } from '@sms/learning/data-access';
               </div>
             </div>
           } @empty {
-            <div class="col-span-3 flex flex-col items-center justify-center py-16 gap-3">
-              <mat-icon style="font-size: 48px; height: 48px; width: 48px; color: var(--text-muted)">menu_book</mat-icon>
-              <p style="color: var(--text-secondary)">Aucun cours trouvé</p>
+            <div class="col-span-3">
+              <sms-empty-state
+                [type]="matiereFilter() ? 'search' : 'courses'"
+                [actionLabel]="matiereFilter() ? 'Réinitialiser le filtre' : undefined"
+                (action)="matiereFilter.set('')">
+              </sms-empty-state>
             </div>
           }
         </div>

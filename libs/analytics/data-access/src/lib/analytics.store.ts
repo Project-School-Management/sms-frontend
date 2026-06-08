@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, catchError, EMPTY } from 'rxjs';
-import { IKpiOverview, IKpiAcademique, IKpiFinancier, IRapport } from '@sms/shared/models';
+import { pipe, switchMap, tap, catchError, EMPTY, timer } from 'rxjs';
+import { IKpiOverview, IKpiAcademique, IKpiFinancier, IRapport, TypeRapport, FormatRapport, StatutRapport } from '@sms/shared/models';
 import { AnalyticsApiService } from './analytics-api.service';
 
 interface AnalyticsState {
@@ -31,6 +31,28 @@ export const AnalyticsStore = signalStore(
     loadRapports: rxMethod<void>(pipe(
       switchMap(() => api.getRapports().pipe(tap(rapports => patchState(store, { rapports })), catchError(() => EMPTY)))
     )),
+    generateRapport(type: string, format: string): void {
+      const rapportId = `rpt-${Date.now()}`;
+      const newRapport: IRapport = {
+        publicId: rapportId,
+        type: type as TypeRapport,
+        format: format as FormatRapport,
+        statut: 'EN_COURS' as StatutRapport,
+        createdAt: new Date().toISOString().split('T')[0],
+      };
+      patchState(store, s => ({ rapports: [newRapport, ...s.rapports] }));
+      api.generateRapport(type, format).pipe(
+        switchMap(() => timer(3000)),
+        tap(() => patchState(store, s => ({
+          rapports: s.rapports.map(r =>
+            r.publicId === rapportId
+              ? { ...r, statut: 'TERMINE' as StatutRapport, downloadUrl: '/mock/rapport-generated.pdf' }
+              : r
+          ),
+        }))),
+        catchError(() => EMPTY),
+      ).subscribe();
+    },
     clearError: () => patchState(store, { error: null }),
   }))
 );

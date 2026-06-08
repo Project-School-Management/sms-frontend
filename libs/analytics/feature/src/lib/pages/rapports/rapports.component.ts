@@ -47,26 +47,43 @@ const PERIODES = ['2025-2026', '2024-2025', '2023-2024'];
 
       <!-- Rapports disponibles (à générer) -->
       <div class="sms-card overflow-hidden mb-6">
-        <div class="px-5 py-4 border-b" style="border-color: var(--border-color)">
-          <h3 class="font-semibold" style="color: var(--text-primary)">Rapports disponibles</h3>
-          <p class="text-xs mt-0.5" style="color: var(--text-secondary)">Cliquez sur Générer pour créer un rapport (bientôt disponible)</p>
+        <div class="px-5 py-4 border-b flex items-center justify-between" style="border-color: var(--border-color)">
+          <div>
+            <h3 class="font-semibold" style="color: var(--text-primary)">Rapports disponibles</h3>
+            <p class="text-xs mt-0.5" style="color: var(--text-secondary)">
+              Choisissez un format et cliquez sur Générer — le rapport apparaît dans la liste ci-dessous
+            </p>
+          </div>
+          <!-- Format toggle -->
+          <div class="flex items-center gap-1 p-1 rounded-lg" style="background: var(--surface-2)">
+            @for (fmt of formats; track fmt) {
+              <button (click)="selectedFormat.set(fmt)"
+                class="px-3 py-1 rounded-md text-xs font-semibold transition-all"
+                [style.background]="selectedFormat() === fmt ? 'var(--surface-1)' : 'transparent'"
+                [style.color]="selectedFormat() === fmt ? 'var(--text-primary)' : 'var(--text-muted)'"
+                [style.box-shadow]="selectedFormat() === fmt ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'">
+                {{ fmt }}
+              </button>
+            }
+          </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
           @for (entry of rapportTypes; track entry.type) {
-            <div class="p-4 border-b border-r flex items-center gap-4 hover:opacity-80 transition-opacity"
+            <div class="p-4 border-b border-r flex items-center gap-4 transition-opacity"
                  style="border-color: var(--border-color)">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background: var(--accent-light)">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                   style="background: var(--accent-light)">
                 <mat-icon style="color: var(--accent)">{{ entry.icon }}</mat-icon>
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-medium text-sm" style="color: var(--text-primary)">{{ entry.label }}</p>
                 <p class="text-xs mt-0.5 truncate" style="color: var(--text-secondary)">{{ entry.description }}</p>
               </div>
-              <button class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
-                      style="border-color: var(--border-color); color: var(--text-muted); background: var(--surface-2)"
-                      title="Bientôt disponible">
-                <mat-icon style="font-size: 14px; height: 14px; width: 14px; vertical-align: middle">download</mat-icon>
-                Générer
+              <button (click)="generate(entry.type)"
+                class="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:opacity-80"
+                style="background: var(--accent-light); color: var(--accent)">
+                <mat-icon style="font-size: 14px; height: 14px; width: 14px">download</mat-icon>
+                {{ selectedFormat() }}
               </button>
             </div>
           }
@@ -137,17 +154,22 @@ const PERIODES = ['2025-2026', '2024-2025', '2023-2024'];
       </div>
     </div>
   `,
-  // Need to add ngModel import
 })
 export class RapportsComponent implements OnInit {
   readonly store = inject(AnalyticsStore);
   selectedPeriode = '2025-2026';
   readonly periodes = PERIODES;
+  readonly formats = ['PDF', 'EXCEL'] as const;
+  readonly selectedFormat = signal<'PDF' | 'EXCEL'>('PDF');
 
   readonly rapportTypes = Object.entries(RAPPORT_TYPES).map(([type, meta]) => ({ type, ...meta }));
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.store.loadRapports();
+  }
+
+  generate(type: string): void {
+    this.store.generateRapport(type, this.selectedFormat());
   }
 
   rapportMeta(type: string) {

@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { UsersStore } from '@sms/users/data-access';
+import { Role } from '@sms/shared/models';
 
 const ROLES = ['', 'ADMIN', 'DIR', 'SECRETARIAT', 'COMPTABLE', 'ENSEIGNANT', 'ELEVE', 'PARENT'];
 const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
@@ -20,7 +21,7 @@ const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
   selector: 'sms-users-list',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
+  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, MatIconModule],
   template: `
     <div class="p-6">
       <!-- Header -->
@@ -36,12 +37,76 @@ const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
             <mat-icon style="font-size: 16px; height: 16px; width: 16px">calendar_month</mat-icon>
             Années académiques
           </a>
-          <button class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white" style="background: var(--accent)">
+          <button (click)="showInviteForm.set(!showInviteForm())"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
+                  style="background: var(--accent)">
             <mat-icon style="font-size: 18px; height: 18px; width: 18px">person_add</mat-icon>
             Inviter un utilisateur
           </button>
         </div>
       </div>
+
+      <!-- Invite form panel -->
+      @if (showInviteForm()) {
+        <div class="sms-card p-5 mb-6" style="border: 2px solid var(--accent)">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: var(--accent-light)">
+              <mat-icon style="color: var(--accent); font-size: 18px; height: 18px; width: 18px">person_add</mat-icon>
+            </div>
+            <h3 class="font-bold" style="color: var(--text-primary)">Inviter un utilisateur</h3>
+            <button (click)="showInviteForm.set(false)" class="ml-auto p-1.5 rounded-lg hover:opacity-70" style="color: var(--text-muted)">
+              <mat-icon style="font-size: 18px; height: 18px; width: 18px">close</mat-icon>
+            </button>
+          </div>
+          <form [formGroup]="inviteForm" (ngSubmit)="submitInvite()" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+            <div>
+              <label class="block text-xs font-semibold mb-1" style="color: var(--text-secondary)">Prénom *</label>
+              <input formControlName="firstName" type="text" placeholder="Ex: Moussa"
+                     class="w-full px-3 py-2 rounded-xl border text-sm outline-none"
+                     style="border-color: var(--border-color); background: var(--surface-2); color: var(--text-primary)">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1" style="color: var(--text-secondary)">Nom *</label>
+              <input formControlName="lastName" type="text" placeholder="Ex: Konaté"
+                     class="w-full px-3 py-2 rounded-xl border text-sm outline-none"
+                     style="border-color: var(--border-color); background: var(--surface-2); color: var(--text-primary)">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1" style="color: var(--text-secondary)">Email *</label>
+              <input formControlName="email" type="email" placeholder="utilisateur@sms.ci"
+                     class="w-full px-3 py-2 rounded-xl border text-sm outline-none"
+                     style="border-color: var(--border-color); background: var(--surface-2); color: var(--text-primary)">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1" style="color: var(--text-secondary)">Rôle *</label>
+              <select formControlName="role" class="w-full px-3 py-2 rounded-xl border text-sm"
+                      style="border-color: var(--border-color); background: var(--surface-2); color: var(--text-primary)">
+                @for (r of availableRoles; track r) {
+                  <option [value]="r">{{ r }}</option>
+                }
+              </select>
+            </div>
+            <div class="sm:col-span-2 flex items-center gap-3 pt-1">
+              <button type="submit" [disabled]="inviteForm.invalid || store.saving()"
+                      class="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold text-white disabled:opacity-40"
+                      style="background: var(--accent)">
+                @if (store.saving()) {
+                  <mat-icon class="animate-spin" style="font-size: 16px; height: 16px; width: 16px">refresh</mat-icon>
+                } @else {
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px">send</mat-icon>
+                }
+                Inviter
+              </button>
+              @if (inviteSuccess()) {
+                <span class="text-sm font-medium flex items-center gap-1" style="color: #16a34a">
+                  <mat-icon style="font-size: 16px; height: 16px; width: 16px">check_circle</mat-icon>
+                  Utilisateur invité avec succès !
+                </span>
+              }
+            </div>
+          </form>
+        </div>
+      }
 
       <!-- KPI Cards -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -158,10 +223,35 @@ const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
                       {{ user.activated ? 'Actif' : 'Inactif' }}
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-right">
-                    <button class="p-1 rounded hover:opacity-80 transition-opacity" style="color: var(--text-muted)">
+                  <td class="px-4 py-3 text-right relative">
+                    <button (click)="toggleMenu(user.publicId)"
+                            class="p-1 rounded hover:opacity-80 transition-opacity" style="color: var(--text-muted)">
                       <mat-icon style="font-size: 18px; height: 18px; width: 18px">more_vert</mat-icon>
                     </button>
+                    @if (openMenuId() === user.publicId) {
+                      <!-- Overlay -->
+                      <div class="fixed inset-0 z-40" (click)="openMenuId.set('')"></div>
+                      <!-- Dropdown -->
+                      <div class="absolute right-4 top-10 z-50 rounded-xl overflow-hidden shadow-lg"
+                           style="width:180px;background:var(--surface-1);border:1px solid var(--border-color)">
+                        <button (click)="store.toggleActivation(user.publicId); openMenuId.set('')"
+                                class="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                                style="color: var(--text-primary)">
+                          <mat-icon style="font-size:16px;height:16px;width:16px"
+                                    [style.color]="user.activated ? '#dc2626' : '#16a34a'">
+                            {{ user.activated ? 'person_off' : 'how_to_reg' }}
+                          </mat-icon>
+                          {{ user.activated ? 'Désactiver' : 'Activer' }}
+                        </button>
+                        <div style="border-top: 1px solid var(--border-color)"></div>
+                        <button (click)="copyEmail(user.email); openMenuId.set('')"
+                                class="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:opacity-80 transition-opacity text-left"
+                                style="color: var(--text-primary)">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;color:var(--text-muted)">content_copy</mat-icon>
+                          Copier l'email
+                        </button>
+                      </div>
+                    }
                   </td>
                 </tr>
               } @empty {
@@ -182,8 +272,21 @@ const ROLE_STYLES: Record<string, { bg: string; color: string }> = {
   `,
 })
 export class UsersListComponent implements OnInit {
-  readonly store = inject(UsersStore);
-  readonly roles = ROLES;
+  readonly store  = inject(UsersStore);
+  private  fb     = inject(FormBuilder);
+  readonly roles  = ROLES;
+
+  readonly showInviteForm = signal(false);
+  readonly inviteSuccess  = signal(false);
+  readonly openMenuId     = signal('');
+  readonly availableRoles = ['ADMIN', 'DIR', 'SECRETARIAT', 'COMPTABLE', 'ENSEIGNANT'];
+
+  readonly inviteForm = this.fb.group({
+    firstName: ['', Validators.required],
+    lastName:  ['', Validators.required],
+    email:     ['', [Validators.required, Validators.email]],
+    role:      ['ENSEIGNANT', Validators.required],
+  });
 
   readonly enseignantsCount = computed(() =>
     this.store.users().filter(u => u.authorities.some(a => a === 'ENSEIGNANT' as any)).length
@@ -192,8 +295,33 @@ export class UsersListComponent implements OnInit {
     this.store.users().filter(u => u.authorities.some(a => a === 'ADMIN' as any || a === 'DIR' as any)).length
   );
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.store.loadUsers();
+  }
+
+  submitInvite(): void {
+    if (this.inviteForm.invalid) return;
+    const v = this.inviteForm.value;
+    this.store.createUser({
+      firstName:   v.firstName ?? '',
+      lastName:    v.lastName ?? '',
+      email:       v.email ?? '',
+      authorities: [v.role as Role],
+    });
+    this.inviteSuccess.set(true);
+    this.inviteForm.reset({ role: 'ENSEIGNANT' });
+    setTimeout(() => {
+      this.inviteSuccess.set(false);
+      this.showInviteForm.set(false);
+    }, 2000);
+  }
+
+  toggleMenu(id: string): void {
+    this.openMenuId.set(this.openMenuId() === id ? '' : id);
+  }
+
+  copyEmail(email: string): void {
+    navigator.clipboard?.writeText(email).catch(() => {});
   }
 
   roleStyle(role: string): { bg: string; color: string } {
