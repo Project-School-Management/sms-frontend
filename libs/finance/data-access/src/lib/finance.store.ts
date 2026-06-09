@@ -2,7 +2,7 @@ import { computed, inject }          from '@angular/core';
 import { signalStore, withState, withComputed, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod }                  from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, catchError, EMPTY } from 'rxjs';
-import { IFacture, IPaiement, IBourse, IFraisScolarite, IInitierPaiementRequest, StatutFacture } from '@sms/shared/models';
+import { IFacture, IPaiement, IBourse, IFraisScolarite, IInitierPaiementRequest, IBourseRequest, StatutFacture } from '@sms/shared/models';
 import { FinanceApiService }         from './finance-api.service';
 import { ToastService }              from '@sms/shared/ui';
 
@@ -87,6 +87,22 @@ export const FinanceStore = signalStore(
       switchMap(anneeId => api.getFrais(anneeId).pipe(
         tap(frais => patchState(store, { frais, loading: false })),
         catchError((e: Error) => { patchState(store, { loading: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+    createBourse: rxMethod<IBourseRequest>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(req => api.createBourse(req).pipe(
+        tap(b => {
+          patchState(store, s => ({ bourses: [...s.bourses, b], saving: false }));
+          toast.success('Bourse accordée avec succès');
+        }),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+    deleteBourse: rxMethod<string>(pipe(
+      switchMap(publicId => api.deleteBourse(publicId).pipe(
+        tap(() => patchState(store, s => ({ bourses: s.bourses.filter(b => b.publicId !== publicId) }))),
+        catchError(() => EMPTY)
       ))
     )),
     clearError:            () => patchState(store, { error: null }),

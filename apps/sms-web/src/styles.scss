@@ -7,7 +7,7 @@
 // ── Angular Material theme ────────────────────────────────────────────────────
 @include mat.core();
 
-$sms-primary: mat.m2-define-palette(mat.$m2-indigo-palette, 600);
+$sms-primary: mat.m2-define-palette(mat.$m2-blue-palette, 600);
 $sms-accent:  mat.m2-define-palette(mat.$m2-amber-palette, A200, A100, A400);
 $sms-warn:    mat.m2-define-palette(mat.$m2-red-palette);
 
@@ -33,19 +33,19 @@ $sms-theme: mat.m2-define-light-theme((
   --topbar-height:           56px;
   --sidebar-transition:      240ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Sidebar (dark sidebar even in light mode — like Linear/Notion)
-  --sidebar-bg:              #0f172a;
-  --sidebar-border:          rgba(255, 255, 255, 0.06);
-  --sidebar-group-label:     #475569;
-  --sidebar-item-text:       #94a3b8;
+  // Sidebar (light sidebar — fond blanc, accent bleu éducatif)
+  --sidebar-bg:              #ffffff;
+  --sidebar-border:          #e2e8f0;
+  --sidebar-group-label:     #94a3b8;
+  --sidebar-item-text:       #475569;
   --sidebar-item-icon:       #64748b;
-  --sidebar-item-hover-bg:   rgba(255, 255, 255, 0.05);
-  --sidebar-item-hover-text: #e2e8f0;
-  --sidebar-active-bg:       rgba(99, 102, 241, 0.18);
-  --sidebar-active-text:     #a5b4fc;
-  --sidebar-active-icon:     #818cf8;
-  --sidebar-footer-border:   rgba(255, 255, 255, 0.07);
-  --sidebar-scrollbar:       rgba(255, 255, 255, 0.08);
+  --sidebar-item-hover-bg:   #eff6ff;
+  --sidebar-item-hover-text: #1d4ed8;
+  --sidebar-active-bg:       #dbeafe;
+  --sidebar-active-text:     #1d4ed8;
+  --sidebar-active-icon:     #2563eb;
+  --sidebar-footer-border:   #e2e8f0;
+  --sidebar-scrollbar:       #cbd5e1;
 
   // Content
   --content-bg:    #f1f5f9;
@@ -64,8 +64,8 @@ $sms-theme: mat.m2-define-light-theme((
   --border-color: #e2e8f0;
 
   // Accent
-  --accent:       #6366f1;
-  --accent-light: rgba(99, 102, 241, 0.1);
+  --accent:       #2563eb;
+  --accent-light: rgba(37, 99, 235, 0.1);
 }
 
 // ── Dark mode overrides ───────────────────────────────────────────────────────
@@ -83,9 +83,19 @@ $sms-theme: mat.m2-define-light-theme((
   --surface-2:    #0f172a;
   --border-color: #334155;
 
-  // Sidebar gets slightly lighter in dark mode
-  --sidebar-bg:     #1e293b;
-  --sidebar-border: rgba(255, 255, 255, 0.08);
+  // Sidebar dark mode
+  --sidebar-bg:              #1e293b;
+  --sidebar-border:          #334155;
+  --sidebar-group-label:     #64748b;
+  --sidebar-item-text:       #94a3b8;
+  --sidebar-item-icon:       #64748b;
+  --sidebar-item-hover-bg:   rgba(37, 99, 235, 0.12);
+  --sidebar-item-hover-text: #93c5fd;
+  --sidebar-active-bg:       rgba(37, 99, 235, 0.22);
+  --sidebar-active-text:     #93c5fd;
+  --sidebar-active-icon:     #60a5fa;
+  --sidebar-footer-border:   #334155;
+  --sidebar-scrollbar:       #475569;
 }
 
 // ── Global reset ──────────────────────────────────────────────────────────────
