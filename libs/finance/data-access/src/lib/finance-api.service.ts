@@ -5,6 +5,7 @@ import {
   IInitierPaiementRequest, IBourseRequest, IFraisScolariteRequest,
   StatutFacture
 } from '@sms/shared/models';
+import { MOCK_TYPES_FRAIS } from '@sms/config-system/data-access';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fac(
@@ -70,11 +71,20 @@ const MOCK_BOURSES: IBourse[] = [
   { publicId: 'bou-003', studentId: 5, typeBourse: 'MERITE', pourcentage: 15, anneeAcademiqueId: 1, motif: '1ère au concours d\'entrée', createdDate: '2026-01-14' },
 ];
 
-const MOCK_FRAIS: IFraisScolarite[] = [
-  { publicId: 'fra-001', anneeAcademiqueId: 1, libelle: 'Frais de scolarité L3 GL', typeFrais: 'SCOLARITE', montant: 750000, dateEcheance: '2026-03-31', createdDate: '2025-10-01' },
-  { publicId: 'fra-002', anneeAcademiqueId: 1, libelle: 'Frais d\'inscription', typeFrais: 'INSCRIPTION', montant: 50000, createdDate: '2025-10-01' },
-  { publicId: 'fra-003', anneeAcademiqueId: 1, libelle: 'Frais de scolarité L2 GL', typeFrais: 'SCOLARITE', montant: 600000, dateEcheance: '2026-03-31', createdDate: '2025-10-01' },
-];
+// Frais dérivés du référentiel config-system — source unique
+const MOCK_FRAIS: IFraisScolarite[] = MOCK_TYPES_FRAIS.filter(f => f.active).map(f => ({
+  publicId:          `fra-ref-${f.publicId}`,
+  anneeAcademiqueId: 1,
+  libelle:           f.libelle,
+  typeFrais:         (f.categorie === 'CANTINE' ? 'RESTAURATION'
+                    : f.categorie === 'INSCRIPTION' ? 'INSCRIPTION'
+                    : f.categorie === 'TRANSPORT' ? 'TRANSPORT'
+                    : f.categorie === 'SCOLARITE' ? 'SCOLARITE'
+                    : 'AUTRE') as IFraisScolarite['typeFrais'],
+  montant:           f.montant,
+  ...(f.categorie !== 'INSCRIPTION' ? { dateEcheance: '2026-03-31' } : {}),
+  createdDate:       '2025-10-01',
+}));
 
 // ── Service ───────────────────────────────────────────────────────────────────
 

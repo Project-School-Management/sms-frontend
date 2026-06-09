@@ -62,7 +62,10 @@
 
       "@sms/analytics/feature":            ["libs/analytics/feature/src/index.ts"],
       "@sms/analytics/data-access":        ["libs/analytics/data-access/src/index.ts"],
-      "@sms/analytics/ui":                 ["libs/analytics/ui/src/index.ts"]
+      "@sms/analytics/ui":                 ["libs/analytics/ui/src/index.ts"],
+
+      "@sms/config-system/feature":        ["libs/config-system/feature/src/index.ts"],
+      "@sms/config-system/data-access":    ["libs/config-system/data-access/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

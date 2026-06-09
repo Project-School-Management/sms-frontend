@@ -1,11 +1,1 @@
-{
-  "version": "0.0.1",
-  "configurations": [
-    {
-      "name": "sms-web",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["nx", "serve", "sms-web", "--port", "4200"],
-      "port": 4200
-    }
-  ]
-}
+﻿{"version":"0.0.1","configurations":[{"name":"sms-web","runtimeExecutable":"npx","runtimeArgs":["nx","serve","sms-web","--port","4200"],"port":4200}]}

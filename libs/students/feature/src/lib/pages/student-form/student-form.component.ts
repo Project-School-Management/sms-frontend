@@ -7,16 +7,9 @@ import { ReactiveFormsModule, FormBuilder, Validators }        from '@angular/fo
 import { FormsModule }                                         from '@angular/forms';
 import { MatIconModule }                                       from '@angular/material/icon';
 import { StudentsStore, MOCK_STUDENTS }                        from '@sms/students/data-access';
+import { ReferenceStore, getFraisScolariteByNiveauLibelle }    from '@sms/config-system/data-access';
 
-// ── Référentiel des classes ────────────────────────────────────────────────────
-const CLASSES_DATA = [
-  { id: 'promo-001', libelle: 'Terminale S1', niveau: 'Terminale', filiere: 'Scientifique', capacite: 45 },
-  { id: 'promo-002', libelle: 'Terminale A1', niveau: 'Terminale', filiere: 'Littéraire',   capacite: 40 },
-  { id: 'promo-003', libelle: 'Première D',   niveau: 'Première',  filiere: 'Scientifique', capacite: 48 },
-  { id: 'promo-004', libelle: 'Seconde A',    niveau: 'Seconde',   filiere: 'Générale',     capacite: 52 },
-  { id: 'promo-005', libelle: '3ème B',       niveau: '3ème',      filiere: 'Collège',      capacite: 50 },
-];
-
+// ── Données locales non-référentiels ─────────────────────────────────────────
 const REGIMES = [
   { value: 'EXTERNE',           label: 'Externe',          desc: 'Sans repas',      icon: 'directions_walk' },
   { value: 'DEMI_PENSIONNAIRE', label: 'Demi-pensionnaire', desc: 'Déjeuner inclus', icon: 'restaurant'      },
@@ -25,10 +18,7 @@ const REGIMES = [
 
 const GROUPES = ['Groupe A', 'Groupe B', 'Groupe C', 'Groupe D'];
 
-const FRAIS_INSCRIPTION = 50_000;
-const FRAIS_SCOLARITE: Record<string, number> = {
-  Terminale: 750_000, 'Première': 700_000, Seconde: 650_000, '3ème': 600_000,
-};
+// FRAIS_INSCRIPTION et FRAIS_SCOLARITE proviennent maintenant du ReferenceStore
 
 const TYPE_BOURSES = [
   { value: 'MERITE',    label: 'Mérite',    desc: 'Excellence scolaire' },
@@ -1300,10 +1290,11 @@ const STEPS = [
   `,
 })
 export class StudentFormComponent implements OnInit, OnDestroy {
-  readonly store   = inject(StudentsStore);
-  private  fb      = inject(FormBuilder);
-  private  router  = inject(Router);
-  private  route   = inject(ActivatedRoute);
+  readonly store    = inject(StudentsStore);
+  readonly refStore = inject(ReferenceStore);
+  private  fb       = inject(FormBuilder);
+  private  router   = inject(Router);
+  private  route    = inject(ActivatedRoute);
 
   // ── Mode & navigation ─────────────────────────────────────────────────────
   readonly isEditMode    = signal(false);
@@ -1329,11 +1320,23 @@ export class StudentFormComponent implements OnInit, OnDestroy {
 
   // ── Static data ───────────────────────────────────────────────────────────
   readonly steps        = STEPS;
-  readonly classes      = CLASSES_DATA;
   readonly groupes      = GROUPES;
   readonly regimes      = REGIMES;
   readonly typeBourses  = TYPE_BOURSES;
-  readonly fraisInscription = FRAIS_INSCRIPTION;
+
+  /** Classes provenant du ReferenceStore (source unique) */
+  readonly classes = computed(() =>
+    this.refStore.classesOptions().map(c => ({
+      id:       c.id,
+      libelle:  c.libelle,
+      niveau:   c.niveau,
+      filiere:  c.filiere,
+      capacite: c.capacite,
+    }))
+  );
+
+  /** Frais d'inscription depuis le ReferenceStore */
+  readonly fraisInscription = computed(() => this.refStore.fraisInscriptionMontant());
 
   readonly genres = [
     { value: 'M', label: 'Masculin', icon: 'male' },
@@ -1404,12 +1407,12 @@ export class StudentFormComponent implements OnInit, OnDestroy {
 
   readonly selectedClasseLabel = computed(() => {
     const id = this.form.get('classePublicId')?.value;
-    return CLASSES_DATA.find(c => c.id === id)?.libelle ?? '—';
+    return this.classes().find(c => c.id === id)?.libelle ?? '—';
   });
 
   readonly selectedClasseInfo = computed(() => {
     const id = this.form.get('classePublicId')?.value;
-    return CLASSES_DATA.find(c => c.id === id) ?? null;
+    return this.classes().find(c => c.id === id) ?? null;
   });
 
   readonly generatedMatricule = computed(() => {
@@ -1420,11 +1423,11 @@ export class StudentFormComponent implements OnInit, OnDestroy {
 
   readonly fraisScolarite = computed(() => {
     const niveau = this.selectedClasseInfo()?.niveau;
-    return niveau ? (FRAIS_SCOLARITE[niveau] ?? 650_000) : 0;
+    return niveau ? this.refStore.getFraisScolariteByNiveauLibelle(niveau) : 0;
   });
 
   readonly totalFrais = computed(() => {
-    const base   = FRAIS_INSCRIPTION + this.fraisScolarite();
+    const base   = this.fraisInscription() + this.fraisScolarite();
     const bourse = this.form.value.bourseActif ? +(this.form.value.montantBourse ?? 0) : 0;
     const pct    = this.form.value.bourseActif ? +(this.form.value.reduction ?? 0) : 0;
     const remise = Math.round(base * pct / 100);
@@ -1699,7 +1702,7 @@ export class StudentFormComponent implements OnInit, OnDestroy {
         <div class="row"><span class="label">Statut</span><span class="value">${v.statut}</span></div>
       </div>
       <h2>Finance</h2>
-      <div class="row"><span class="label">Frais d'inscription</span><span class="value">${this.formatXOF(FRAIS_INSCRIPTION)}</span></div>
+      <div class="row"><span class="label">Frais d'inscription</span><span class="value">${this.formatXOF(this.fraisInscription())}</span></div>
       <div class="row"><span class="label">Frais de scolarité</span><span class="value">${this.formatXOF(this.fraisScolarite())}</span></div>
       ${v.bourseActif ? `<div class="row"><span class="label">Bourse</span><span class="value">- ${this.formatXOF(+(v.montantBourse ?? 0))}</span></div>` : ''}
       <div class="total">Total : ${this.formatXOF(this.totalFrais())}</div>

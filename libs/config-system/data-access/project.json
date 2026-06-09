@@ -1,0 +1,7 @@
+{
+  "name": "config-system-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/config-system/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:config-system"]
+}

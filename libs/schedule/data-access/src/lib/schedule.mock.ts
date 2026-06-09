@@ -1,20 +1,20 @@
 import { ISalle, ITimeSlot, ISeance } from '@sms/shared/models';
+import {
+  MOCK_SALLES as SALLES_REF,
+  MOCK_CLASSES as CLASSES_REF,
+} from '@sms/config-system/data-access';
 
-// ─── Salles ──────────────────────────────────────────────────────────────────
-export const MOCK_SALLES: ISalle[] = [
-  { publicId: 'sal-001', code: 'A101',  libelle: 'Salle A101',           capacite: 55,  type: 'TD'   },
-  { publicId: 'sal-002', code: 'B12',   libelle: 'Salle B12',            capacite: 45,  type: 'TD'   },
-  { publicId: 'sal-003', code: 'C201',  libelle: 'Salle C201',           capacite: 50,  type: 'TD'   },
-  { publicId: 'sal-004', code: 'D05',   libelle: 'Salle D05',            capacite: 40,  type: 'TD'   },
-  { publicId: 'sal-005', code: 'AMPHI-1', libelle: 'Amphithéâtre 1',    capacite: 200, type: 'AMPHI' },
-  { publicId: 'sal-006', code: 'LABO-PHYS', libelle: 'Labo Physique',   capacite: 30,  type: 'LABO'  },
-  { publicId: 'sal-007', code: 'LABO-SVT',  libelle: 'Labo SVT',        capacite: 30,  type: 'LABO'  },
-  { publicId: 'sal-008', code: 'TP-INFO',   libelle: 'Salle TP Info',   capacite: 25,  type: 'TP'    },
-  { publicId: 'sal-009', code: 'A102',  libelle: 'Salle A102',           capacite: 40,  type: 'TD'   },
-  { publicId: 'sal-010', code: 'E10',   libelle: 'Salle E10',            capacite: 35,  type: 'TD'   },
-];
+// ─── Salles — source unique : @sms/config-system/data-access ─────────────────
+export const MOCK_SALLES: ISalle[] = SALLES_REF.filter(s => s.active).map(s => ({
+  publicId:    s.publicId,
+  code:        s.code,
+  libelle:     s.libelle,
+  capacite:    s.capacite,
+  type:        (s.type === 'INFORMATIQUE' ? 'TP' : s.type) as ISalle['type'],
+  equipements: s.equipements,
+}));
 
-// ─── Classes meta ────────────────────────────────────────────────────────────
+// ─── Classes meta — source unique : @sms/config-system/data-access ───────────
 export interface IClasse {
   id: string;
   libelle: string;
@@ -25,13 +25,15 @@ export interface IClasse {
   sallePrincipale: string;
 }
 
-export const MOCK_CLASSES: IClasse[] = [
-  { id: 'cls-terminale-s1', libelle: 'Terminale S1', niveau: 'Terminale', filiere: 'Scientifique', effectif: 42, professeurPrincipal: 'Mme Coulibaly Fatou',  sallePrincipale: 'B12'   },
-  { id: 'cls-terminale-a1', libelle: 'Terminale A1', niveau: 'Terminale', filiere: 'Littéraire',   effectif: 38, professeurPrincipal: 'M. Diallo Seydou',     sallePrincipale: 'A102'  },
-  { id: 'cls-premiere-d',   libelle: 'Première D',   niveau: 'Première',  filiere: 'Scientifique', effectif: 45, professeurPrincipal: 'M. Touré Kader',       sallePrincipale: 'C201'  },
-  { id: 'cls-seconde',      libelle: 'Seconde A',    niveau: 'Seconde',   filiere: 'Générale',     effectif: 52, professeurPrincipal: 'Mme Koné Mariame',     sallePrincipale: 'A101'  },
-  { id: 'cls-troisieme',    libelle: '3ème B',       niveau: '3ème',      filiere: 'Collège',      effectif: 35, professeurPrincipal: 'M. Bah Ibrahim',        sallePrincipale: 'D05'   },
-];
+export const MOCK_CLASSES: IClasse[] = CLASSES_REF.filter(c => c.active).map(c => ({
+  id:                  c.publicId,
+  libelle:             c.libelle,
+  niveau:              c.niveauLibelle,
+  filiere:             c.filiereLibelle ?? '',
+  effectif:            c.effectif,
+  professeurPrincipal: c.professeurPrincipal ?? '',
+  sallePrincipale:     c.sallePrincipale ?? '',
+}));
 
 // ─── Time Slots ──────────────────────────────────────────────────────────────
 export const MOCK_TIME_SLOTS: ITimeSlot[] = [
@@ -121,55 +123,55 @@ export const MOCK_TIME_SLOTS: ITimeSlot[] = [
 
   // ══════════════════ SECONDE A ══════════════════
   // LUNDI
-  { publicId: 'ts-sec-lun-1', jour: 'LUNDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
-  { publicId: 'ts-sec-lun-2', jour: 'LUNDI',    heureDebut: '10:30', heureFin: '11:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-013', enseignantNom: 'Mme Fofana Aminata' },
-  { publicId: 'ts-sec-lun-3', jour: 'LUNDI',    heureDebut: '15:00', heureFin: '16:00', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
+  { publicId: 'ts-sec-lun-1', jour: 'LUNDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
+  { publicId: 'ts-sec-lun-2', jour: 'LUNDI',    heureDebut: '10:30', heureFin: '11:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-013', enseignantNom: 'Mme Fofana Aminata' },
+  { publicId: 'ts-sec-lun-3', jour: 'LUNDI',    heureDebut: '15:00', heureFin: '16:00', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
   // MARDI
-  { publicId: 'ts-sec-mar-1', jour: 'MARDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-006', salleLibelle: 'LABO-PHYS', enseignantPublicId: 'ens-002', enseignantNom: 'Mme Traoré Aïssata' },
-  { publicId: 'ts-sec-mar-2', jour: 'MARDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-svt',    matiereLibelle: 'SVT',             promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-003', enseignantNom: 'M. Ouédraogo Luc' },
-  { publicId: 'ts-sec-mar-3', jour: 'MARDI',    heureDebut: '15:00', heureFin: '16:00', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
+  { publicId: 'ts-sec-mar-1', jour: 'MARDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-006', salleLibelle: 'LABO-PHYS', enseignantPublicId: 'ens-002', enseignantNom: 'Mme Traoré Aïssata' },
+  { publicId: 'ts-sec-mar-2', jour: 'MARDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-svt',    matiereLibelle: 'SVT',             promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-003', enseignantNom: 'M. Ouédraogo Luc' },
+  { publicId: 'ts-sec-mar-3', jour: 'MARDI',    heureDebut: '15:00', heureFin: '16:00', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
   // MERCREDI — CONFLIT INTENTIONNEL: Mme Traoré dans LABO-PHYS ET C201 à 07:30 simultanément (autre classe)
-  { publicId: 'ts-sec-mer-1', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
-  { publicId: 'ts-sec-mer-2', jour: 'MERCREDI', heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-013', enseignantNom: 'Mme Fofana Aminata' },
-  { publicId: 'ts-sec-mer-3', jour: 'MERCREDI', heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-eps',    matiereLibelle: 'EPS',             promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'Terrain',   enseignantPublicId: 'ens-008', enseignantNom: 'M. Koné Jean-Pierre' },
+  { publicId: 'ts-sec-mer-1', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
+  { publicId: 'ts-sec-mer-2', jour: 'MERCREDI', heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-013', enseignantNom: 'Mme Fofana Aminata' },
+  { publicId: 'ts-sec-mer-3', jour: 'MERCREDI', heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-eps',    matiereLibelle: 'EPS',             promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'Terrain',   enseignantPublicId: 'ens-008', enseignantNom: 'M. Koné Jean-Pierre' },
   // CONFLIT: Mme Traoré aussi planifiée en Physique pour Seconde MERCREDI 07:30 (conflit intentionnel avec Terminale S1)
-  { publicId: 'ts-sec-mer-CONFLIT', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-phys', matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-006', salleLibelle: 'LABO-PHYS', enseignantPublicId: 'ens-002', enseignantNom: 'Mme Traoré Aïssata' },
+  { publicId: 'ts-sec-mer-CONFLIT', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-phys', matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-006', salleLibelle: 'LABO-PHYS', enseignantPublicId: 'ens-002', enseignantNom: 'Mme Traoré Aïssata' },
   // JEUDI
-  { publicId: 'ts-sec-jeu-1', jour: 'JEUDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
-  { publicId: 'ts-sec-jeu-2', jour: 'JEUDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-svt',    matiereLibelle: 'SVT',             promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-007', salleLibelle: 'LABO-SVT',  enseignantPublicId: 'ens-003', enseignantNom: 'M. Ouédraogo Luc' },
-  { publicId: 'ts-sec-jeu-3', jour: 'JEUDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
+  { publicId: 'ts-sec-jeu-1', jour: 'JEUDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
+  { publicId: 'ts-sec-jeu-2', jour: 'JEUDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-svt',    matiereLibelle: 'SVT',             promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-007', salleLibelle: 'LABO-SVT',  enseignantPublicId: 'ens-003', enseignantNom: 'M. Ouédraogo Luc' },
+  { publicId: 'ts-sec-jeu-3', jour: 'JEUDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
   // VENDREDI
-  { publicId: 'ts-sec-ven-1', jour: 'VENDREDI', heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-006', salleLibelle: 'LABO-PHYS', enseignantPublicId: 'ens-002', enseignantNom: 'Mme Traoré Aïssata' },
-  { publicId: 'ts-sec-ven-2', jour: 'VENDREDI', heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-013', enseignantNom: 'Mme Fofana Aminata' },
+  { publicId: 'ts-sec-ven-1', jour: 'VENDREDI', heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-006', salleLibelle: 'LABO-PHYS', enseignantPublicId: 'ens-002', enseignantNom: 'Mme Traoré Aïssata' },
+  { publicId: 'ts-sec-ven-2', jour: 'VENDREDI', heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-013', enseignantNom: 'Mme Fofana Aminata' },
   // SAMEDI
-  { publicId: 'ts-sec-sam-1', jour: 'SAMEDI',   heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
-  { publicId: 'ts-sec-sam-2', jour: 'SAMEDI',   heureDebut: '10:30', heureFin: '11:30', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-seconde', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
+  { publicId: 'ts-sec-sam-1', jour: 'SAMEDI',   heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-014', enseignantNom: 'Mme Koné Mariame' },
+  { publicId: 'ts-sec-sam-2', jour: 'SAMEDI',   heureDebut: '10:30', heureFin: '11:30', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-seconde-a', promotionLibelle: 'Seconde A', sallePublicId: 'sal-001', salleLibelle: 'A101',      enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
 
   // ══════════════════ 3ÈME B ══════════════════
   // LUNDI
-  { publicId: 'ts-3b-lun-1', jour: 'LUNDI',    heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
-  { publicId: 'ts-3b-lun-2', jour: 'LUNDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-016', enseignantNom: 'Mme Sylla Ndeye' },
-  { publicId: 'ts-3b-lun-3', jour: 'LUNDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-010', salleLibelle: 'E10',       enseignantPublicId: 'ens-017', enseignantNom: 'M. Camara Lamine' },
+  { publicId: 'ts-3b-lun-1', jour: 'LUNDI',    heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
+  { publicId: 'ts-3b-lun-2', jour: 'LUNDI',    heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-016', enseignantNom: 'Mme Sylla Ndeye' },
+  { publicId: 'ts-3b-lun-3', jour: 'LUNDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-010', salleLibelle: 'E10',       enseignantPublicId: 'ens-017', enseignantNom: 'M. Camara Lamine' },
   // MARDI
-  { publicId: 'ts-3b-mar-1', jour: 'MARDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
-  { publicId: 'ts-3b-mar-2', jour: 'MARDI',    heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
-  { publicId: 'ts-3b-mar-3', jour: 'MARDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-svt',    matiereLibelle: 'SVT',             promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-007', salleLibelle: 'LABO-SVT',  enseignantPublicId: 'ens-003', enseignantNom: 'M. Ouédraogo Luc' },
+  { publicId: 'ts-3b-mar-1', jour: 'MARDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
+  { publicId: 'ts-3b-mar-2', jour: 'MARDI',    heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
+  { publicId: 'ts-3b-mar-3', jour: 'MARDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-svt',    matiereLibelle: 'SVT',             promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-007', salleLibelle: 'LABO-SVT',  enseignantPublicId: 'ens-003', enseignantNom: 'M. Ouédraogo Luc' },
   // MERCREDI
-  { publicId: 'ts-3b-mer-1', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
-  { publicId: 'ts-3b-mer-2', jour: 'MERCREDI', heureDebut: '10:30', heureFin: '11:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-016', enseignantNom: 'Mme Sylla Ndeye' },
+  { publicId: 'ts-3b-mer-1', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
+  { publicId: 'ts-3b-mer-2', jour: 'MERCREDI', heureDebut: '10:30', heureFin: '11:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-016', enseignantNom: 'Mme Sylla Ndeye' },
   // CONFLIT salle: D05 occupée deux fois le MERCREDI 07:30 (conflit intentionnel)
-  { publicId: 'ts-3b-mer-CONFLIT', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-art', matiereLibelle: 'Arts Plastiques', promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05', enseignantPublicId: 'ens-018', enseignantNom: 'Mme Diallo Coumba' },
+  { publicId: 'ts-3b-mer-CONFLIT', jour: 'MERCREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-art', matiereLibelle: 'Arts Plastiques', promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05', enseignantPublicId: 'ens-018', enseignantNom: 'Mme Diallo Coumba' },
   // JEUDI
-  { publicId: 'ts-3b-jeu-1', jour: 'JEUDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
-  { publicId: 'ts-3b-jeu-2', jour: 'JEUDI',    heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
-  { publicId: 'ts-3b-jeu-3', jour: 'JEUDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-010', salleLibelle: 'E10',       enseignantPublicId: 'ens-017', enseignantNom: 'M. Camara Lamine' },
+  { publicId: 'ts-3b-jeu-1', jour: 'JEUDI',    heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
+  { publicId: 'ts-3b-jeu-2', jour: 'JEUDI',    heureDebut: '08:30', heureFin: '09:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
+  { publicId: 'ts-3b-jeu-3', jour: 'JEUDI',    heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-phys',   matiereLibelle: 'Physique-Chimie', promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-010', salleLibelle: 'E10',       enseignantPublicId: 'ens-017', enseignantNom: 'M. Camara Lamine' },
   // VENDREDI
-  { publicId: 'ts-3b-ven-1', jour: 'VENDREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-016', enseignantNom: 'Mme Sylla Ndeye' },
-  { publicId: 'ts-3b-ven-2', jour: 'VENDREDI', heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
-  { publicId: 'ts-3b-ven-3', jour: 'VENDREDI', heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-eps',    matiereLibelle: 'EPS',             promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'Terrain',   enseignantPublicId: 'ens-008', enseignantNom: 'M. Koné Jean-Pierre' },
+  { publicId: 'ts-3b-ven-1', jour: 'VENDREDI', heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-fr',     matiereLibelle: 'Français',        promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-016', enseignantNom: 'Mme Sylla Ndeye' },
+  { publicId: 'ts-3b-ven-2', jour: 'VENDREDI', heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-hist',   matiereLibelle: 'Histoire-Géo',    promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-006', enseignantNom: 'Mme Sanogo Mariam' },
+  { publicId: 'ts-3b-ven-3', jour: 'VENDREDI', heureDebut: '14:00', heureFin: '15:00', matierePublicId: 'mat-eps',    matiereLibelle: 'EPS',             promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'Terrain',   enseignantPublicId: 'ens-008', enseignantNom: 'M. Koné Jean-Pierre' },
   // SAMEDI
-  { publicId: 'ts-3b-sam-1', jour: 'SAMEDI',   heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
-  { publicId: 'ts-3b-sam-2', jour: 'SAMEDI',   heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-troisieme', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
+  { publicId: 'ts-3b-sam-1', jour: 'SAMEDI',   heureDebut: '07:30', heureFin: '08:30', matierePublicId: 'mat-maths',  matiereLibelle: 'Mathématiques',   promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-015', enseignantNom: 'M. Bah Ibrahim' },
+  { publicId: 'ts-3b-sam-2', jour: 'SAMEDI',   heureDebut: '09:30', heureFin: '10:30', matierePublicId: 'mat-ang',    matiereLibelle: 'Anglais',         promotionPublicId: 'cls-3eme-b', promotionLibelle: '3ème B', sallePublicId: 'sal-004', salleLibelle: 'D05',       enseignantPublicId: 'ens-005', enseignantNom: 'M. Diallo Seydou' },
 ];
 
 // ─── Séances ─────────────────────────────────────────────────────────────────

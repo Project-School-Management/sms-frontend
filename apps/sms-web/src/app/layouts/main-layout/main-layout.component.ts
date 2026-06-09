@@ -47,7 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
         roles: [Role.ADMIN, Role.DIR, Role.SECRETARIAT],
         children: [
           { path: '/students',     label: 'Liste des élèves' },
-          { path: '/students/new', label: 'Nouvel élève' },
+          { path: '/students/new', label: 'Nouvelle inscription' },
         ],
       },
       {
@@ -102,9 +102,14 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Finance', icon: 'account_balance_wallet',
         roles: [Role.ADMIN, Role.DIR, Role.COMPTABLE],
         children: [
-          { path: '/finance',          label: 'Tableau de bord' },
-          { path: '/finance/invoices', label: 'Factures' },
-          { path: '/finance/bourses',  label: 'Bourses' },
+          { path: '/finance',               label: 'Tableau de bord' },
+          { path: '/finance/invoices',      label: 'Factures'        },
+          { path: '/finance/paiements',     label: 'Paiements'       },
+          { path: '/finance/bourses',       label: 'Bourses'         },
+          { path: '/finance/reductions',    label: 'Réductions'      },
+          { path: '/finance/echeanciers',   label: 'Échéanciers'     },
+          { path: '/finance/remboursements',label: 'Remboursements'  },
+          { path: '/finance/rapports',      label: 'Rapports'        },
         ],
       },
     ],
@@ -112,6 +117,18 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'ADMINISTRATION',
     items: [
+      {
+        id: 'config', path: '/config',
+        label: 'Configuration', icon: 'settings',
+        roles: [Role.SUPER_ADMIN, Role.ADMIN],
+        children: [
+          { path: '/config',          label: "Vue d'ensemble"          },
+          { path: '/config/academic', label: 'Référentiels académiques' },
+          { path: '/config/rooms',    label: 'Salles & bâtiments'       },
+          { path: '/config/finance',  label: 'Référentiels financiers'  },
+          { path: '/config/calendar', label: 'Calendrier académique'    },
+        ],
+      },
       {
         id: 'admin', path: '/admin',
         label: 'Utilisateurs', icon: 'manage_accounts',

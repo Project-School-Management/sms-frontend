@@ -1,0 +1,7 @@
+{
+  "name": "config-system-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/config-system/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:config-system"]
+}

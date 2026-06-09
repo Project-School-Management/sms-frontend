@@ -5,7 +5,8 @@ import { CommonModule }              from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule }               from '@angular/forms';
 import { MatIconModule }             from '@angular/material/icon';
-import { StudentsStore, CLASSES_MAP }   from '@sms/students/data-access';
+import { StudentsStore }                        from '@sms/students/data-access';
+import { CLASSES_MAP_REF as CLASSES_MAP } from '@sms/config-system/data-access';
 import { IStudent, StudentStatut, IAuditEntry } from '@sms/shared/models';
 import {
   SkeletonTableComponent,

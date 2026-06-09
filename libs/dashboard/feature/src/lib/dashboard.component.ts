@@ -54,7 +54,7 @@ const QUICK_ACTIONS = [
             &nbsp;·&nbsp;
             <span class="inline-flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full inline-block" style="background: #10b981"></span>
-              Système opérationnel
+
             </span>
           </p>
         </div>
@@ -529,25 +529,11 @@ const QUICK_ACTIONS = [
           </div>
         }
       </div>
-
-      <!-- System health footer -->
-      <div class="mt-4 pt-4 flex items-center justify-between"
-           style="border-top: 1px solid var(--border-color)">
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full" style="background: #10b981"></div>
-          <span class="text-xs" style="color: var(--text-secondary)">Système · {{ store.systemHealth() }}% opérationnel</span>
-        </div>
-        <div class="flex items-center gap-1 h-2 w-24 rounded-full overflow-hidden"
-             style="background: var(--surface-2)">
-          <div class="h-full rounded-full transition-all"
-               [style.width.%]="store.systemHealth()"
-               style="background: #10b981"></div>
-        </div>
-      </div>
     </div>
   </div>
 
 </div>
+
   `,
 })
 export class DashboardComponent implements OnInit, OnDestroy {

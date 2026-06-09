@@ -75,6 +75,13 @@ export const APP_ROUTES: Routes = [
           import('@sms/analytics/feature').then((m) => m.ANALYTICS_ROUTES),
       },
 
+      // Configuration Système & Référentiels
+      {
+        path:         'config',
+        loadChildren: () =>
+          import('@sms/config-system/feature').then((m) => m.CONFIG_SYSTEM_ROUTES),
+      },
+
       { path: '**', redirectTo: 'dashboard' },
     ],
   },

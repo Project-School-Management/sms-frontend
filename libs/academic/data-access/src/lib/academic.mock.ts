@@ -1,22 +1,14 @@
 import { INote, IBulletin, IPromotion, IFaculte, IDepartement, ISpecialite, IEvaluation, IEleveContext } from '@sms/shared/models';
+import {
+  MOCK_FACULTES as FACULTES_REF,
+  MOCK_DEPARTEMENTS as DEPTS_REF,
+  MOCK_SPECIALITES as SPECS_REF,
+} from '@sms/config-system/data-access';
 
-// ─── Structures ──────────────────────────────────────────────────────────────
-export const MOCK_FACULTES: IFaculte[] = [
-  { publicId: 'fac-001', code: 'FSEI', libelle: 'Faculté des Sciences et de l\'Ingénierie' },
-  { publicId: 'fac-002', code: 'FGSS', libelle: 'Faculté de Gestion et Sciences Sociales' },
-];
-
-export const MOCK_DEPARTEMENTS: IDepartement[] = [
-  { publicId: 'dep-001', code: 'INFO', libelle: 'Informatique', facultePublicId: 'fac-001' },
-  { publicId: 'dep-002', code: 'MATH', libelle: 'Mathématiques', facultePublicId: 'fac-001' },
-  { publicId: 'dep-003', code: 'GEST', libelle: 'Gestion', facultePublicId: 'fac-002' },
-];
-
-export const MOCK_SPECIALITES: ISpecialite[] = [
-  { publicId: 'spe-001', code: 'GL',    libelle: 'Génie Logiciel',   departementPublicId: 'dep-001' },
-  { publicId: 'spe-002', code: 'RI',    libelle: 'Réseaux & Infra',  departementPublicId: 'dep-001' },
-  { publicId: 'spe-003', code: 'COMPTA', libelle: 'Comptabilité',    departementPublicId: 'dep-003' },
-];
+// ─── Structures — source unique : @sms/config-system/data-access ─────────────
+export const MOCK_FACULTES: IFaculte[]    = FACULTES_REF.filter(f => f.active);
+export const MOCK_DEPARTEMENTS: IDepartement[] = DEPTS_REF.filter(d => d.active);
+export const MOCK_SPECIALITES: ISpecialite[]   = SPECS_REF.filter(s => s.active);
 
 // ─── Promotions / Classes ────────────────────────────────────────────────────
 export const MOCK_PROMOTIONS: IPromotion[] = [
