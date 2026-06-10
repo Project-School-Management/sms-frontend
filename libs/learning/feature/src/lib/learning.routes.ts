@@ -12,6 +12,11 @@ export const LEARNING_ROUTES: Routes = [
     title: 'Cours & E-learning',
   },
   {
+    path: 'cours/creer',
+    loadComponent: () => import('./pages/cours-editor/cours-editor.component').then(m => m.CoursEditorComponent),
+    title: 'Créer un cours',
+  },
+  {
     path: 'cours/:publicId',
     loadComponent: () => import('./pages/cours-detail/cours-detail.component').then(m => m.CoursDetailComponent),
     title: 'Détail cours',
@@ -20,6 +25,11 @@ export const LEARNING_ROUTES: Routes = [
     path: 'examens',
     loadComponent: () => import('./pages/examens-list/examens-list.component').then(m => m.ExamensListComponent),
     title: 'Examens & Quiz',
+  },
+  {
+    path: 'examens/creer',
+    loadComponent: () => import('./pages/examen-editor/examen-editor.component').then(m => m.ExamenEditorComponent),
+    title: 'Créer un examen',
   },
   {
     path: 'examens/:publicId',

@@ -38,6 +38,56 @@ export class LearningApiService {
     return of(void 0).pipe(delay(250));
   }
 
+  createCours(data: Partial<ICours>): Observable<ICours> {
+    const c: ICours = {
+      publicId:           `cours-new-${Date.now()}`,
+      titre:              data.titre ?? '',
+      description:        data.description ?? '',
+      matierePublicId:    data.matierePublicId ?? '',
+      matiereLibelle:     data.matiereLibelle ?? '',
+      promotionPublicId:  data.promotionPublicId ?? '',
+      enseignantPublicId: data.enseignantPublicId ?? 'user-current',
+      enseignantNom:      data.enseignantNom ?? '',
+      statut:             data.statut ?? 'BROUILLON',
+      chapitres:          data.chapitres ?? [],
+      progression:        0,
+      createdDate:        new Date().toISOString().split('T')[0],
+      dureeHeures:        data.dureeHeures,
+      niveauLibelle:      data.niveauLibelle,
+    };
+    MOCK_COURS.push(c);
+    return of(c).pipe(delay(400));
+  }
+
+  updateCours(data: Partial<ICours>): Observable<ICours> {
+    const idx = MOCK_COURS.findIndex(c => c.publicId === data.publicId);
+    if (idx >= 0) Object.assign(MOCK_COURS[idx], data);
+    return of(MOCK_COURS[idx >= 0 ? idx : 0]).pipe(delay(300));
+  }
+
+  createExamen(data: Partial<IExamen>): Observable<IExamen> {
+    const e: IExamen = {
+      publicId:         `exam-new-${Date.now()}`,
+      titre:            data.titre ?? '',
+      matierePublicId:  data.matierePublicId ?? '',
+      matiereLibelle:   data.matiereLibelle ?? '',
+      dureeMinutes:     data.dureeMinutes ?? 60,
+      dateDebut:        data.dateDebut ?? '',
+      dateFin:          data.dateFin ?? '',
+      questions:        data.questions ?? [],
+      statut:           'A_VENIR',
+      niveauLibelle:    data.niveauLibelle,
+    };
+    MOCK_EXAMENS.push(e);
+    return of(e).pipe(delay(400));
+  }
+
+  updateExamen(data: Partial<IExamen>): Observable<IExamen> {
+    const idx = MOCK_EXAMENS.findIndex(e => e.publicId === data.publicId);
+    if (idx >= 0) Object.assign(MOCK_EXAMENS[idx], data);
+    return of(MOCK_EXAMENS[idx >= 0 ? idx : 0]).pipe(delay(300));
+  }
+
   getDevoirs(coursPublicId?: string): Observable<IDevoir[]> {
     const list = coursPublicId
       ? MOCK_DEVOIRS.filter(d => d.coursPublicId === coursPublicId)

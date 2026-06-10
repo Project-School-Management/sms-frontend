@@ -164,6 +164,46 @@ export const LearningStore = signalStore(
       ))
     )),
 
+    // ── CRUD Cours ────────────────────────────────────────────────────────────
+    createCours: rxMethod<Partial<ICours>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.createCours(data).pipe(
+        tap(c => patchState(store, s => ({ cours: [c, ...s.cours], saving: false }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    updateCours: rxMethod<Partial<ICours>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.updateCours(data).pipe(
+        tap(updated => patchState(store, s => ({
+          cours: s.cours.map(c => c.publicId === updated.publicId ? updated : c),
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── CRUD Examen ───────────────────────────────────────────────────────────
+    createExamen: rxMethod<Partial<IExamen>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.createExamen(data).pipe(
+        tap(e => patchState(store, s => ({ examens: [e, ...s.examens], saving: false }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    updateExamen: rxMethod<Partial<IExamen>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.updateExamen(data).pipe(
+        tap(updated => patchState(store, s => ({
+          examens: s.examens.map(e => e.publicId === updated.publicId ? updated : e),
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
     clearError:          () => patchState(store, { error: null }),
     clearSelectedExamen: () => patchState(store, { selectedExamen: null }),
     clearSelectedDevoir: () => patchState(store, { selectedDevoir: null }),
