@@ -148,6 +148,32 @@ export class FinanceApiService {
     return of(undefined).pipe(delay(200));
   }
 
+  createFacture(req: {
+    studentId: number;
+    anneeAcademiqueId: number;
+    montantTotal: number;
+    dateEcheance: string;
+    libelle?: string;
+  }): Observable<IFacture> {
+    const n = MOCK_FACTURES.length + 1;
+    const num = String(n).padStart(4, '0');
+    const f: IFacture = {
+      publicId:          `fac-${num}-${Date.now()}`,
+      numero:            `FAC-2026-${num}`,
+      studentId:         req.studentId,
+      anneeAcademiqueId: req.anneeAcademiqueId,
+      montantTotal:      req.montantTotal,
+      montantPaye:       0,
+      solde:             req.montantTotal,
+      statut:            'EMISE',
+      dateEcheance:      req.dateEcheance,
+      createdDate:       new Date().toISOString().split('T')[0],
+      echeancier:        [],
+    };
+    MOCK_FACTURES.push(f);
+    return of(f).pipe(delay(400));
+  }
+
   getFrais(anneeAcademiqueId: number): Observable<IFraisScolarite[]> {
     return of(MOCK_FRAIS.filter(f => f.anneeAcademiqueId === anneeAcademiqueId)).pipe(delay(300));
   }

@@ -65,6 +65,13 @@ export const FINANCE_ROUTES: Routes = [
     title: 'Remboursements',
   },
   {
+    path: 'frais',
+    loadComponent: () =>
+      import('./pages/frais-management/frais-management.component')
+        .then(m => m.FraisManagementComponent),
+    title: 'Gestion des frais',
+  },
+  {
     path: 'rapports',
     loadComponent: () =>
       import('./pages/rapports-finance/rapports-finance.component')

@@ -105,6 +105,38 @@ export const FinanceStore = signalStore(
         catchError(() => EMPTY)
       ))
     )),
+    createFacture: rxMethod<{
+      studentId: number; anneeAcademiqueId: number;
+      montantTotal: number; dateEcheance: string; libelle?: string;
+    }>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(req => api.createFacture(req).pipe(
+        tap(f => {
+          patchState(store, s => ({ factures: [...s.factures, f], saving: false, totalCount: s.totalCount + 1 }));
+          toast.success(`Facture ${f.numero} créée avec succès`);
+        }),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    createFrais: rxMethod<import('@sms/shared/models').IFraisScolariteRequest>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(req => api.createFrais(req).pipe(
+        tap(f => {
+          patchState(store, s => ({ frais: [...s.frais, f], saving: false }));
+          toast.success('Frais créés avec succès');
+        }),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    deleteFrais: rxMethod<string>(pipe(
+      switchMap(publicId => api.deleteFrais(publicId).pipe(
+        tap(() => patchState(store, s => ({ frais: s.frais.filter(f => f.publicId !== publicId) }))),
+        catchError(() => EMPTY)
+      ))
+    )),
+
     clearError:            () => patchState(store, { error: null }),
     clearSelectedFacture:  () => patchState(store, { selectedFacture: null }),
   }))

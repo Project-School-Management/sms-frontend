@@ -111,6 +111,7 @@ const NAV_GROUPS: NavGroup[] = [
         children: [
           { path: '/finance',               label: 'Tableau de bord' },
           { path: '/finance/invoices',      label: 'Factures'        },
+          { path: '/finance/frais',         label: 'Frais'           },
           { path: '/finance/paiements',     label: 'Paiements'       },
           { path: '/finance/bourses',       label: 'Bourses'         },
           { path: '/finance/reductions',    label: 'Réductions'      },
