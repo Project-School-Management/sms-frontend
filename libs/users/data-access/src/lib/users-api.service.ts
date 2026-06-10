@@ -70,4 +70,18 @@ export class UsersApiService {
     MOCK_ANNEES.forEach(a => (a.active = a.publicId === publicId));
     return of([...MOCK_ANNEES]).pipe(delay(400));
   }
+
+  updateUser(data: Partial<IUser>): Observable<IUser> {
+    const idx = MOCK_USERS.findIndex(u => u.publicId === data.publicId);
+    if (idx >= 0) Object.assign(MOCK_USERS[idx], data);
+    return of(MOCK_USERS[idx >= 0 ? idx : 0]).pipe(delay(300));
+  }
+
+  resetPassword(publicId: string): Observable<{ tempPassword: string }> {
+    const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$';
+    const tempPassword = Array.from({ length: 12 }, () =>
+      chars[Math.floor(Math.random() * chars.length)]
+    ).join('');
+    return of({ tempPassword }).pipe(delay(600));
+  }
 }

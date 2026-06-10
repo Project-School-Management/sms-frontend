@@ -94,6 +94,27 @@ export const UsersStore = signalStore(
       ))
     )),
 
+    // ── Update user ───────────────────────────────────────────────────────
+    updateUser: rxMethod<Partial<IUser>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.updateUser(data).pipe(
+        tap(updated => patchState(store, s => ({
+          users: s.users.map(u => u.publicId === updated.publicId ? updated : u),
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── Reset password ────────────────────────────────────────────────────
+    resetPassword: rxMethod<{ publicId: string; onSuccess: (pwd: string) => void }>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(({ publicId, onSuccess }) => api.resetPassword(publicId).pipe(
+        tap(r => { patchState(store, { saving: false }); onSuccess(r.tempPassword); }),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
     // ── Misc ─────────────────────────────────────────────────────────────
     setRoleFilter: (r: string) => patchState(store, { roleFilter: r }),
     clearError:    ()          => patchState(store, { error: null }),

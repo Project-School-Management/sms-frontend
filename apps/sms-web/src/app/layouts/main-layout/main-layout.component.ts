@@ -142,7 +142,8 @@ const NAV_GROUPS: NavGroup[] = [
         roles: [Role.SUPER_ADMIN, Role.ADMIN],
         children: [
           { path: '/admin',        label: 'Liste des utilisateurs' },
-          { path: '/admin/annees', label: 'Années académiques' },
+          { path: '/admin/rbac',   label: 'Rôles & Permissions'   },
+          { path: '/admin/annees', label: 'Années académiques'    },
         ],
       },
       {
