@@ -34,6 +34,7 @@ interface ReferenceState {
   typesEvaluation: ITypeEvaluationRef[];
   loaded:          boolean;
   loading:         boolean;
+  saving:          boolean;
   error:           string | null;
 }
 
@@ -42,7 +43,7 @@ const initialState: ReferenceState = {
   facultes: [], departements: [], specialites: [], classes: [],
   matieres: [], annees: [], periodes: [], batiments: [], salles: [],
   typesFrais: [], typesBourses: [], grades: [], typesDocuments: [],
-  typesEvaluation: [], loaded: false, loading: false, error: null,
+  typesEvaluation: [], loaded: false, loading: false, saving: false, error: null,
 };
 
 // ── Store ─────────────────────────────────────────────────────────────────────
@@ -208,5 +209,91 @@ export const ReferenceStore = signalStore(
         store.niveaux().find(n => n.publicId === f.niveauPublicId)?.libelle === niveauLibelle
       )?.montant ?? 650_000;
     },
+
+    // ── CRUD Classe ───────────────────────────────────────────────────────────
+    saveClasse: rxMethod<Partial<IClasseRef>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.upsertClasse(data).pipe(
+        tap(saved => patchState(store, s => ({
+          classes: s.classes.some(c => c.publicId === saved.publicId)
+            ? s.classes.map(c => c.publicId === saved.publicId ? saved : c)
+            : [...s.classes, saved],
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── CRUD Matière ──────────────────────────────────────────────────────────
+    saveMatiere: rxMethod<Partial<IMatiereRef>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.upsertMatiere(data).pipe(
+        tap(saved => patchState(store, s => ({
+          matieres: s.matieres.some(m => m.publicId === saved.publicId)
+            ? s.matieres.map(m => m.publicId === saved.publicId ? saved : m)
+            : [...s.matieres, saved],
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── CRUD Salle ────────────────────────────────────────────────────────────
+    saveSalle: rxMethod<Partial<ISalleRef>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.upsertSalle(data).pipe(
+        tap(saved => patchState(store, s => ({
+          salles: s.salles.some(x => x.publicId === saved.publicId)
+            ? s.salles.map(x => x.publicId === saved.publicId ? saved : x)
+            : [...s.salles, saved],
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── CRUD Type Frais ───────────────────────────────────────────────────────
+    saveTypeFrais: rxMethod<Partial<ITypeFraisRef>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.upsertTypeFrais(data).pipe(
+        tap(saved => patchState(store, s => ({
+          typesFrais: s.typesFrais.some(f => f.publicId === saved.publicId)
+            ? s.typesFrais.map(f => f.publicId === saved.publicId ? saved : f)
+            : [...s.typesFrais, saved],
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── Toggle actif/inactif ─────────────────────────────────────────────────
+    toggleClasse: rxMethod<{ publicId: string; active: boolean }>(pipe(
+      switchMap(({ publicId, active }) => api.toggleActive('classes', publicId, active).pipe(
+        tap(() => patchState(store, s => ({
+          classes: s.classes.map(c => c.publicId === publicId ? { ...c, active } : c),
+        }))),
+        catchError(() => EMPTY)
+      ))
+    )),
+
+    toggleSalle: rxMethod<{ publicId: string; active: boolean }>(pipe(
+      switchMap(({ publicId, active }) => api.toggleActive('salles', publicId, active).pipe(
+        tap(() => patchState(store, s => ({
+          salles: s.salles.map(x => x.publicId === publicId ? { ...x, active } : x),
+        }))),
+        catchError(() => EMPTY)
+      ))
+    )),
+
+    toggleMatiere: rxMethod<{ publicId: string; active: boolean }>(pipe(
+      switchMap(({ publicId, active }) => api.toggleActive('matieres', publicId, active).pipe(
+        tap(() => patchState(store, s => ({
+          matieres: s.matieres.map(m => m.publicId === publicId ? { ...m, active } : m),
+        }))),
+        catchError(() => EMPTY)
+      ))
+    )),
+
+    clearError: () => patchState(store, { error: null }),
   }))
 );
