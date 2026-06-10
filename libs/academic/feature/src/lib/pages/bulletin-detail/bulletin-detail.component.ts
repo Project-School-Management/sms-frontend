@@ -231,7 +231,8 @@ const MENTION_CFG: Record<string, { color: string; bg: string }> = {
           <mat-icon style="font-size:18px;height:18px;width:18px">download</mat-icon>
           Télécharger le bulletin PDF
         </a>
-        <button class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-70"
+        <button (click)="printBulletin()"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border transition-opacity hover:opacity-70"
                 style="border-color:var(--border-color);color:var(--text-secondary);background:var(--surface-2)">
           <mat-icon style="font-size:18px;height:18px;width:18px">print</mat-icon>
           Imprimer
@@ -259,6 +260,10 @@ export class BulletinDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('publicId') ?? '';
     this.store.loadBulletin(id);
+  }
+
+  printBulletin(): void {
+    window.print();
   }
 
   // ── Stats helpers ─────────────────────────────────────────────────────────

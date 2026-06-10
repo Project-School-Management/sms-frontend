@@ -135,6 +135,26 @@ html, body {
   transition: background-color 200ms ease, border-color 200ms ease;
 }
 
+// ── Print styles — Bulletins ─────────────────────────────────────────────────
+@media print {
+  .sidebar, .topbar, .sidebar-overlay,
+  a[routerLink], button:not(.print-keep),
+  mat-icon { display: none !important; }
+
+  .content-area  { overflow: visible !important; }
+  .page-content  { overflow: visible !important; padding: 0 !important; }
+  .p-6           { padding: 12px !important; }
+
+  .sms-card {
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  body { background: #fff !important; color: #000 !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
 // ── Toast notifications (MatSnackBar) ────────────────────────────────────────
 .sms-toast {
   border-radius: 10px !important;

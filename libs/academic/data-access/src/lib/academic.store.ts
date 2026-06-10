@@ -218,6 +218,30 @@ export const AcademicStore = signalStore(
       ))
     )),
 
+    // ── Évaluations CRUD ─────────────────────────────────────────────────────
+    updateEvaluation: rxMethod<Partial<IEvaluation>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.updateEvaluation(data).pipe(
+        tap(updated => patchState(store, s => ({
+          saving: false,
+          evaluations: s.evaluations.map(e => e.publicId === updated.publicId ? updated : e),
+          selectedEval: updated,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+    deleteEvaluation: rxMethod<string>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(id => api.deleteEvaluation(id).pipe(
+        tap(() => patchState(store, s => ({
+          saving: false,
+          evaluations: s.evaluations.filter(e => e.publicId !== id),
+          selectedEval: null,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
     // ── Filters & UI ──────────────────────────────────────────────────────
     setSelectedEval:     (e: IEvaluation | null) => patchState(store, { selectedEval: e }),
     setSelectedPromo:    (id: string)  => patchState(store, { selectedPromo: id }),

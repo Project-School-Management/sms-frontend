@@ -187,6 +187,18 @@ export class AcademicApiService {
     return of(MOCK_NOTES[idx >= 0 ? idx : 0]).pipe(delay(200));
   }
 
+  updateEvaluation(data: Partial<IEvaluation>): Observable<IEvaluation> {
+    const idx = MOCK_EVALUATIONS.findIndex(e => e.publicId === data.publicId);
+    if (idx >= 0) Object.assign(MOCK_EVALUATIONS[idx], data);
+    return of(MOCK_EVALUATIONS[idx >= 0 ? idx : 0]).pipe(delay(250));
+  }
+
+  deleteEvaluation(publicId: string): Observable<void> {
+    const idx = MOCK_EVALUATIONS.findIndex(e => e.publicId === publicId);
+    if (idx >= 0) MOCK_EVALUATIONS.splice(idx, 1);
+    return of(void 0).pipe(delay(200));
+  }
+
   // ── Single note create (compat) ───────────────────────────────────────────
 
   createNote(req: Partial<INote>): Observable<INote> {

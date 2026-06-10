@@ -55,8 +55,11 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Notes & Bulletins', icon: 'menu_book',
         roles: [Role.ADMIN, Role.DIR, Role.ENSEIGNANT],
         children: [
-          { path: '/academic',           label: 'Notes' },
-          { path: '/academic/bulletins', label: 'Bulletins' },
+          { path: '/academic',              label: 'Notes'          },
+          { path: '/academic/evaluations',  label: 'Évaluations'   },
+          { path: '/academic/classes',      label: 'Classes'        },
+          { path: '/academic/bulletins',    label: 'Bulletins'      },
+          { path: '/academic/saisie',       label: 'Saisie notes'   },
         ],
       },
       {
