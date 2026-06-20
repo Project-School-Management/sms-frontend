@@ -1,0 +1,15 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [{ "path": "./tsconfig.lib.json" }],
+  "compilerOptions": {
+    "target": "ES2022",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    "strictTemplates": true
+  }
+}

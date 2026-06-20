@@ -7,8 +7,31 @@
 // ── Angular Material theme ────────────────────────────────────────────────────
 @include mat.core();
 
-$sms-primary: mat.m2-define-palette(mat.$m2-blue-palette, 600);
-$sms-accent:  mat.m2-define-palette(mat.$m2-amber-palette, A200, A100, A400);
+// ── KalanBlonw brand palettes (charte officielle) ─────────────────────────────
+$kb-blue-palette: (
+  50:  #e7e9ec, 100: #ced3d9, 200: #9da8b3, 300: #6c7c8c, 400: #3b5166,
+  500: #0a2540, 600: #081e34, 700: #061829, 800: #05111d, 900: #030a12,
+  A100: #6c7c8c, A200: #3b5166, A400: #123a61, A700: #0a2540,
+  contrast: (
+    50: #0a2540, 100: #0a2540, 200: #0a2540, 300: #ffffff, 400: #ffffff,
+    500: #ffffff, 600: #ffffff, 700: #ffffff, 800: #ffffff, 900: #ffffff,
+    A100: #ffffff, A200: #ffffff, A400: #ffffff, A700: #ffffff,
+  ),
+);
+
+$kb-gold-palette: (
+  50:  #faf7eb, 100: #f6efd7, 200: #eedfaf, 300: #e5cf87, 400: #dcbf5f,
+  500: #d4af37, 600: #ae8f2d, 700: #887023, 800: #625019, 900: #3b310f,
+  A100: #f6efd7, A200: #eedfaf, A400: #e8c75a, A700: #d4af37,
+  contrast: (
+    50: #0a2540, 100: #0a2540, 200: #0a2540, 300: #0a2540, 400: #0a2540,
+    500: #0a2540, 600: #0a2540, 700: #ffffff, 800: #ffffff, 900: #ffffff,
+    A100: #0a2540, A200: #0a2540, A400: #0a2540, A700: #0a2540,
+  ),
+);
+
+$sms-primary: mat.m2-define-palette($kb-blue-palette, 500, 300, 700);
+$sms-accent:  mat.m2-define-palette($kb-gold-palette, 500, 300, 700);
 $sms-warn:    mat.m2-define-palette(mat.$m2-red-palette);
 
 $sms-theme: mat.m2-define-light-theme((
@@ -33,69 +56,81 @@ $sms-theme: mat.m2-define-light-theme((
   --topbar-height:           56px;
   --sidebar-transition:      240ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  // Sidebar (light sidebar — fond blanc, accent bleu éducatif)
+  // Brand (charte KalanBlonw)
+  --brand-blue:  #0a2540;
+  --brand-gold:  #d4af37;
+  --brand-green: #00a86b;
+
+  // Sidebar (light — fond blanc, accents bleu institutionnel)
   --sidebar-bg:              #ffffff;
-  --sidebar-border:          #e2e8f0;
+  --sidebar-border:          #e7ebf0;
   --sidebar-group-label:     #94a3b8;
   --sidebar-item-text:       #475569;
   --sidebar-item-icon:       #64748b;
-  --sidebar-item-hover-bg:   #eff6ff;
-  --sidebar-item-hover-text: #1d4ed8;
-  --sidebar-active-bg:       #dbeafe;
-  --sidebar-active-text:     #1d4ed8;
-  --sidebar-active-icon:     #2563eb;
-  --sidebar-footer-border:   #e2e8f0;
+  --sidebar-item-hover-bg:   #eef2f7;
+  --sidebar-item-hover-text: #0a2540;
+  --sidebar-active-bg:       #e6ebf1;
+  --sidebar-active-text:     #0a2540;
+  --sidebar-active-icon:     #0a2540;
+  --sidebar-footer-border:   #e7ebf0;
   --sidebar-scrollbar:       #cbd5e1;
 
   // Content
   --content-bg:    #f1f5f9;
   --topbar-bg:     #ffffff;
-  --topbar-border: #e2e8f0;
-  --topbar-shadow: 0 1px 0 #e2e8f0;
+  --topbar-border: #e7ebf0;
+  --topbar-shadow: 0 1px 0 #e7ebf0;
 
   // Text
-  --text-primary:   #0f172a;
+  --text-primary:   #0a2540;
   --text-secondary: #64748b;
   --text-muted:     #94a3b8;
 
   // Surface / Cards
   --surface-1:    #ffffff;
   --surface-2:    #f8fafc;
-  --border-color: #e2e8f0;
+  --border-color: #e7ebf0;
 
-  // Accent
-  --accent:       #2563eb;
-  --accent-light: rgba(37, 99, 235, 0.1);
+  // Accent (light = bleu institutionnel)
+  --accent:       #0a2540;
+  --accent-light: rgba(10, 37, 64, 0.10);
 }
 
 // ── Dark mode overrides ───────────────────────────────────────────────────────
 .dark-mode {
-  --content-bg:    #0f172a;
-  --topbar-bg:     #1e293b;
-  --topbar-border: #334155;
-  --topbar-shadow: 0 1px 0 #334155;
+  // Brand (dark = or KalanBlonw plus lumineux)
+  --brand-gold:  #e8c75a;
+
+  --content-bg:    #121824;
+  --topbar-bg:     #1b2436;
+  --topbar-border: #2a3650;
+  --topbar-shadow: 0 1px 0 #2a3650;
 
   --text-primary:   #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted:     #64748b;
 
-  --surface-1:    #1e293b;
-  --surface-2:    #0f172a;
-  --border-color: #334155;
+  --surface-1:    #1b2436;
+  --surface-2:    #121824;
+  --border-color: #2a3650;
+
+  // Accent (dark = or KalanBlonw)
+  --accent:       #d4af37;
+  --accent-light: rgba(212, 175, 55, 0.14);
 
   // Sidebar dark mode
-  --sidebar-bg:              #1e293b;
-  --sidebar-border:          #334155;
+  --sidebar-bg:              #1b2436;
+  --sidebar-border:          #2a3650;
   --sidebar-group-label:     #64748b;
   --sidebar-item-text:       #94a3b8;
-  --sidebar-item-icon:       #64748b;
-  --sidebar-item-hover-bg:   rgba(37, 99, 235, 0.12);
-  --sidebar-item-hover-text: #93c5fd;
-  --sidebar-active-bg:       rgba(37, 99, 235, 0.22);
-  --sidebar-active-text:     #93c5fd;
-  --sidebar-active-icon:     #60a5fa;
-  --sidebar-footer-border:   #334155;
-  --sidebar-scrollbar:       #475569;
+  --sidebar-item-icon:       #7c8aa0;
+  --sidebar-item-hover-bg:   rgba(212, 175, 55, 0.10);
+  --sidebar-item-hover-text: #e8c75a;
+  --sidebar-active-bg:       rgba(212, 175, 55, 0.16);
+  --sidebar-active-text:     #e8c75a;
+  --sidebar-active-icon:     #d4af37;
+  --sidebar-footer-border:   #2a3650;
+  --sidebar-scrollbar:       #3a4760;
 }
 
 // ── Global reset ──────────────────────────────────────────────────────────────

@@ -51,7 +51,8 @@ const STATUT_SOUM_CFG: Record<string, { label: string; bg: string; color: string
     <div class="flex items-center justify-center py-20 gap-3" style="color:var(--text-secondary)">
       <mat-icon class="animate-spin">refresh</mat-icon> Chargement…
     </div>
-  } @else if (store.selectedDevoir(); as devoir) {
+  } @else {
+    @if (store.selectedDevoir(); as devoir) {
 
     <!-- ── Header devoir ─────────────────────────────────────────────────── -->
     <div class="sms-card p-5 mb-5"
@@ -193,11 +194,12 @@ const STATUT_SOUM_CFG: Record<string, { label: string; bg: string; color: string
       </div>
     </div>
 
-  } @else {
-    <div class="flex flex-col items-center justify-center py-20 gap-3" style="color:var(--text-secondary)">
-      <mat-icon style="font-size:48px;height:48px;width:48px;opacity:0.3">assignment_late</mat-icon>
-      <p class="font-semibold">Devoir introuvable</p>
-    </div>
+    } @else {
+      <div class="flex flex-col items-center justify-center py-20 gap-3" style="color:var(--text-secondary)">
+        <mat-icon style="font-size:48px;height:48px;width:48px;opacity:0.3">assignment_late</mat-icon>
+        <p class="font-semibold">Devoir introuvable</p>
+      </div>
+    }
   }
 
 </div>

@@ -42,6 +42,16 @@ export const LEARNING_ROUTES: Routes = [
     title: 'Devoirs & Travaux',
   },
   {
+    path: 'devoirs/creer',
+    loadComponent: () => import('./pages/devoir-editor/devoir-editor.component').then(m => m.DevoirEditorComponent),
+    title: 'Nouveau devoir',
+  },
+  {
+    path: 'devoirs/:publicId/edit',
+    loadComponent: () => import('./pages/devoir-editor/devoir-editor.component').then(m => m.DevoirEditorComponent),
+    title: 'Modifier le devoir',
+  },
+  {
     path: 'devoirs/:publicId',
     loadComponent: () => import('./pages/devoir-detail/devoir-detail.component').then(m => m.DevoirDetailComponent),
     title: 'Détail devoir',
@@ -50,6 +60,11 @@ export const LEARNING_ROUTES: Routes = [
     path: 'sessions',
     loadComponent: () => import('./pages/sessions-virtuelles/sessions-virtuelles.component').then(m => m.SessionsVirtuellesComponent),
     title: 'Sessions virtuelles',
+  },
+  {
+    path: 'sessions/creer',
+    loadComponent: () => import('./pages/session-virtuelle-editor/session-virtuelle-editor.component').then(m => m.SessionVirtuelleEditorComponent),
+    title: 'Planifier une session',
   },
   {
     path: 'certificats',

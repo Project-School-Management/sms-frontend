@@ -135,8 +135,8 @@ const EMPTY_FORM: EvalForm = {
             class="px-3 py-2 rounded-xl border text-sm"
             style="border-color:var(--border-color);background:var(--surface-2);color:var(--text-primary)">
       <option value="">Toutes les classes</option>
-      @for (c of refStore.classesActives(); track c.id) {
-        <option [value]="c.id">{{ c.libelle }}</option>
+      @for (c of refStore.classesActives(); track c.publicId) {
+        <option [value]="c.publicId">{{ c.libelle }}</option>
       }
     </select>
     <!-- Onglets statut -->
@@ -345,8 +345,8 @@ const EMPTY_FORM: EvalForm = {
                   class="px-3 py-2 rounded-xl border text-sm outline-none"
                   style="border-color:var(--border-color);background:var(--surface-2);color:var(--text-primary)">
             <option value="">— Sélectionner une classe —</option>
-            @for (c of refStore.classesActives(); track c.id) {
-              <option [value]="c.id">{{ c.libelle }}</option>
+            @for (c of refStore.classesActives(); track c.publicId) {
+              <option [value]="c.publicId">{{ c.libelle }}</option>
             }
           </select>
         </div>
@@ -557,7 +557,7 @@ export class EvaluationsListComponent implements OnInit {
       return;
     }
     const matiere  = this.refStore.matieres().find(m => m.publicId === this.form.matierePublicId);
-    const classe   = this.refStore.classesActives().find(c => c.id === this.form.promotionPublicId);
+    const classe   = this.refStore.classesActives().find(c => c.publicId === this.form.promotionPublicId);
 
     const payload: Partial<IEvaluation> = {
       ...this.form,

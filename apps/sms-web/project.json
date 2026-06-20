@@ -15,7 +15,6 @@
         "browser":    "apps/sms-web/src/main.ts",
         "tsConfig":   "apps/sms-web/tsconfig.app.json",
         "assets": [
-          "apps/sms-web/src/favicon.ico",
           "apps/sms-web/src/assets",
           { "glob": "**/*", "input": "apps/sms-web/src/assets", "output": "assets" }
         ],

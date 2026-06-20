@@ -122,4 +122,52 @@ export class LearningApiService {
   getQuestionsBank(): Observable<IQuestionBanque[]> {
     return of(MOCK_QUESTIONS_BANQUE).pipe(delay(300));
   }
+
+  createDevoir(data: Partial<IDevoir>): Observable<IDevoir> {
+    const d: IDevoir = {
+      publicId:      `devoir-new-${Date.now()}`,
+      titre:         data.titre ?? '',
+      coursPublicId: data.coursPublicId ?? '',
+      coursLibelle:  data.coursLibelle ?? '',
+      description:   data.description ?? '',
+      dateDebut:     data.dateDebut ?? new Date().toISOString().split('T')[0],
+      dateLimite:    data.dateLimite ?? '',
+      bareme:        data.bareme ?? 20,
+      statut:        'OUVERT',
+      nbSoumissions: 0,
+      nbEtudiants:   data.nbEtudiants ?? 30,
+      pieceJointe:   data.pieceJointe,
+    };
+    MOCK_DEVOIRS.push(d);
+    return of(d).pipe(delay(400));
+  }
+
+  updateDevoir(data: Partial<IDevoir>): Observable<IDevoir> {
+    const idx = MOCK_DEVOIRS.findIndex(d => d.publicId === data.publicId);
+    if (idx >= 0) Object.assign(MOCK_DEVOIRS[idx], data);
+    return of(MOCK_DEVOIRS[idx >= 0 ? idx : 0]).pipe(delay(300));
+  }
+
+  closeDevoir(publicId: string): Observable<IDevoir> {
+    const idx = MOCK_DEVOIRS.findIndex(d => d.publicId === publicId);
+    if (idx >= 0) MOCK_DEVOIRS[idx].statut = 'FERME';
+    return of(MOCK_DEVOIRS[idx >= 0 ? idx : 0]).pipe(delay(250));
+  }
+
+  createSessionVirt(data: Partial<ISessionVirtuelle>): Observable<ISessionVirtuelle> {
+    const s: ISessionVirtuelle = {
+      publicId:     `session-new-${Date.now()}`,
+      titre:        data.titre ?? '',
+      coursLibelle: data.coursLibelle ?? '',
+      enseignant:   data.enseignant ?? '',
+      date:         data.date ?? '',
+      heure:        data.heure ?? '',
+      dureeMinutes: data.dureeMinutes ?? 60,
+      statut:       'PLANIFIEE',
+      nbInscrits:   0,
+      lienJoin:     data.lienJoin,
+    };
+    MOCK_SESSIONS_VIRTUELLES.push(s);
+    return of(s).pipe(delay(400));
+  }
 }

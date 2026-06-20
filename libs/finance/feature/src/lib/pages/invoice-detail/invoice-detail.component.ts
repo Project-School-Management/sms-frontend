@@ -44,7 +44,8 @@ const STATUT_CFG: Record<string, { label: string; bg: string; color: string; ico
     <div class="flex items-center justify-center py-20 gap-3" style="color:var(--text-secondary)">
       <mat-icon class="animate-spin">refresh</mat-icon> Chargement…
     </div>
-  } @else if (store.selectedFacture(); as f) {
+  } @else {
+    @if (store.selectedFacture(); as f) {
 
     <!-- ── En-tête facture ──────────────────────────────────────────────────── -->
     <div class="sms-card p-6 mb-5">
@@ -230,13 +231,14 @@ const STATUT_CFG: Record<string, { label: string; bg: string; color: string; ico
       </div>
     </div>
 
-  } @else if (!store.loading()) {
-    <div class="flex flex-col items-center justify-center py-20 gap-3" style="color:var(--text-secondary)">
-      <mat-icon style="font-size:48px;height:48px;width:48px;opacity:0.3">receipt_long</mat-icon>
-      <p class="font-semibold">Facture introuvable</p>
-      <a routerLink="/finance/invoices" class="text-sm font-semibold hover:opacity-80"
-         style="color:var(--accent)">← Retour aux factures</a>
-    </div>
+    } @else if (!store.loading()) {
+      <div class="flex flex-col items-center justify-center py-20 gap-3" style="color:var(--text-secondary)">
+        <mat-icon style="font-size:48px;height:48px;width:48px;opacity:0.3">receipt_long</mat-icon>
+        <p class="font-semibold">Facture introuvable</p>
+        <a routerLink="/finance/invoices" class="text-sm font-semibold hover:opacity-80"
+           style="color:var(--accent)">← Retour aux factures</a>
+      </div>
+    }
   }
 
 </div>

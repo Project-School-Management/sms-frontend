@@ -43,35 +43,52 @@
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  background: var(--accent);
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  background: linear-gradient(135deg, #0A2540 0%, #123A61 100%);
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(10, 37, 64, 0.25);
 
-  mat-icon {
-    color: #fff;
-    font-size: 18px !important;
-    height: 18px !important;
-    width: 18px !important;
+  svg {
+    width: 24px;
+    height: 24px;
+    display: block;
   }
 }
 
-.brand-name {
+.brand-wordmark {
   flex: 1;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   overflow: hidden;
   opacity: 1;
   transition: opacity var(--sidebar-transition);
 
   .collapsed & { opacity: 0; }
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+
+.brand-tagline {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--brand-gold);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.1;
 }
 
 .collapse-btn {

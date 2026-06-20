@@ -118,7 +118,7 @@ const EMPTY_FORM = (): FraisForm => ({
         <table class="w-full text-sm">
           <thead style="background:var(--surface-2)">
             <tr>
-              @for (h of ['Type','Libellé','Montant','Date d\'échéance','Actions']; track h) {
+              @for (h of tableHeaders; track h) {
                 <th class="text-left px-5 py-3 font-bold text-xs uppercase tracking-wide" style="color:var(--text-secondary)">{{ h }}</th>
               }
             </tr>
@@ -290,6 +290,8 @@ export class FraisManagementComponent implements OnInit {
   readonly store    = inject(FinanceStore);
   readonly refStore = inject(ReferenceStore);
   readonly toast    = inject(ToastService);
+
+  readonly tableHeaders = ['Type', 'Libellé', 'Montant', "Date d'échéance", 'Actions'];
 
   searchQuery  = '';
   typeFilter   = '';

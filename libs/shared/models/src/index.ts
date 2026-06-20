@@ -11,3 +11,4 @@ export * from './lib/learning.model';
 export * from './lib/communication.model';
 export * from './lib/analytics.model';
 export * from './lib/users.model';
+export * from './lib/library.model';

@@ -286,18 +286,18 @@ export class ClassesManagementComponent implements OnInit {
     const s = this.searchQuery.toLowerCase();
     const c = this.cycleFilter;
     if (s) list = list.filter(x => x.libelle.toLowerCase().includes(s) || x.code.toLowerCase().includes(s));
-    if (c) list = list.filter(x => x.cycleId === c);
+    if (c) list = list.filter(x => x.cyclePublicId === c);
     return list;
   });
 
   readonly cyclesAvecClasses = computed(() =>
     this.refStore.cycles().filter(c =>
-      this.refStore.classesActives().some(cl => cl.cycleId === c.publicId)
+      this.refStore.classesActives().some(cl => cl.cyclePublicId === c.publicId)
     )
   );
 
   classesByCycle(cycleId: string) {
-    return this.filteredClasses().filter(c => c.cycleId === cycleId);
+    return this.filteredClasses().filter(c => c.cyclePublicId === cycleId);
   }
 
   nbEvalsForClasse(classeId: string): number {

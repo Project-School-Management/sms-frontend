@@ -2,10 +2,11 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>SMS — School Management System</title>
+    <title>KalanBlonw — L'infrastructure du savoir</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="theme-color" content="#0A2540" />
+    <link rel="icon" type="image/jpeg" href="assets/brand/kalanblonw-logo.jpeg" />
     <!-- Angular Material preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,11 +26,26 @@
     <div id="sms-splash" aria-hidden="true">
       <div class="sms-splash__brand">
         <div class="sms-splash__logo">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3L1 9l4 2.18V17h14v-5.82L21 9zm6 12H6v-4.63L12 13.5l6-3.13V15z"/>
+          <svg width="44" height="44" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 5 L34 13 H14 Z" fill="#D4AF37"/>
+            <rect x="12" y="14.5" width="24" height="2.6" rx="1.3" fill="#E8C75A"/>
+            <rect x="12.5" y="18" width="4.2" height="21" rx="1" fill="#D4AF37"/>
+            <rect x="31.3" y="18" width="4.2" height="21" rx="1" fill="#D4AF37"/>
+            <rect x="10.5" y="39" width="8" height="2.6" rx="1" fill="#E8C75A"/>
+            <rect x="29.5" y="39" width="8" height="2.6" rx="1" fill="#E8C75A"/>
+            <path d="M18.5 39 V26.5 a5.5 5.5 0 0 1 11 0 V39" stroke="#E8C75A" stroke-width="1.5" fill="none"/>
+            <path d="M24 39 V20" stroke="#00A86B" stroke-width="1.6"/>
+            <path d="M24 30 L19.5 25.5" stroke="#00A86B" stroke-width="1.3"/>
+            <path d="M24 30 L28.5 25.5" stroke="#D4AF37" stroke-width="1.3"/>
+            <circle cx="24" cy="18.5" r="2.3" fill="#00A86B"/>
+            <circle cx="19.5" cy="24.5" r="1.6" fill="#E8C75A"/>
+            <circle cx="28.5" cy="24.5" r="1.6" fill="#D4AF37"/>
           </svg>
         </div>
-        <span class="sms-splash__name">SchoolMS</span>
+        <div class="sms-splash__wordmark">
+          <span class="sms-splash__name">KalanBlonw</span>
+          <span class="sms-splash__tagline">L'infrastructure du savoir</span>
+        </div>
       </div>
       <div class="sms-splash__spinner" role="progressbar" aria-label="Chargement"></div>
       <p class="sms-splash__text">Chargement de l'application…</p>
@@ -39,8 +55,8 @@
       #sms-splash {
         position: fixed; inset: 0; z-index: 999999;
         display: flex; flex-direction: column;
-        align-items: center; justify-content: center; gap: 24px;
-        background: #f1f5f9;
+        align-items: center; justify-content: center; gap: 28px;
+        background: #F8FAFC;
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
         transition: opacity 0.45s ease, visibility 0.45s ease;
       }
@@ -48,27 +64,34 @@
         opacity: 0; visibility: hidden; pointer-events: none;
       }
       .sms-splash__brand {
-        display: flex; align-items: center; gap: 12px;
+        display: flex; align-items: center; gap: 14px;
       }
       .sms-splash__logo {
-        width: 44px; height: 44px; border-radius: 12px;
-        background: #2563eb;
+        width: 64px; height: 64px; border-radius: 16px;
+        background: linear-gradient(135deg, #0A2540 0%, #123A61 100%);
         display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+        box-shadow: 0 8px 24px rgba(10,37,64,0.28);
+      }
+      .sms-splash__wordmark {
+        display: flex; flex-direction: column; gap: 2px;
       }
       .sms-splash__name {
-        font-size: 22px; font-weight: 700;
-        color: #0f172a; letter-spacing: -0.025em;
+        font-size: 26px; font-weight: 700;
+        color: #0A2540; letter-spacing: -0.025em; line-height: 1.1;
+      }
+      .sms-splash__tagline {
+        font-size: 12px; font-weight: 500;
+        color: #D4AF37; letter-spacing: 0.04em; text-transform: uppercase;
       }
       .sms-splash__spinner {
         width: 36px; height: 36px;
-        border: 3px solid #e2e8f0;
-        border-top-color: #2563eb;
+        border: 3px solid #e7e9ec;
+        border-top-color: #D4AF37;
         border-radius: 50%;
         animation: sms-spin 0.75s linear infinite;
       }
       .sms-splash__text {
-        font-size: 13px; color: #64748b;
+        font-size: 13px; color: #64748B;
         margin: 0; letter-spacing: 0.01em;
       }
       @keyframes sms-spin {
@@ -76,9 +99,10 @@
       }
       /* Dark mode splash */
       @media (prefers-color-scheme: dark) {
-        #sms-splash { background: #0f172a; }
-        .sms-splash__name { color: #f1f5f9; }
-        .sms-splash__spinner { border-color: #334155; border-top-color: #60a5fa; }
+        #sms-splash { background: #121824; }
+        .sms-splash__name { color: #F8FAFC; }
+        .sms-splash__tagline { color: #E8C75A; }
+        .sms-splash__spinner { border-color: #1f2a3d; border-top-color: #E8C75A; }
         .sms-splash__text { color: #94a3b8; }
       }
     </style>

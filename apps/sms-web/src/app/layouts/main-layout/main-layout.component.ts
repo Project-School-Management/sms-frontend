@@ -75,6 +75,22 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    label: 'RESSOURCES',
+    items: [
+      {
+        id: 'library', path: '/library',
+        label: 'Bibliothèque', icon: 'local_library',
+        roles: ALL,
+        children: [
+          { path: '/library',                 label: 'Catalogue'         },
+          { path: '/library/manage/new',      label: '+ Ajouter une ressource' },
+          { path: '/library/my-loans',        label: 'Mes emprunts'      },
+          { path: '/library/loan-management', label: 'Gestion emprunts'  },
+        ],
+      },
+    ],
+  },
+  {
     label: 'SUIVI & COMMUNICATION',
     items: [
       {

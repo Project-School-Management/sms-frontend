@@ -1,0 +1,7 @@
+{
+  "name": "library-feature",
+  "projectType": "library",
+  "sourceRoot": "libs/library/feature/src",
+  "prefix": "sms",
+  "tags": ["type:feature", "scope:library"]
+}

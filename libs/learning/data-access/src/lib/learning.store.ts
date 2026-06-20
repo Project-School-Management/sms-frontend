@@ -204,6 +204,46 @@ export const LearningStore = signalStore(
       ))
     )),
 
+    // ── CRUD Devoir ───────────────────────────────────────────────────────────
+    createDevoir: rxMethod<Partial<IDevoir>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.createDevoir(data).pipe(
+        tap(d => patchState(store, s => ({ devoirs: [d, ...s.devoirs], saving: false }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    updateDevoir: rxMethod<Partial<IDevoir>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.updateDevoir(data).pipe(
+        tap(updated => patchState(store, s => ({
+          devoirs: s.devoirs.map(d => d.publicId === updated.publicId ? updated : d),
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    closeDevoir: rxMethod<string>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(publicId => api.closeDevoir(publicId).pipe(
+        tap(updated => patchState(store, s => ({
+          devoirs: s.devoirs.map(d => d.publicId === updated.publicId ? updated : d),
+          saving: false,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── CRUD Session virtuelle ────────────────────────────────────────────────
+    createSessionVirt: rxMethod<Partial<ISessionVirtuelle>>(pipe(
+      tap(() => patchState(store, { saving: true })),
+      switchMap(data => api.createSessionVirt(data).pipe(
+        tap(sv => patchState(store, s => ({ sessionsVirt: [sv, ...s.sessionsVirt], saving: false }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
     clearError:          () => patchState(store, { error: null }),
     clearSelectedExamen: () => patchState(store, { selectedExamen: null }),
     clearSelectedDevoir: () => patchState(store, { selectedDevoir: null }),

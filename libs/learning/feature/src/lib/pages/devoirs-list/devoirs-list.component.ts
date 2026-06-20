@@ -38,11 +38,12 @@ const STATUT_CFG: Record<string, { label: string; bg: string; color: string; ico
         <mat-icon style="font-size:16px;height:16px;width:16px">arrow_back</mat-icon>
         Tableau de bord
       </a>
-      <button class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-80"
-              style="background:var(--accent)">
+      <a routerLink="/learning/devoirs/creer"
+         class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-80"
+         style="background:var(--accent)">
         <mat-icon style="font-size:18px;height:18px;width:18px">add</mat-icon>
         Nouveau devoir
-      </button>
+      </a>
     </div>
   </div>
 
@@ -186,7 +187,9 @@ const STATUT_CFG: Record<string, { label: string; bg: string; color: string; ico
               Voir les soumissions
             </a>
             @if (d.statut === 'OUVERT') {
-              <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:opacity-80"
+              <button (click)="cloturer(d.publicId)"
+                      [disabled]="store.saving()"
+                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold hover:opacity-80 disabled:opacity-40"
                       style="background:rgba(239,68,68,0.10);color:#dc2626">
                 <mat-icon style="font-size:14px;height:14px;width:14px">lock</mat-icon>
                 Clôturer
@@ -233,6 +236,8 @@ export class DevoirsListComponent implements OnInit {
     const p = this.progressPct(d);
     return p >= 75 ? '#16a34a' : p >= 40 ? 'var(--accent)' : '#f59e0b';
   }
+
+  cloturer(publicId: string): void { this.store.closeDevoir(publicId); }
 
   statutCfg(s: string) { return STATUT_CFG[s] ?? STATUT_CFG['OUVERT']; }
 }

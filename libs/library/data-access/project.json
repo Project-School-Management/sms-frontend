@@ -1,0 +1,7 @@
+{
+  "name": "library-data-access",
+  "projectType": "library",
+  "sourceRoot": "libs/library/data-access/src",
+  "prefix": "sms",
+  "tags": ["type:data-access", "scope:library"]
+}

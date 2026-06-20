@@ -75,6 +75,13 @@ export const APP_ROUTES: Routes = [
           import('@sms/analytics/feature').then((m) => m.ANALYTICS_ROUTES),
       },
 
+      // Bibliothèque numérique
+      {
+        path:         'library',
+        loadChildren: () =>
+          import('@sms/library/feature').then((m) => m.LIBRARY_ROUTES),
+      },
+
       // Configuration Système & Référentiels
       {
         path:         'config',

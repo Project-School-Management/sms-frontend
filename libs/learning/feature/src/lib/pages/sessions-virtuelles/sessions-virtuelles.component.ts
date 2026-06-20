@@ -38,11 +38,12 @@ const STATUT_CFG: Record<string, { label: string; bg: string; color: string; ico
         <mat-icon style="font-size:16px;height:16px;width:16px">arrow_back</mat-icon>
         Tableau de bord
       </a>
-      <button class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-80"
-              style="background:var(--accent)">
+      <a routerLink="/learning/sessions/creer"
+         class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-80"
+         style="background:var(--accent)">
         <mat-icon style="font-size:18px;height:18px;width:18px">add</mat-icon>
         Planifier une session
-      </button>
+      </a>
     </div>
   </div>
 
