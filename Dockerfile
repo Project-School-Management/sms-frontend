@@ -17,7 +17,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Build de production
-RUN npx nx build sms-web --configuration=production
+RUN npx nx reset && npx nx build sms-web --configuration=production
 
 # ================================
 # Stage 2 — Serveur Nginx
