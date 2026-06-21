@@ -41,6 +41,11 @@
   padding: 0 14px 0 16px;
   border-bottom: 1px solid var(--sidebar-border);
   flex-shrink: 0;
+
+  .collapsed & {
+    padding: 0;
+    justify-content: center;
+  }
 }
 
 .brand-logo {
@@ -63,6 +68,7 @@
 
 .brand-wordmark {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -70,7 +76,11 @@
   opacity: 1;
   transition: opacity var(--sidebar-transition);
 
-  .collapsed & { opacity: 0; pointer-events: none; }
+  .collapsed & {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+  }
 }
 
 .brand-name {
@@ -92,23 +102,34 @@
   line-height: 1.1;
 }
 
-.collapse-btn {
+// ── Floating sidebar toggle (bord droit de la sidebar, centré sur topbar) ────
+.sidebar-toggle-btn {
+  position: fixed;
+  top: calc(var(--topbar-height) / 2);
+  left: calc(var(--sidebar-width) - 14px);
+  transform: translateY(-50%);
+  z-index: 250;
   width: 28px;
   height: 28px;
-  min-width: 28px;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--surface-1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--sidebar-group-label);
-  transition: background 150ms ease, color 150ms ease;
+  color: var(--text-secondary);
+  transition:
+    left var(--sidebar-transition),
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
 
   &:hover {
-    background: var(--sidebar-item-hover-bg);
-    color: var(--sidebar-active-icon);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    border-color: var(--accent);
   }
 
   &:focus-visible {
@@ -117,13 +138,19 @@
   }
 
   mat-icon {
-    font-size: 18px !important;
-    height: 18px !important;
-    width: 18px !important;
+    font-size: 16px !important;
+    height: 16px !important;
+    width: 16px !important;
     transition: transform var(--sidebar-transition);
   }
 
-  .collapsed & mat-icon { transform: rotate(180deg); }
+  .collapsed & {
+    left: calc(var(--sidebar-collapsed-width) - 14px);
+
+    mat-icon { transform: rotate(180deg); }
+  }
+
+  @media (max-width: 768px) { display: none; }
 }
 
 // ── Nav ───────────────────────────────────────────────────────────────────────

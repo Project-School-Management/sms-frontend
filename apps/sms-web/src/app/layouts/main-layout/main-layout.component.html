@@ -2,6 +2,16 @@
      [class.collapsed]="isCollapsed()"
      [class.mobile-open]="isMobileOpen()">
 
+  <!-- ── Floating sidebar toggle ────────────────────────────────────────── -->
+  <button class="sidebar-toggle-btn"
+          (click)="toggleSidebar()"
+          [attr.aria-label]="isCollapsed() ? 'Développer la navigation' : 'Réduire la navigation'"
+          [matTooltip]="isCollapsed() ? 'Développer' : 'Réduire'"
+          [matTooltipShowDelay]="200"
+          matTooltipPosition="right">
+    <mat-icon aria-hidden="true">chevron_left</mat-icon>
+  </button>
+
   <!-- ── Mobile overlay ──────────────────────────────────────────────────── -->
   <div class="sidebar-overlay" (click)="closeMobileMenu()"></div>
 
@@ -31,14 +41,6 @@
         <span class="brand-name">KalanBlonw</span>
         <span class="brand-tagline">L'infrastructure du savoir</span>
       </div>
-      <button class="collapse-btn"
-              (click)="toggleSidebar()"
-              [attr.aria-label]="isCollapsed() ? 'Développer la navigation' : 'Réduire la navigation'"
-              [matTooltip]="isCollapsed() ? 'Développer' : 'Réduire'"
-              [matTooltipShowDelay]="200"
-              matTooltipPosition="right">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
     </div>
 
     <!-- Navigation -->
