@@ -42,6 +42,6 @@ COPY --from=builder /app/dist/apps/sms-web/browser /usr/share/nginx/html
 # Copie la config nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 5100
+EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
