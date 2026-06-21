@@ -5,6 +5,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Désactive le daemon Nx (incompatible avec les containers Docker)
+ENV NX_DAEMON=false
+
 # Copie les fichiers de dépendances
 COPY package*.json ./
 COPY nx.json ./
@@ -17,7 +20,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Build de production
-RUN npx nx reset && npx nx build sms-web --configuration=production
+RUN npx nx build sms-web --configuration=production --skip-nx-cache
 
 # ================================
 # Stage 2 — Serveur Nginx
