@@ -10,7 +10,7 @@
 
     <!-- Brand -->
     <div class="sidebar-brand">
-      <div class="brand-logo">
+      <div class="brand-logo" aria-hidden="true">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M24 5 L34 13 H14 Z" fill="#D4AF37"/>
           <rect x="12" y="14.5" width="24" height="2.6" rx="1.3" fill="#E8C75A"/>
@@ -33,17 +33,21 @@
       </div>
       <button class="collapse-btn"
               (click)="toggleSidebar()"
+              [attr.aria-label]="isCollapsed() ? 'Développer la navigation' : 'Réduire la navigation'"
               [matTooltip]="isCollapsed() ? 'Développer' : 'Réduire'"
+              [matTooltipShowDelay]="200"
               matTooltipPosition="right">
         <mat-icon>chevron_left</mat-icon>
       </button>
     </div>
 
     <!-- Navigation -->
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav"
+         role="navigation"
+         aria-label="Navigation principale">
       @for (group of visibleGroups(); track group.label) {
         <div class="nav-group">
-          <span class="nav-group-label">{{ group.label }}</span>
+          <span class="nav-group-label" aria-hidden="true">{{ group.label }}</span>
 
           @for (item of group.items; track item.id) {
             <div class="nav-item-wrapper">
@@ -53,9 +57,12 @@
                 <a class="nav-item"
                    [routerLink]="item.path"
                    routerLinkActive="active"
+                   [attr.aria-current]="isItemActive(item) ? 'page' : null"
+                   [attr.id]="'nav-' + item.id"
                    [matTooltip]="isCollapsed() ? item.label : ''"
+                   [matTooltipShowDelay]="200"
                    matTooltipPosition="right">
-                  <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+                  <mat-icon class="nav-icon" aria-hidden="true">{{ item.icon }}</mat-icon>
                   <span class="nav-label">{{ item.label }}</span>
                 </a>
 
@@ -64,22 +71,30 @@
                 <button class="nav-item nav-parent"
                         [class.expanded]="isExpanded(item.id)"
                         [class.active]="isItemActive(item)"
-                        (click)="toggleItem(item.id)"
+                        [attr.aria-expanded]="!isCollapsed() && isExpanded(item.id)"
+                        [attr.aria-controls]="'submenu-' + item.id"
+                        [attr.aria-current]="isItemActive(item) ? 'page' : null"
+                        (click)="handleParentClick(item, $event)"
                         [matTooltip]="isCollapsed() ? item.label : ''"
+                        [matTooltipShowDelay]="200"
                         matTooltipPosition="right">
-                  <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+                  <mat-icon class="nav-icon" aria-hidden="true">{{ item.icon }}</mat-icon>
                   <span class="nav-label">{{ item.label }}</span>
-                  <mat-icon class="chevron">expand_more</mat-icon>
+                  <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
                 </button>
 
                 @if (isExpanded(item.id) && !isCollapsed()) {
-                  <div class="submenu">
+                  <div class="submenu"
+                       [id]="'submenu-' + item.id"
+                       role="list">
                     @for (child of item.children; track child.path) {
                       <a class="submenu-item"
+                         role="listitem"
                          [routerLink]="child.path"
                          routerLinkActive="active"
-                         [routerLinkActiveOptions]="{ exact: true }">
-                        <span class="submenu-dot"></span>
+                         [routerLinkActiveOptions]="{ exact: true }"
+                         [attr.aria-current]="router.isActive(child.path, { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }) ? 'page' : null">
+                        <span class="submenu-dot" aria-hidden="true"></span>
                         <span>{{ child.label }}</span>
                       </a>
                     }
@@ -97,8 +112,9 @@
     <div class="sidebar-footer">
       <div class="user-card"
            [matTooltip]="isCollapsed() ? userFullName() : ''"
+           [matTooltipShowDelay]="200"
            matTooltipPosition="right">
-        <div class="user-avatar">{{ userInitials() }}</div>
+        <div class="user-avatar" aria-hidden="true">{{ userInitials() }}</div>
         <div class="user-meta">
           <span class="user-name">{{ userFullName() }}</span>
           <span class="user-role-badge">{{ userRoleLabel() }}</span>
@@ -106,51 +122,106 @@
         <button class="logout-btn"
                 (click)="authService.logout()"
                 matTooltip="Se déconnecter"
-                matTooltipPosition="right">
-          <mat-icon>logout</mat-icon>
+                [matTooltipShowDelay]="200"
+                matTooltipPosition="right"
+                aria-label="Se déconnecter">
+          <mat-icon aria-hidden="true">logout</mat-icon>
         </button>
       </div>
     </div>
 
   </aside>
 
+  <!-- ── Flyout submenu (collapsed mode) ─────────────────────────────────── -->
+  @if (flyoutItem() && isCollapsed()) {
+    <div class="flyout-panel"
+         [style.top.px]="flyoutTop()"
+         role="menu"
+         aria-label="Sous-menu {{ flyoutItem()!.label }}"
+         (click)="$event.stopPropagation()">
+      <div class="flyout-header">
+        <mat-icon class="flyout-icon" aria-hidden="true">{{ flyoutItem()!.icon }}</mat-icon>
+        <span class="flyout-title">{{ flyoutItem()!.label }}</span>
+      </div>
+      @for (child of flyoutItem()!.children; track child.path) {
+        <a class="flyout-item"
+           role="menuitem"
+           [routerLink]="child.path"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }"
+           (click)="closeFlyout($event)">
+          {{ child.label }}
+        </a>
+      }
+    </div>
+  }
+
   <!-- ── CONTENT ──────────────────────────────────────────────────────────── -->
   <div class="content-area">
 
     <!-- Topbar -->
-    <header class="topbar">
-      <button class="icon-btn mobile-only" (click)="isMobileOpen.set(true)">
-        <mat-icon>menu</mat-icon>
+    <header class="topbar" role="banner">
+      <!-- Mobile hamburger -->
+      <button class="icon-btn mobile-only"
+              (click)="isMobileOpen.set(true)"
+              aria-label="Ouvrir la navigation"
+              aria-expanded="false">
+        <mat-icon aria-hidden="true">menu</mat-icon>
       </button>
+
+      <!-- Breadcrumb + page title -->
+      <div class="page-header-info">
+        <nav class="breadcrumb" aria-label="Fil d'Ariane">
+          <span class="breadcrumb-home">Accueil</span>
+          @for (crumb of pageContext().breadcrumb; track crumb; let last = $last) {
+            <mat-icon class="breadcrumb-sep" aria-hidden="true">chevron_right</mat-icon>
+            @if (last) {
+              <span class="breadcrumb-current" aria-current="location">{{ crumb }}</span>
+            } @else {
+              <span class="breadcrumb-item">{{ crumb }}</span>
+            }
+          }
+        </nav>
+        <h1 class="page-title">{{ pageContext().title }}</h1>
+      </div>
 
       <div class="topbar-spacer"></div>
 
       <div class="topbar-actions">
         <button class="icon-btn"
                 (click)="toggleDarkMode()"
+                [attr.aria-label]="isDarkMode() ? 'Passer en mode clair' : 'Passer en mode sombre'"
                 [matTooltip]="isDarkMode() ? 'Mode clair' : 'Mode sombre'">
-          <mat-icon>{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          <mat-icon aria-hidden="true">{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
         </button>
 
         <div class="relative">
-          <button class="icon-btn relative" (click)="toggleNotifPanel($event)" matTooltip="Notifications">
-            <mat-icon>notifications_none</mat-icon>
+          <button class="icon-btn relative"
+                  (click)="toggleNotifPanel($event)"
+                  matTooltip="Notifications"
+                  aria-label="Notifications"
+                  [attr.aria-expanded]="notifPanelOpen()">
+            <mat-icon aria-hidden="true">notifications_none</mat-icon>
             @if (notifService.unreadCount() > 0) {
-              <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center text-white"
-                    style="background: #ef4444">{{ notifService.unreadCount() }}</span>
+              <span class="notif-badge" aria-label="{{ notifService.unreadCount() }} notifications non lues">
+                {{ notifService.unreadCount() }}
+              </span>
             }
           </button>
           <sms-notification-panel [open]="notifPanelOpen()" (closePanel)="notifPanelOpen.set(false)" />
         </div>
 
-        <div class="topbar-avatar" [matTooltip]="userFullName()">
+        <div class="topbar-avatar"
+             [matTooltip]="userFullName()"
+             [attr.aria-label]="userFullName()"
+             role="img">
           {{ userInitials() }}
         </div>
       </div>
     </header>
 
     <!-- Page -->
-    <main class="page-content">
+    <main class="page-content" id="main-content" tabindex="-1">
       <router-outlet />
     </main>
 

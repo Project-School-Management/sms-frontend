@@ -1,14 +1,18 @@
 import {
   Component, ChangeDetectionStrategy, inject, signal, computed,
+  effect, HostListener,
 } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import {
+  RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd,
+} from '@angular/router';
+import { CommonModule }     from '@angular/common';
 import { MatIconModule }    from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { toSignal }         from '@angular/core/rxjs-interop';
+import { filter, map }      from 'rxjs/operators';
 
 import { AuthStore }   from '@sms/shared/auth';
 import { AuthService } from '@sms/shared/auth';
-// (PageLoaderComponent is already mounted in AppComponent — no need to duplicate here)
 import { Role }        from '@sms/shared/models';
 import { NotificationService, NotificationPanelComponent } from '@sms/shared/ui';
 
@@ -82,10 +86,10 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Bibliothèque', icon: 'local_library',
         roles: ALL,
         children: [
-          { path: '/library',                 label: 'Catalogue'         },
-          { path: '/library/manage/new',      label: '+ Ajouter une ressource' },
-          { path: '/library/my-loans',        label: 'Mes emprunts'      },
-          { path: '/library/loan-management', label: 'Gestion emprunts'  },
+          { path: '/library',                 label: 'Catalogue'              },
+          { path: '/library/manage/new',      label: '+ Ajouter une ressource'},
+          { path: '/library/my-loans',        label: 'Mes emprunts'          },
+          { path: '/library/loan-management', label: 'Gestion emprunts'      },
         ],
       },
     ],
@@ -99,7 +103,7 @@ const NAV_GROUPS: NavGroup[] = [
         roles: [Role.ADMIN, Role.DIR, Role.SECRETARIAT, Role.ENSEIGNANT, Role.ELEVE, Role.PARENT],
         children: [
           { path: '/communication',               label: 'Boîte de réception' },
-          { path: '/communication/notifications', label: 'Notifications' },
+          { path: '/communication/notifications', label: 'Notifications'      },
         ],
       },
       {
@@ -127,15 +131,15 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Finance', icon: 'account_balance_wallet',
         roles: [Role.ADMIN, Role.DIR, Role.COMPTABLE],
         children: [
-          { path: '/finance',               label: 'Tableau de bord' },
-          { path: '/finance/invoices',      label: 'Factures'        },
-          { path: '/finance/frais',         label: 'Frais'           },
-          { path: '/finance/paiements',     label: 'Paiements'       },
-          { path: '/finance/bourses',       label: 'Bourses'         },
-          { path: '/finance/reductions',    label: 'Réductions'      },
-          { path: '/finance/echeanciers',   label: 'Échéanciers'     },
-          { path: '/finance/remboursements',label: 'Remboursements'  },
-          { path: '/finance/rapports',      label: 'Rapports'        },
+          { path: '/finance',                label: 'Tableau de bord' },
+          { path: '/finance/invoices',       label: 'Factures'        },
+          { path: '/finance/frais',          label: 'Frais'           },
+          { path: '/finance/paiements',      label: 'Paiements'       },
+          { path: '/finance/bourses',        label: 'Bourses'         },
+          { path: '/finance/reductions',     label: 'Réductions'      },
+          { path: '/finance/echeanciers',    label: 'Échéanciers'     },
+          { path: '/finance/remboursements', label: 'Remboursements'  },
+          { path: '/finance/rapports',       label: 'Rapports'        },
         ],
       },
     ],
@@ -148,7 +152,7 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Configuration', icon: 'settings',
         roles: [Role.SUPER_ADMIN, Role.ADMIN],
         children: [
-          { path: '/config',          label: "Vue d'ensemble"          },
+          { path: '/config',          label: "Vue d'ensemble"           },
           { path: '/config/academic', label: 'Référentiels académiques' },
           { path: '/config/rooms',    label: 'Salles & bâtiments'       },
           { path: '/config/finance',  label: 'Référentiels financiers'  },
@@ -170,7 +174,7 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Rapports & KPIs', icon: 'bar_chart',
         roles: [Role.SUPER_ADMIN, Role.ADMIN, Role.DIR],
         children: [
-          { path: '/analytics',          label: 'KPIs' },
+          { path: '/analytics',          label: 'KPIs'     },
           { path: '/analytics/rapports', label: 'Rapports' },
         ],
       },
@@ -189,6 +193,8 @@ const ROLE_LABELS: Partial<Record<Role, string>> = {
   [Role.PARENT]:      'Parent',
 };
 
+const SIDEBAR_KEY = 'sidebar_state';
+
 // ── Component ─────────────────────────────────────────────────────────────────
 @Component({
   selector:        'sms-main-layout',
@@ -202,25 +208,63 @@ const ROLE_LABELS: Partial<Record<Role, string>> = {
   ],
 })
 export class MainLayoutComponent {
-  protected readonly authStore    = inject(AuthStore);
-  protected readonly authService  = inject(AuthService);
-  protected readonly router       = inject(Router);
-  readonly notifService           = inject(NotificationService);
+  protected readonly authStore   = inject(AuthStore);
+  protected readonly authService = inject(AuthService);
+  protected readonly router      = inject(Router);
+  readonly notifService          = inject(NotificationService);
 
   // ── UI state ──────────────────────────────────────────────────────────────
-  protected readonly isCollapsed   = signal(false);
-  protected readonly isDarkMode    = signal(false);
-  protected readonly isMobileOpen  = signal(false);
-  protected readonly expandedSet   = signal<Set<string>>(new Set());
-  readonly notifPanelOpen          = signal(false);
+  protected readonly isCollapsed  = signal(this.loadSidebarState());
+  protected readonly isDarkMode   = signal(false);
+  protected readonly isMobileOpen = signal(false);
+  protected readonly expandedSet  = signal<Set<string>>(new Set());
+  readonly notifPanelOpen         = signal(false);
+  protected readonly flyoutItem   = signal<NavItem | null>(null);
+  protected readonly flyoutTop    = signal(0);
+
+  // ── Router-driven current URL ─────────────────────────────────────────────
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => (e as NavigationEnd).urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  constructor() {
+    // Persist sidebar state to localStorage whenever it changes
+    effect(() => {
+      this.trySaveStorage(this.isCollapsed() ? 'collapsed' : 'expanded');
+    });
+  }
 
   // ── Computed ──────────────────────────────────────────────────────────────
   protected readonly visibleGroups = computed(() => {
     const role = this.authStore.userRole();
-    if (!role) return NAV_GROUPS; // show all in dev/skipKeycloak mode
+    if (!role) return NAV_GROUPS;
     return NAV_GROUPS
       .map(g => ({ ...g, items: g.items.filter(i => i.roles.includes(role)) }))
       .filter(g => g.items.length > 0);
+  });
+
+  /** Breadcrumb segments and page title derived from the current URL. */
+  protected readonly pageContext = computed(() => {
+    const url = this.currentUrl();
+    for (const group of NAV_GROUPS) {
+      for (const item of group.items) {
+        if (item.path !== '/' && url.startsWith(item.path)) {
+          if (item.children) {
+            for (const child of item.children) {
+              if (url === child.path || url.startsWith(child.path + '/')) {
+                return { breadcrumb: [item.label, child.label], title: child.label };
+              }
+            }
+          }
+          return { breadcrumb: [item.label], title: item.label };
+        }
+      }
+    }
+    return { breadcrumb: ['Tableau de bord'], title: 'Tableau de bord' };
   });
 
   protected readonly userInitials = computed(() => {
@@ -241,7 +285,11 @@ export class MainLayoutComponent {
   });
 
   // ── Actions ───────────────────────────────────────────────────────────────
-  protected toggleSidebar():   void { this.isCollapsed.update(v => !v); }
+  protected toggleSidebar(): void {
+    this.isCollapsed.update(v => !v);
+    this.flyoutItem.set(null);
+  }
+
   protected closeMobileMenu(): void { this.isMobileOpen.set(false); }
 
   protected toggleNotifPanel(event: Event): void {
@@ -262,14 +310,46 @@ export class MainLayoutComponent {
     });
   }
 
-  protected isExpanded(id: string): boolean {
-    return this.expandedSet().has(id);
+  /** In collapsed mode, opens a flyout; in expanded mode, toggles accordion. */
+  protected handleParentClick(item: NavItem, event: MouseEvent): void {
+    if (this.isCollapsed()) {
+      event.stopPropagation();
+      if (this.flyoutItem()?.id === item.id) {
+        this.flyoutItem.set(null);
+      } else {
+        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+        this.flyoutTop.set(rect.top);
+        this.flyoutItem.set(item);
+      }
+    } else {
+      this.toggleItem(item.id);
+    }
   }
+
+  protected closeFlyout(event?: MouseEvent): void {
+    event?.stopPropagation();
+    this.flyoutItem.set(null);
+  }
+
+  /** Close flyout on any outside click. */
+  @HostListener('document:click')
+  onDocumentClick(): void { this.flyoutItem.set(null); }
+
+  protected isExpanded(id: string): boolean { return this.expandedSet().has(id); }
 
   protected isItemActive(item: NavItem): boolean {
     return this.router.isActive(item.path, {
       paths: 'subset', queryParams: 'ignored',
       fragment: 'ignored', matrixParams: 'ignored',
     });
+  }
+
+  // ── localStorage helpers ──────────────────────────────────────────────────
+  private loadSidebarState(): boolean {
+    try { return localStorage.getItem(SIDEBAR_KEY) === 'collapsed'; } catch { return false; }
+  }
+
+  private trySaveStorage(value: string): void {
+    try { localStorage.setItem(SIDEBAR_KEY, value); } catch { /* storage unavailable */ }
   }
 }
