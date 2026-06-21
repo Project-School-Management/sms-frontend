@@ -19,6 +19,15 @@ RUN npm install --legacy-peer-deps
 # Copie le reste du code source
 COPY . .
 
+# Retire les plugins non nécessaires au build (eslint/jest/playwright)
+# @nx/eslint/plugin crashe car typescript-eslint v8 est absent (projet sur v7)
+RUN node -e "\
+  const fs=require('fs');\
+  const nx=JSON.parse(fs.readFileSync('nx.json','utf8'));\
+  nx.plugins=nx.plugins.filter(p=>{const n=typeof p==='string'?p:p.plugin;return !n.includes('eslint')&&!n.includes('jest')&&!n.includes('playwright');});\
+  fs.writeFileSync('nx.json',JSON.stringify(nx,null,2));\
+"
+
 # Build de production
 RUN npx nx build sms-web --configuration=production --skip-nx-cache
 
