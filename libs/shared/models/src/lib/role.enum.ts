@@ -16,6 +16,7 @@ export enum Role {
 
 /** Rôles nécessitant une 2FA (ACR=2 Keycloak) */
 export const ROLES_REQUIRING_2FA: Role[] = [
+  Role.SUPER_ADMIN,
   Role.ADMIN,
   Role.DIR,
   Role.COMPTABLE,

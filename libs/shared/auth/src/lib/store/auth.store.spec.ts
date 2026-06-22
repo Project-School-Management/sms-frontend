@@ -73,7 +73,10 @@ describe('AuthStore', () => {
     expect(store.currentUser()).toBeNull();
   });
 
-  it('requires2Fa — true for ADMIN, DIR, COMPTABLE, ENSEIGNANT', () => {
+  it('requires2Fa — true for SUPER_ADMIN, ADMIN, DIR, COMPTABLE, ENSEIGNANT', () => {
+    store.setCurrentUser({ ...mockUser, role: Role.SUPER_ADMIN });
+    expect(store.requires2Fa()).toBe(true);
+
     store.setCurrentUser({ ...mockUser, role: Role.ADMIN });
     expect(store.requires2Fa()).toBe(true);
 
