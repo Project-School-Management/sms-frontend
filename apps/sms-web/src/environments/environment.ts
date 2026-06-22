@@ -1,8 +1,8 @@
 ﻿export const environment = {
   production:     false,
-  skipKeycloak:   true,
-  keycloakUrl:    'http://localhost:8080',
-  keycloakRealm:  'sms-realm',
+  skipKeycloak:   false,
+  keycloakUrl:    'http://localhost:8180',
+  keycloakRealm:  'sms',
   keycloakClient: 'sms-web',
   apiBaseUrl:     'http://localhost:8080/api',
 };

@@ -22,10 +22,10 @@ function initKeycloak(keycloak: KeycloakService, authService: AuthService) {
         clientId: environment.keycloakClient,
       },
       initOptions: {
-        onLoad:             'login-required',
-        flow:               'standard',
-        pkceMethod:         'S256',
-        checkLoginIframe:   false,
+        onLoad:                      'check-sso',
+        silentCheckSsoRedirectUri:   window.location.origin + '/silent-check-sso.html',
+        pkceMethod:                  'S256',
+        checkLoginIframe:            false,
       },
     });
 
