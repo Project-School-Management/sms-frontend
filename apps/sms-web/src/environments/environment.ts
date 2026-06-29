@@ -5,4 +5,5 @@
   keycloakRealm:  'sms',
   keycloakClient: 'sms-web',
   apiBaseUrl:     'http://localhost:8080/api',
+  
 };
