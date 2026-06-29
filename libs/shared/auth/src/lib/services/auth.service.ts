@@ -51,8 +51,10 @@ export class AuthService {
 
   // ── private ────────────────────────────────────────────────────────────────
   private extractRole(tokenParsed: Record<string, unknown>): Role {
-    const realmRoles =
-      (tokenParsed['realm_access'] as { roles?: string[] })?.roles ?? [];
+    // Le realm émet les rôles avec le préfixe ROLE_ (ex: ROLE_ADMIN).
+    // On le retire pour matcher l'enum Role côté front (ex: ADMIN).
+    const realmRoles = ((tokenParsed['realm_access'] as { roles?: string[] })?.roles ?? [])
+      .map((r) => (r.startsWith('ROLE_') ? r.slice('ROLE_'.length) : r));
 
     const roleOrder: Role[] = [
       Role.SUPER_ADMIN,
