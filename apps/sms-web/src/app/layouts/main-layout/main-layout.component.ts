@@ -220,6 +220,7 @@ export class MainLayoutComponent {
   protected readonly isMobileOpen = signal(false);
   protected readonly expandedSet  = signal<Set<string>>(new Set());
   readonly notifPanelOpen         = signal(false);
+  protected readonly userMenuOpen = signal(false);
   protected readonly flyoutItem   = signal<NavItem | null>(null);
   protected readonly flyoutTop    = signal(0);
 
@@ -306,6 +307,13 @@ export class MainLayoutComponent {
   protected toggleNotifPanel(event: Event): void {
     event.stopPropagation();
     this.notifPanelOpen.update(v => !v);
+    this.userMenuOpen.set(false);
+  }
+
+  protected toggleUserMenu(event: Event): void {
+    event.stopPropagation();
+    this.userMenuOpen.update(v => !v);
+    this.notifPanelOpen.set(false);
   }
 
   protected toggleDarkMode(): void {
@@ -344,7 +352,10 @@ export class MainLayoutComponent {
 
   /** Close flyout on any outside click. */
   @HostListener('document:click')
-  onDocumentClick(): void { this.flyoutItem.set(null); }
+  onDocumentClick(): void {
+    this.flyoutItem.set(null);
+    this.userMenuOpen.set(false);
+  }
 
   protected isExpanded(id: string): boolean { return this.expandedSet().has(id); }
 
