@@ -213,11 +213,37 @@
           <sms-notification-panel [open]="notifPanelOpen()" (closePanel)="notifPanelOpen.set(false)" />
         </div>
 
-        <div class="topbar-avatar"
-             [matTooltip]="userFullName()"
-             [attr.aria-label]="userFullName()"
-             role="img">
-          {{ userInitials() }}
+        <div class="relative">
+          <button class="topbar-avatar"
+                  type="button"
+                  (click)="toggleUserMenu($event)"
+                  [matTooltip]="userFullName()"
+                  [attr.aria-label]="'Menu utilisateur — ' + userFullName()"
+                  [attr.aria-expanded]="userMenuOpen()"
+                  aria-haspopup="menu">
+            {{ userInitials() }}
+          </button>
+
+          @if (userMenuOpen()) {
+            <div class="user-menu" role="menu" (click)="$event.stopPropagation()">
+              <div class="user-menu-head">
+                <div class="user-menu-avatar" aria-hidden="true">{{ userInitials() }}</div>
+                <div class="user-menu-info">
+                  <span class="user-menu-name">{{ userFullName() }}</span>
+                  <span class="user-menu-role">{{ userRoleLabel() }}</span>
+                </div>
+              </div>
+              <div class="user-menu-sep"></div>
+              <button class="user-menu-item" role="menuitem" (click)="manageAccount()">
+                <mat-icon aria-hidden="true">manage_accounts</mat-icon>
+                <span>Mon compte</span>
+              </button>
+              <button class="user-menu-item danger" role="menuitem" (click)="logout()">
+                <mat-icon aria-hidden="true">logout</mat-icon>
+                <span>Se déconnecter</span>
+              </button>
+            </div>
+          }
         </div>
       </div>
     </header>

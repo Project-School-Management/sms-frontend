@@ -648,6 +648,8 @@
 .topbar-avatar {
   width: 32px;
   height: 32px;
+  border: none;
+  padding: 0;
   border-radius: 8px;
   background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
   display: flex;
@@ -665,6 +667,108 @@
   &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
+  }
+}
+
+// ── Menu utilisateur (navbar) ────────────────────────────────────────────────
+.user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: var(--surface-1, #fff);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+  padding: 8px;
+  z-index: 60;
+  animation: user-menu-in 120ms ease;
+}
+
+@keyframes user-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.user-menu-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 10px;
+}
+
+.user-menu-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-menu-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-menu-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-menu-role {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.user-menu-sep {
+  height: 1px;
+  background: var(--border-color);
+  margin: 4px 0;
+}
+
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: background 120ms ease;
+
+  mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    color: var(--text-secondary);
+  }
+
+  &:hover { background: var(--surface-2); }
+
+  &.danger {
+    color: #dc2626;
+    mat-icon { color: #dc2626; }
+    &:hover { background: rgba(239, 68, 68, 0.08); }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
   }
 }
 
