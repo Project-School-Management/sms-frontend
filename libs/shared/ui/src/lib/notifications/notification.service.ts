@@ -62,7 +62,12 @@ export class NotificationService implements OnDestroy {
   }
 
   archiveAll(): void {
-    this.all.update(list => list.map(n => ({ ...n, archived: true, read: true })));
+    this.all.update(list => list.map(n => n.archived ? n : ({ ...n, archived: true, read: true })));
+  }
+
+  /** Supprime définitivement toutes les notifications archivées. */
+  clearArchived(): void {
+    this.all.update(list => list.filter(n => !n.archived));
   }
 
   delete(id: string): void {

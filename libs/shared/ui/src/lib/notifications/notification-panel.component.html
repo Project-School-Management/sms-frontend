@@ -1,0 +1,129 @@
+@if (open()) {
+  <!-- Overlay semi-transparent -->
+  <div class="fixed inset-0 z-40" style="background: rgba(0,0,0,0.15)" (click)="close()"></div>
+
+  <!-- Panel -->
+  <div class="notif-panel panel-enter" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-4 py-3 border-b"
+         style="border-color: var(--border-color); flex-shrink: 0">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold text-sm" style="color: var(--text-primary)">Notifications</span>
+        @if (svc.unreadCount() > 0) {
+          <span class="px-1.5 py-0.5 rounded-full text-xs font-bold text-white"
+                style="background: #ef4444; min-width: 20px; text-align: center">
+            {{ svc.unreadCount() }}
+          </span>
+        }
+      </div>
+      <div class="flex items-center gap-1">
+        @if (svc.unreadCount() > 0) {
+          <button (click)="svc.markAllAsRead()"
+            class="text-xs px-2 py-1 rounded-md hover:opacity-80 transition-opacity"
+            style="color: var(--accent); background: var(--accent-light)">
+            Tout marquer lu
+          </button>
+        }
+        @if (activeTab() === 'archived' && svc.archived().length > 0) {
+          <button (click)="svc.clearArchived()"
+            class="text-xs px-2 py-1 rounded-md hover:opacity-80 transition-opacity"
+            style="color: #dc2626; background: rgba(239,68,68,0.10)">
+            Vider
+          </button>
+        } @else if (activeTab() !== 'archived' && displayed().length > 0) {
+          <button (click)="svc.archiveAll()"
+            class="text-xs px-2 py-1 rounded-md hover:opacity-80 transition-opacity"
+            style="color: var(--text-secondary); background: var(--surface-2)">
+            Tout archiver
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b px-3 pt-2 gap-1" style="border-color: var(--border-color); flex-shrink: 0">
+      @for (tab of tabs(); track tab.key) {
+        <button (click)="activeTab.set(tab.key)"
+          class="px-3 py-1.5 rounded-t-lg text-xs font-medium transition-colors relative"
+          [style.color]="activeTab() === tab.key ? 'var(--accent)' : 'var(--text-secondary)'"
+          [style.border-bottom]="activeTab() === tab.key ? '2px solid var(--accent)' : '2px solid transparent'">
+          {{ tab.label }}
+          @if (tab.count > 0) {
+            <span class="ml-1 px-1 rounded-full text-xs"
+                  style="background: rgba(239,68,68,0.12); color: #dc2626">
+              {{ tab.count }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- List -->
+    <div class="notif-list">
+      @for (n of displayed(); track n.id) {
+        <div class="notif-row flex items-start gap-3 px-4 py-3 border-b transition-colors cursor-pointer relative"
+             [style.background]="!n.read ? n.colorBg : 'transparent'"
+             style="border-color: var(--border-color)"
+             (click)="onNotifClick(n)">
+          <!-- Icon -->
+          <div class="rounded-full flex items-center justify-center shrink-0"
+               style="width: 36px; height: 36px"
+               [style.background]="n.colorBg">
+            <mat-icon [style.color]="n.color" style="font-size: 18px; height: 18px; width: 18px">
+              {{ n.icon }}
+            </mat-icon>
+          </div>
+          <!-- Content -->
+          <div style="flex: 1; min-width: 0">
+            <p class="text-xs font-semibold truncate"
+               [style.color]="n.read ? 'var(--text-secondary)' : 'var(--text-primary)'">
+              {{ n.title }}
+            </p>
+            <p class="notif-message text-xs mt-0.5" style="color: var(--text-secondary)">
+              {{ n.message }}
+            </p>
+            <p class="text-xs mt-1" style="color: var(--text-muted)">{{ timeAgo(n.createdAt) }}</p>
+          </div>
+          <!-- Unread dot -->
+          @if (!n.read) {
+            <div class="shrink-0 mt-1.5 w-2 h-2 rounded-full" style="background: #ef4444"></div>
+          }
+          <!-- Hover actions -->
+          <div class="notif-actions absolute right-2 top-2 flex gap-1">
+            @if (!n.read) {
+              <button (click)="markRead($event, n.id)"
+                class="p-1 rounded-md hover:opacity-80"
+                style="background: var(--surface-2); color: var(--text-muted)"
+                title="Marquer comme lu">
+                <mat-icon style="font-size: 13px; height: 13px; width: 13px">check</mat-icon>
+              </button>
+            }
+            <button (click)="archiveItem($event, n.id)"
+              class="p-1 rounded-md hover:opacity-80"
+              style="background: var(--surface-2); color: var(--text-muted)"
+              title="Archiver">
+              <mat-icon style="font-size: 13px; height: 13px; width: 13px">archive</mat-icon>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="flex flex-col items-center justify-center py-10 gap-2">
+          <mat-icon style="font-size: 40px; height: 40px; width: 40px; color: var(--text-muted)">
+            notifications_none
+          </mat-icon>
+          <p class="text-xs" style="color: var(--text-secondary)">{{ emptyLabel() }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="px-4 py-2.5 text-center border-t" style="border-color: var(--border-color); flex-shrink: 0">
+      <button (click)="goHistory()"
+        class="text-xs font-medium hover:underline"
+        style="color: var(--accent)">
+        Voir tout l'historique →
+      </button>
+    </div>
+  </div>
+}
