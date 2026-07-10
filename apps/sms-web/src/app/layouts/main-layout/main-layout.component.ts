@@ -293,6 +293,16 @@ export class MainLayoutComponent {
 
   protected closeMobileMenu(): void { this.isMobileOpen.set(false); }
 
+  /** Déconnexion : purge la session locale + termine la session Keycloak. */
+  protected async logout(): Promise<void> {
+    await this.authService.logout();
+  }
+
+  /** Ouvre la console de gestion de compte Keycloak (mot de passe, 2FA). */
+  protected async manageAccount(): Promise<void> {
+    await this.authService.manageAccount();
+  }
+
   protected toggleNotifPanel(event: Event): void {
     event.stopPropagation();
     this.notifPanelOpen.update(v => !v);
