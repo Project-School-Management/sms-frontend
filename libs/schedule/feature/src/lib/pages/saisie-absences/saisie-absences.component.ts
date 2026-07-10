@@ -29,108 +29,8 @@ const MATIERE_OPTIONS: Option[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, FormsModule, MatIconModule],
-  template: `
-<div class="p-6 max-w-4xl mx-auto">
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-    <div>
-      <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Saisie des absences</h1>
-      <p class="text-sm mt-0.5" style="color: var(--text-secondary)">Marquez les élèves absents pour une séance</p>
-    </div>
-    <a routerLink="/schedule/absences" class="flex items-center gap-1 text-sm hover:opacity-80" style="color: var(--accent)">
-      <mat-icon style="font-size: 16px; height: 16px; width: 16px">list</mat-icon>
-      Suivi des absences
-    </a>
-  </div>
-
-  <!-- Sélection séance -->
-  <div class="sms-card p-5 mb-4">
-    <h3 class="font-semibold mb-4" style="color: var(--text-primary)">1. Séance concernée</h3>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium" style="color: var(--text-secondary)">Classe</label>
-        <select [(ngModel)]="classeId" (ngModelChange)="onClasseChange()"
-                class="px-3 py-2 rounded-lg border text-sm"
-                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
-          <option value="">Choisir…</option>
-          @for (c of classeOptions; track c.id) { <option [value]="c.id">{{ c.libelle }}</option> }
-        </select>
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium" style="color: var(--text-secondary)">Matière</label>
-        <select [(ngModel)]="matiereId"
-                class="px-3 py-2 rounded-lg border text-sm"
-                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
-          <option value="">Choisir…</option>
-          @for (m of matiereOptions; track m.id) { <option [value]="m.id">{{ m.libelle }}</option> }
-        </select>
-      </div>
-      <div class="flex flex-col gap-1">
-        <label class="text-xs font-medium" style="color: var(--text-secondary)">Date &amp; heure</label>
-        <input type="datetime-local" [(ngModel)]="dateHeure"
-               class="px-3 py-2 rounded-lg border text-sm"
-               style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
-      </div>
-    </div>
-  </div>
-
-  <!-- Liste élèves -->
-  @if (classeId) {
-    <div class="sms-card overflow-hidden mb-4">
-      <div class="px-5 py-4 border-b flex items-center justify-between" style="border-color: var(--border-color)">
-        <h3 class="font-semibold" style="color: var(--text-primary)">
-          2. Élèves absents
-          <span class="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style="background: var(--surface-2); color: var(--text-muted)">
-            {{ selectedCount() }} sélectionné(s) / {{ roster().length }}
-          </span>
-        </h3>
-        <button (click)="toggleAll()" class="text-xs hover:opacity-80" style="color: var(--accent)">
-          {{ allSelected() ? 'Tout désélectionner' : 'Tout sélectionner' }}
-        </button>
-      </div>
-      <div class="divide-y" style="border-color: var(--border-color)">
-        @for (e of roster(); track e.publicId) {
-          <label class="flex items-center gap-3 px-5 py-3 cursor-pointer hover:opacity-90 transition-opacity"
-                 [style.background]="isSelected(e.publicId) ? 'rgba(239,68,68,0.06)' : 'transparent'">
-            <input type="checkbox" [checked]="isSelected(e.publicId)" (change)="toggle(e.publicId)"
-                   style="width: 18px; height: 18px; accent-color: #dc2626">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
-                 style="background: var(--accent-light); color: var(--accent)">
-              {{ initials(e.nom) }}
-            </div>
-            <div class="flex-1">
-              <p class="text-sm font-medium" style="color: var(--text-primary)">{{ e.nom }}</p>
-              <p class="text-xs font-mono" style="color: var(--text-muted)">{{ e.matricule }}</p>
-            </div>
-            @if (isSelected(e.publicId)) {
-              <span class="px-2 py-0.5 rounded-full text-xs font-semibold" style="background: #fee2e2; color: #dc2626">Absent</span>
-            }
-          </label>
-        }
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="flex items-center justify-end gap-3">
-      <button (click)="reset()" class="px-4 py-2 rounded-lg text-sm hover:opacity-80"
-              style="border: 1px solid var(--border-color); color: var(--text-secondary); background: var(--surface-2)">
-        Annuler
-      </button>
-      <button (click)="submit()" [disabled]="!canSubmit() || store.saving()"
-              class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              style="background: #dc2626">
-        <mat-icon style="font-size: 16px; height: 16px; width: 16px">{{ store.saving() ? 'hourglass_empty' : 'save' }}</mat-icon>
-        Enregistrer {{ selectedCount() }} absence(s)
-      </button>
-    </div>
-  } @else {
-    <div class="sms-card p-12 flex flex-col items-center justify-center gap-3">
-      <mat-icon style="font-size: 40px; height: 40px; width: 40px; color: var(--text-muted)">groups</mat-icon>
-      <p style="color: var(--text-secondary)">Sélectionnez une classe pour afficher la liste des élèves</p>
-    </div>
-  }
-</div>
-  `,
+  templateUrl: './saisie-absences.component.html',
+  styleUrl: './saisie-absences.component.scss',
 })
 export class SaisieAbsencesComponent {
   readonly store = inject(AbsencesStore);
@@ -148,28 +48,34 @@ export class SaisieAbsencesComponent {
   readonly selectedCount = computed(() => this.selected().size);
   readonly allSelected   = computed(() => this.roster().length > 0 && this.selected().size === this.roster().length);
 
-  isSelected(id: string) { return this.selected().has(id); }
+  isSelected(id: string): boolean {
+    return this.selected().has(id);
+  }
 
-  toggle(id: string) {
+  toggle(id: string): void {
     const next = new Set(this.selected());
     next.has(id) ? next.delete(id) : next.add(id);
     this.selected.set(next);
   }
 
-  toggleAll() {
+  toggleAll(): void {
     this.selected.set(this.allSelected() ? new Set() : new Set(this.roster().map(e => e.publicId)));
   }
 
-  onClasseChange() { this.selected.set(new Set()); }
+  onClasseChange(): void {
+    this.selected.set(new Set());
+  }
 
-  canSubmit() { return !!this.classeId && !!this.matiereId && this.selectedCount() > 0; }
+  canSubmit(): boolean {
+    return !!this.classeId && !!this.matiereId && this.selectedCount() > 0;
+  }
 
-  reset() {
+  reset(): void {
     this.selected.set(new Set());
     this.matiereId = '';
   }
 
-  submit() {
+  submit(): void {
     if (!this.canSubmit()) return;
     const classe  = CLASSE_OPTIONS.find(c => c.id === this.classeId)!;
     const matiere = MATIERE_OPTIONS.find(m => m.id === this.matiereId)!;

@@ -1,0 +1,158 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Suivi des absences</h1>
+      <p class="text-sm mt-0.5" style="color: var(--text-secondary)">Consultez et justifiez les absences des élèves</p>
+    </div>
+    <a routerLink="/schedule/absences/saisie" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white hover:opacity-90"
+       style="background: var(--accent)">
+      <mat-icon style="font-size: 16px; height: 16px; width: 16px">add</mat-icon>
+      Saisir des absences
+    </a>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="sms-card p-5 flex items-start gap-4">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--accent-light)">
+        <mat-icon style="color: var(--accent)">event_busy</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.totalCount() }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Total absences</p>
+      </div>
+    </div>
+    <div class="sms-card p-5 flex items-start gap-4">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(22,163,74,0.1)">
+        <mat-icon style="color: #16a34a">verified</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.justifieesCount() }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Justifiées</p>
+      </div>
+    </div>
+    <div class="sms-card p-5 flex items-start gap-4">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(239,68,68,0.1)">
+        <mat-icon style="color: #dc2626">report</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.nonJustifieesCount() }}</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Non justifiées</p>
+      </div>
+    </div>
+    <div class="sms-card p-5 flex items-start gap-4">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(37,99,235,0.1)">
+        <mat-icon style="color: #2563eb">percent</mat-icon>
+      </div>
+      <div>
+        <p class="text-2xl font-bold" style="color: var(--text-primary)">{{ store.tauxJustification() }}%</p>
+        <p class="text-sm" style="color: var(--text-secondary)">Taux justification</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="sms-card p-4 mb-4">
+    <div class="flex flex-wrap gap-3 items-end">
+      <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+        <label class="text-xs font-medium" style="color: var(--text-secondary)">Rechercher</label>
+        <input type="text" [ngModel]="store.searchQuery()" (ngModelChange)="store.setSearchQuery($event)"
+               placeholder="Nom, matricule, matière…"
+               class="px-3 py-2 rounded-lg border text-sm"
+               style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium" style="color: var(--text-secondary)">Classe</label>
+        <select [ngModel]="store.classeFilter()" (ngModelChange)="store.setClasseFilter($event)"
+                class="px-3 py-2 rounded-lg border text-sm"
+                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+          <option value="">Toutes</option>
+          @for (c of classes; track c.id) { <option [value]="c.id">{{ c.libelle }}</option> }
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-medium" style="color: var(--text-secondary)">Statut</label>
+        <select [ngModel]="store.statutFilter()" (ngModelChange)="store.setStatutFilter($event)"
+                class="px-3 py-2 rounded-lg border text-sm"
+                style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+          <option value="">Tous</option>
+          <option value="NON_JUSTIFIEE">Non justifiée</option>
+          <option value="JUSTIFIEE">Justifiée</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="sms-card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="background: var(--surface-2)">
+            <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Élève</th>
+            <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Classe</th>
+            <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Matière</th>
+            <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Date</th>
+            <th class="text-left px-4 py-3 font-medium" style="color: var(--text-secondary)">Statut</th>
+            <th class="text-right px-4 py-3 font-medium" style="color: var(--text-secondary)">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of store.filteredAbsences(); track a.publicId) {
+            <tr class="border-t" style="border-color: var(--border-color)">
+              <td class="px-4 py-3">
+                <p class="font-medium" style="color: var(--text-primary)">{{ a.eleveNom }}</p>
+                <p class="text-xs font-mono" style="color: var(--text-muted)">{{ a.eleveMatricule }}</p>
+              </td>
+              <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ a.classeLibelle }}</td>
+              <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ a.matiereLibelle }}</td>
+              <td class="px-4 py-3 text-xs" style="color: var(--text-secondary)">{{ a.heureAbsence | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                      [ngStyle]="a.statut === 'JUSTIFIEE' ? {background:'#dcfce7',color:'#16a34a'} : {background:'#fee2e2',color:'#dc2626'}">
+                  {{ a.statut === 'JUSTIFIEE' ? 'Justifiée' : 'Non justifiée' }}
+                </span>
+                @if (a.statut === 'JUSTIFIEE' && a.motifJustification) {
+                  <p class="text-xs mt-0.5" style="color: var(--text-muted)">{{ a.motifJustification }}</p>
+                }
+              </td>
+              <td class="px-4 py-3 text-right">
+                @if (a.statut === 'NON_JUSTIFIEE') {
+                  @if (justifyingId() === a.publicId) {
+                    <div class="flex items-center gap-2 justify-end">
+                      <input type="text" [(ngModel)]="motif" placeholder="Motif…"
+                             class="px-2 py-1 rounded border text-xs w-40"
+                             style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+                      <button (click)="confirmJustify(a.publicId)" [disabled]="!motif.trim()"
+                              class="px-2 py-1 rounded text-xs text-white disabled:opacity-50" style="background: #16a34a">OK</button>
+                      <button (click)="cancelJustify()" class="px-2 py-1 rounded text-xs" style="color: var(--text-muted)">✕</button>
+                    </div>
+                  } @else {
+                    <button (click)="startJustify(a.publicId)"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium ml-auto hover:opacity-80"
+                            style="border: 1px solid var(--border-color); color: var(--accent); background: var(--surface-2)">
+                      <mat-icon style="font-size: 14px; height: 14px; width: 14px">check</mat-icon>
+                      Justifier
+                    </button>
+                  }
+                } @else {
+                  <span class="text-xs" style="color: var(--text-muted)">{{ a.justifieParNom }}</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6">
+                <div class="flex flex-col items-center justify-center py-12 gap-3">
+                  <mat-icon style="font-size: 40px; height: 40px; width: 40px; color: var(--text-muted)">event_available</mat-icon>
+                  <p style="color: var(--text-secondary)">Aucune absence trouvée</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

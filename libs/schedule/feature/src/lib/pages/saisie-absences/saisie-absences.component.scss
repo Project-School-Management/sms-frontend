@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+// Rangée élève — feedback visuel de sélection (l'absent est marqué en rouge doux)
+label {
+  transition: background 0.15s ease, opacity 0.15s ease;
+}

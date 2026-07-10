@@ -1,0 +1,12 @@
+:host {
+  display: block;
+}
+
+// Ligne de tableau — surbrillance douce au survol (respecte le thème via variables CSS)
+tbody tr {
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+}
