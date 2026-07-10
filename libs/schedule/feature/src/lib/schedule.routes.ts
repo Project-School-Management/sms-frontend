@@ -13,4 +13,12 @@ export const SCHEDULE_ROUTES: Routes = [
     path: 'salles',
     loadComponent: () => import('./pages/salles-list/salles-list.component').then(m => m.SallesListComponent),
   },
+  {
+    path: 'absences',
+    loadComponent: () => import('./pages/absences-list/absences-list.component').then(m => m.AbsencesListComponent),
+  },
+  {
+    path: 'absences/saisie',
+    loadComponent: () => import('./pages/saisie-absences/saisie-absences.component').then(m => m.SaisieAbsencesComponent),
+  },
 ];

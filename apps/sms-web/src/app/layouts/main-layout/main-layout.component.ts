@@ -71,9 +71,10 @@ const NAV_GROUPS: NavGroup[] = [
         label: 'Emplois du temps', icon: 'calendar_month',
         roles: [Role.ADMIN, Role.DIR, Role.SECRETARIAT, Role.ENSEIGNANT, Role.ELEVE, Role.PARENT],
         children: [
-          { path: '/schedule',         label: 'Calendrier' },
-          { path: '/schedule/seances', label: 'Séances' },
-          { path: '/schedule/salles',  label: 'Salles' },
+          { path: '/schedule',          label: 'Calendrier' },
+          { path: '/schedule/seances',  label: 'Séances' },
+          { path: '/schedule/salles',   label: 'Salles' },
+          { path: '/schedule/absences', label: 'Absences' },
         ],
       },
     ],
