@@ -46,11 +46,44 @@ export class AuthService {
     this.authStore.setTwoFaVerified(tokenParsed['acr'] === '2');
   }
 
+  /** Vrai si une session Keycloak est active (toujours vrai en mode dev sans Keycloak). */
+  async isLoggedIn(): Promise<boolean> {
+    if (!this.keycloak) return true;
+    try {
+      return await this.keycloak.isLoggedIn();
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Déclenche la connexion Keycloak (Authorization Code + PKCE S256).
+   * @param redirectUri URL de retour après authentification (défaut : page courante).
+   */
+  async login(redirectUri: string = window.location.origin): Promise<void> {
+    if (!this.keycloak) return; // mode dev : pas de Keycloak, accès libre
+    await this.keycloak.login({ redirectUri });
+  }
+
+  /**
+   * Déconnexion : purge l'état local puis termine la session Keycloak
+   * (redirection vers la racine de l'app — post_logout_redirect_uri du client sms-web).
+   * En mode dev (sans Keycloak), recharge simplement la racine pour repartir propre.
+   */
   async logout(): Promise<void> {
     this.authStore.clearCurrentUser();
+    const redirectUri = window.location.origin;
     if (this.keycloak) {
-      await this.keycloak.logout(window.location.origin);
+      await this.keycloak.logout(redirectUri);
+      return;
     }
+    window.location.assign(redirectUri);
+  }
+
+  /** Ouvre la console de gestion de compte Keycloak (mot de passe, 2FA, sessions). */
+  async manageAccount(): Promise<void> {
+    if (!this.keycloak) return;
+    await this.keycloak.getKeycloakInstance().accountManagement();
   }
 
   // ── private ────────────────────────────────────────────────────────────────
