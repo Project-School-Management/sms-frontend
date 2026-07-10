@@ -1,5 +1,5 @@
 import { Role } from './role.enum';
-import { WorkspaceType } from './workspace.model';
+import { WorkspaceType, IEspaceAffectation } from './workspace.model';
 
 /**
  * Utilisateur courant issu du token JWT Keycloak.
@@ -27,6 +27,14 @@ export interface ICurrentUser {
   workspaceId?:       string | null;
   /** Claim `workspace_type` — pilote l'adaptation contextuelle de l'UI */
   workspaceType?:     WorkspaceType | null;
+
+  /**
+   * Claim `espaces[]` — liste des affectations (chemins de Groups Keycloak).
+   * Pas encore émise par le realm actuel (docs/architecture/tenancy-model.md §10,
+   * backend à faire) : `undefined` tant que le claim JWT est absent. Le switcher
+   * s'appuie alors sur {@link EspaceApiService} (mock réaliste dérivé du rôle).
+   */
+  espaces?:           IEspaceAffectation[];
 
   /** Niveau ACR du token (2 = OTP vérifié) */
   acr?: string;

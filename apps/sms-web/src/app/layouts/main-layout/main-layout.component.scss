@@ -731,6 +731,25 @@
   color: var(--text-secondary);
 }
 
+.user-menu-espace {
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  &::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+}
+
 .user-menu-sep {
   height: 1px;
   background: var(--border-color);

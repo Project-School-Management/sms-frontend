@@ -1,0 +1,33 @@
+<div class="select-espace-shell">
+  <div class="select-espace-card">
+    <div class="select-espace-head">
+      <div class="select-espace-logo" aria-hidden="true">
+        <mat-icon>account_balance</mat-icon>
+      </div>
+      <h1>Choisir votre espace</h1>
+      <p>
+        Vous êtes affecté(e) à plusieurs espaces de
+        <strong>{{ tenantLabel() }}</strong>. Sélectionnez celui dans lequel vous souhaitez travailler.
+      </p>
+    </div>
+
+    <div class="espace-grid">
+      @for (espace of store.espaces(); track espace.workspaceId) {
+        <button class="espace-tile" type="button" (click)="choose(espace.workspaceId)">
+          <div class="espace-tile-icon" [style.background]="iconBg(espace.workspaceType)">
+            <mat-icon [style.color]="iconColor(espace.workspaceType)">{{ icon(espace.workspaceType) }}</mat-icon>
+          </div>
+          <span class="espace-tile-label">{{ espace.label }}</span>
+          <span class="espace-tile-arrow" aria-hidden="true">
+            <mat-icon>arrow_forward</mat-icon>
+          </span>
+        </button>
+      }
+    </div>
+
+    <button class="select-espace-logout" type="button" (click)="logout()">
+      <mat-icon aria-hidden="true">logout</mat-icon>
+      Se déconnecter
+    </button>
+  </div>
+</div>

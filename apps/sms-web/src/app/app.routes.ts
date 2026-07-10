@@ -1,13 +1,22 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@sms/shared/auth';
+import { authGuard, espaceGuard } from '@sms/shared/auth';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 
 export const APP_ROUTES: Routes = [
+  // ── Sélection d'espace (docs/architecture/tenancy-model.md §6) ────────────
+  // Authentifié mais hors du shell/layout, et sans espaceGuard (sinon boucle).
+  {
+    path:        'select-espace',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/select-espace/select-espace.component').then((m) => m.SelectEspaceComponent),
+  },
+
   // ── Shell protégé avec layout ─────────────────────────────────────────────
   {
     path:        '',
     component:   MainLayoutComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, espaceGuard],
     children: [
 
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
