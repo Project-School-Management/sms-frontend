@@ -1,4 +1,7 @@
 export * from './lib/role.enum';
+export * from './lib/workspace.model';
+export * from './lib/workspace-vocabulary';
+export * from './lib/student-card.model';
 export * from './lib/current-user.model';
 export * from './lib/student.model';
 export * from './lib/page.model';

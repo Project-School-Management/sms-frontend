@@ -7,7 +7,7 @@ import { ICurrentUser }       from '@sms/shared/models';
 export class UserApiService {
   private readonly http = inject(HttpClient);
 
-  private readonly base = '/api/v1/users';
+  private readonly base = '/api/v1/utilisateurs';
 
   /** GET /api/v1/users/me — retourne l'utilisateur courant */
   getMyAccount(): Observable<ICurrentUser> {

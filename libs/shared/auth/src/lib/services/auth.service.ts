@@ -3,6 +3,7 @@ import { KeycloakService }    from 'keycloak-angular';
 
 import { ICurrentUser }  from '@sms/shared/models';
 import { Role }          from '@sms/shared/models';
+import { WorkspaceType } from '@sms/shared/models';
 import { AuthStore }     from '../store/auth.store';
 
 @Injectable({ providedIn: 'root' })
@@ -35,6 +36,9 @@ export class AuthService {
       etablissementId:   tokenParsed['etablissementId']   ?? 0,
       anneeAcademiqueId: tokenParsed['anneeAcademiqueId'] ?? 0,
       smsUserId:         tokenParsed['smsUserId']         ?? 0,
+      tenantId:          tokenParsed['tenant_id']         ?? null,
+      workspaceId:       tokenParsed['workspace_id']      ?? null,
+      workspaceType:     this.extractWorkspaceType(tokenParsed),
       acr:               tokenParsed['acr'],
     };
 
@@ -51,8 +55,10 @@ export class AuthService {
 
   // ── private ────────────────────────────────────────────────────────────────
   private extractRole(tokenParsed: Record<string, unknown>): Role {
-    const realmRoles =
-      (tokenParsed['realm_access'] as { roles?: string[] })?.roles ?? [];
+    // Le realm émet les rôles avec le préfixe ROLE_ (ex: ROLE_ADMIN).
+    // On le retire pour matcher l'enum Role côté front (ex: ADMIN).
+    const realmRoles = ((tokenParsed['realm_access'] as { roles?: string[] })?.roles ?? [])
+      .map((r) => (r.startsWith('ROLE_') ? r.slice('ROLE_'.length) : r));
 
     const roleOrder: Role[] = [
       Role.SUPER_ADMIN,
@@ -67,5 +73,14 @@ export class AuthService {
     ];
 
     return roleOrder.find((r) => realmRoles.includes(r)) ?? Role.ELEVE;
+  }
+
+  /** Mappe le claim `workspace_type` vers l'enum (null si absent/inconnu). */
+  private extractWorkspaceType(tokenParsed: Record<string, unknown>): WorkspaceType | null {
+    const raw = tokenParsed['workspace_type'];
+    if (typeof raw !== 'string') return null;
+    return (Object.values(WorkspaceType) as string[]).includes(raw)
+      ? (raw as WorkspaceType)
+      : null;
   }
 }

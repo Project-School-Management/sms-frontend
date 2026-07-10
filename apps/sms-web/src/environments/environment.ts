@@ -1,8 +1,9 @@
 ﻿export const environment = {
   production:     false,
-  skipKeycloak:   true,
-  keycloakUrl:    'http://localhost:8080',
-  keycloakRealm:  'sms-realm',
+  skipKeycloak:   false,
+  keycloakUrl:    'https://auth.y3na.com',
+  keycloakRealm:  'sms',
   keycloakClient: 'sms-web',
   apiBaseUrl:     'http://localhost:8080/api',
+  
 };
