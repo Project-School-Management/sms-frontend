@@ -10,10 +10,17 @@ import { tenantInterceptor } from '@sms/shared/auth';
 import { errorInterceptor }  from '@sms/shared/auth';
 import { authInterceptor }   from '@sms/shared/auth';
 import { AuthService }       from '@sms/shared/auth';
+import { AuthStore }         from '@sms/shared/auth';
+import { EspaceStore }       from '@sms/shared/auth';
 import { environment }       from '../environments/environment';
 
 // ── Keycloak initializer ──────────────────────────────────────────────────────
-function initKeycloak(keycloak: KeycloakService, authService: AuthService) {
+function initKeycloak(
+  keycloak: KeycloakService,
+  authService: AuthService,
+  authStore: InstanceType<typeof AuthStore>,
+  espaceStore: InstanceType<typeof EspaceStore>,
+) {
   return async (): Promise<void> => {
     const authenticated = await keycloak.init({
       config: {
@@ -31,6 +38,9 @@ function initKeycloak(keycloak: KeycloakService, authService: AuthService) {
 
     if (authenticated) {
       authService.loadUserProfile();
+      const user = authStore.currentUser();
+      // Charge les affectations multi-espaces (mock — docs/architecture/tenancy-model.md §6)
+      if (user) await espaceStore.loadEspaces(user);
     }
   };
 }
@@ -66,7 +76,7 @@ export const appConfig: ApplicationConfig = {
         {
           provide:    APP_INITIALIZER,
           useFactory: initKeycloak,
-          deps:       [KeycloakService, AuthService],
+          deps:       [KeycloakService, AuthService, AuthStore, EspaceStore],
           multi:      true,
         },
       ],

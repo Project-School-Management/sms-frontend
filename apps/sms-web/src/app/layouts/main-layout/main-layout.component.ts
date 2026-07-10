@@ -13,6 +13,7 @@ import { filter, map }      from 'rxjs/operators';
 
 import { AuthStore }   from '@sms/shared/auth';
 import { AuthService } from '@sms/shared/auth';
+import { EspaceStore } from '@sms/shared/auth';
 import { Role }        from '@sms/shared/models';
 import { NotificationService, NotificationPanelComponent } from '@sms/shared/ui';
 
@@ -211,6 +212,7 @@ const SIDEBAR_KEY = 'sidebar_state';
 export class MainLayoutComponent {
   protected readonly authStore   = inject(AuthStore);
   protected readonly authService = inject(AuthService);
+  protected readonly espaceStore = inject(EspaceStore);
   protected readonly router      = inject(Router);
   readonly notifService          = inject(NotificationService);
 
@@ -286,6 +288,9 @@ export class MainLayoutComponent {
     return role ? (ROLE_LABELS[role] ?? role) : '';
   });
 
+  /** Libellé de l'espace courant affiché dans le menu utilisateur (ex. « Lycée »). */
+  protected readonly currentEspaceLabel = computed(() => this.espaceStore.currentEspace()?.label ?? '');
+
   // ── Actions ───────────────────────────────────────────────────────────────
   protected toggleSidebar(): void {
     this.isCollapsed.update(v => !v);
@@ -302,6 +307,11 @@ export class MainLayoutComponent {
   /** Ouvre la console de gestion de compte Keycloak (mot de passe, 2FA). */
   protected async manageAccount(): Promise<void> {
     await this.authService.manageAccount();
+  }
+
+  /** Renvoie vers l'écran de sélection d'espace (docs/architecture/tenancy-model.md §6). */
+  protected goSelectEspace(): void {
+    this.router.navigateByUrl('/select-espace');
   }
 
   protected toggleNotifPanel(event: Event): void {

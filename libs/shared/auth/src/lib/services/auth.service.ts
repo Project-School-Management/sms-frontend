@@ -5,12 +5,14 @@ import { ICurrentUser }  from '@sms/shared/models';
 import { Role }          from '@sms/shared/models';
 import { WorkspaceType } from '@sms/shared/models';
 import { AuthStore }     from '../store/auth.store';
+import { EspaceStore }   from '../store/espace.store';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   // optional: true → null en mode dev (skipKeycloak), instance réelle en prod
-  private readonly keycloak  = inject(KeycloakService, { optional: true });
-  private readonly authStore = inject(AuthStore);
+  private readonly keycloak    = inject(KeycloakService, { optional: true });
+  private readonly authStore   = inject(AuthStore);
+  private readonly espaceStore = inject(EspaceStore);
 
   /** Met à jour le token (30s de marge) et retourne le Bearer */
   async getToken(): Promise<string> {
@@ -72,6 +74,7 @@ export class AuthService {
    */
   async logout(): Promise<void> {
     this.authStore.clearCurrentUser();
+    this.espaceStore.clear();
     const redirectUri = window.location.origin;
     if (this.keycloak) {
       await this.keycloak.logout(redirectUri);
