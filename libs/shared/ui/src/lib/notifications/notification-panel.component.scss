@@ -1,0 +1,55 @@
+:host {
+  display: contents;
+}
+
+.notif-panel {
+  position: fixed;
+  top: 3.5rem;
+  right: 1rem;
+  z-index: 50;
+  width: 380px;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+
+  @media (max-width: 480px) {
+    width: calc(100vw - 2rem);
+  }
+}
+
+.panel-enter {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.notif-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+// Message tronqué sur 2 lignes
+.notif-message {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Actions au survol de la ligne
+.notif-row:hover .notif-actions {
+  opacity: 1;
+}
+
+.notif-actions {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
