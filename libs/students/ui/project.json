@@ -3,5 +3,21 @@
   "projectType": "library",
   "sourceRoot": "libs/students/ui/src",
   "prefix": "sms",
-  "tags": ["type:ui", "scope:students"]
+  "tags": ["type:ui", "scope:students"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/students/ui/**/*.ts", "libs/students/ui/**/*.html"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/students/ui"],
+      "options": {
+        "jestConfig": "libs/students/ui/jest.config.ts"
+      }
+    }
+  }
 }

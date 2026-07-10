@@ -35,7 +35,7 @@ function initKeycloak(keycloak: KeycloakService, authService: AuthService) {
   };
 }
 
-// ── Providers communs (toujours chargés) ─;;;────────────────────────────────────
+// ── Providers communs (toujours chargés) ──────────────────────────────────────
 const commonProviders = [
   provideZoneChangeDetection({ eventCoalescing: true }),
   provideRouter(

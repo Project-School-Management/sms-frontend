@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { AuthStore } from './auth.store';
 import { UserApiService } from '../services/user-api.service';
-import { ICurrentUser, Role } from '@sms/shared/models';
+import { ICurrentUser, Role, WorkspaceType } from '@sms/shared/models';
 
 const mockUser: ICurrentUser = {
   sub:               'keycloak-uuid-123',
@@ -99,5 +99,43 @@ describe('AuthStore', () => {
 
     store.setCurrentUser({ ...mockUser, role: Role.ELEVE });
     expect(store.requires2Fa()).toBe(false);
+  });
+
+  it('workspace context — exposes tenantId, workspaceId, workspaceType from user', () => {
+    store.setCurrentUser({
+      ...mockUser,
+      tenantId: 'tenant-uuid',
+      workspaceId: 'ws-uuid',
+      workspaceType: WorkspaceType.UNIVERSITY,
+    });
+
+    expect(store.tenantId()).toBe('tenant-uuid');
+    expect(store.workspaceId()).toBe('ws-uuid');
+    expect(store.workspaceType()).toBe(WorkspaceType.UNIVERSITY);
+  });
+
+  it('vocabulary — UNIVERSITY → Étudiant / Relevé / Validation, crédits activés', () => {
+    store.setCurrentUser({ ...mockUser, workspaceType: WorkspaceType.UNIVERSITY });
+
+    expect(store.vocabulary().learner).toBe('Étudiant');
+    expect(store.vocabulary().reportCard).toBe('Relevé de notes');
+    expect(store.vocabulary().progression).toBe('Validation');
+    expect(store.workspaceFeatures().creditsEnabled).toBe(true);
+  });
+
+  it('vocabulary — LYCEUM → Élève / Bulletin / Passage, crédits désactivés', () => {
+    store.setCurrentUser({ ...mockUser, workspaceType: WorkspaceType.LYCEUM });
+
+    expect(store.vocabulary().learner).toBe('Élève');
+    expect(store.vocabulary().reportCard).toBe('Bulletin');
+    expect(store.vocabulary().progression).toBe('Passage');
+    expect(store.workspaceFeatures().creditsEnabled).toBe(false);
+  });
+
+  it('vocabulary — null workspaceType → fallback sûr (pas de crash)', () => {
+    store.setCurrentUser({ ...mockUser, workspaceType: null });
+
+    expect(store.workspaceType()).toBeNull();
+    expect(store.vocabulary().learner).toBeTruthy();
   });
 });

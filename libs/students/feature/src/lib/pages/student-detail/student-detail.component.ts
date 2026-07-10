@@ -7,7 +7,7 @@ import { FormsModule }               from '@angular/forms';
 import { MatIconModule }             from '@angular/material/icon';
 import { StudentsStore }                        from '@sms/students/data-access';
 import { CLASSES_MAP_REF as CLASSES_MAP } from '@sms/config-system/data-access';
-import { IStudent, StudentStatut, IAuditEntry } from '@sms/shared/models';
+import { IStudent, StudentStatut, IAuditEntry, IStudentCard } from '@sms/shared/models';
 import {
   SkeletonTableComponent,
   DetailPageSkeletonComponent,
@@ -16,6 +16,8 @@ import {
   EmptyStateComponent,
   DocumentService,
 } from '@sms/shared/ui';
+import { EleveCarteComponent } from '@sms/students/ui';
+import { AuthStore }           from '@sms/shared/auth';
 
 // ── Statut config ─────────────────────────────────────────────────────────────
 const STATUT_CFG: Record<string, { label: string; bg: string; color: string; icon: string }> = {
@@ -76,6 +78,7 @@ interface MockBulletin {
     SkeletonTableComponent, DetailPageSkeletonComponent,
     TimelineSkeletonComponent, DocumentSkeletonComponent,
     EmptyStateComponent,
+    EleveCarteComponent,
   ],
   template: `
 <div class="p-6 max-w-5xl mx-auto">
@@ -1269,16 +1272,50 @@ interface MockBulletin {
     </div>
   </div>
 }
+
+<!-- ════ DIALOG : Carte virtuelle (ISO ID-1) ════ -->
+@if (showCard() && studentCard(); as card) {
+  <div class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 p-4 sms-no-print"
+       style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)" (click)="showCard.set(false)">
+    <div (click)="$event.stopPropagation()" class="flex flex-col items-center gap-3">
+      <sms-eleve-carte [card]="card" />
+      <button (click)="showCard.set(false)"
+              class="sms-no-print px-4 py-2 rounded-lg text-sm font-semibold"
+              style="background:var(--surface-1);color:var(--text-primary);border:1px solid var(--border-color)">
+        Fermer
+      </button>
+    </div>
+  </div>
+}
   `,
 })
 export class StudentDetailComponent implements OnInit, OnDestroy {
   protected readonly store  = inject(StudentsStore);
   private  readonly route   = inject(ActivatedRoute);
   private  readonly docSvc  = inject(DocumentService);
+  private  readonly authStore = inject(AuthStore);
 
   // ── UI state ──────────────────────────────────────────────────────────────
   protected readonly activeTab              = signal<Tab>('infos');
   protected readonly menuOpen               = signal(false);
+  protected readonly showCard               = signal(false);
+
+  /** Carte virtuelle (ISO ID-1) construite depuis l'élève + le contexte d'espace. */
+  protected readonly studentCard = computed<IStudentCard | null>(() => {
+    const s = this.store.selectedStudent();
+    if (!s) return null;
+    return {
+      matricule:        s.matricule,
+      nom:              s.lastName,
+      prenom:           s.firstName,
+      photoUrl:         s.photoUrl ?? null,
+      etablissementNom: 'KalanBlonw',
+      workspaceType:    this.authStore.workspaceType(),
+      groupeLibelle:    s.classeLibelle ?? s.filiereLibelle ?? null,
+      anneeAcademique:  this.store.historique()[0]?.anneeAcademique ?? null,
+      dateEmission:     new Date().toLocaleDateString('fr-FR'),
+    };
+  });
   protected readonly showCancelDialog       = signal(false);
   protected readonly cancelMotifTouched     = signal(false);
   protected readonly showChangeClasseDialog = signal(false);
@@ -1477,7 +1514,7 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
 
   // ── Document actions ───────────────────────────────────────────────────────
   protected exportPdf(s: IStudent): void { this.docSvc.printStudentProfile(s); }
-  protected printCard(s: IStudent): void { this.docSvc.printStudentCard(s); }
+  protected printCard(_s: IStudent): void { this.showCard.set(true); }
 
   protected downloadBulletin(periode: string): void {
     const s = this.store.selectedStudent();
