@@ -85,7 +85,7 @@ interface ConflitGroupe {
       </p>
     </div>
     <div style="text-align:right;font-size:12px;color:#9ca3af">
-      Imprimé le {{ today() }}<br>Lycée International de Côte d'Ivoire
+      Imprimé le {{ today() }}<br>Complexe Scolaire Horizon
     </div>
   </div>
 

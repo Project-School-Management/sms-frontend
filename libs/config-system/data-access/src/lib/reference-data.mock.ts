@@ -12,46 +12,57 @@ import {
 } from './reference.types';
 
 // ─── Établissement ────────────────────────────────────────────────────────────
+// Réalité malienne : complexe scolaire regroupant plusieurs espaces (voir
+// docs/architecture/tenancy-model.md — même établissement démo "Complexe Horizon").
 export const MOCK_ETABLISSEMENT: IEtablissement = {
   publicId:  'etab-001',
-  code:      'LYCÉE-CI',
-  libelle:   'Lycée International de Côte d\'Ivoire',
+  code:      'CSH',
+  libelle:   'Complexe Scolaire Horizon',
   type:      'LYCEE',
-  adresse:   'Cocody, Angré',
-  ville:     'Abidjan',
-  pays:      'Côte d\'Ivoire',
-  telephone: '+225 27 22 XX XX XX',
-  email:     'contact@lycee-ci.edu',
+  adresse:   'Hamdallaye ACI 2000',
+  ville:     'Bamako',
+  pays:      'Mali',
+  telephone: '+223 20 22 XX XX',
+  email:     'contact@complexe-horizon.edu.ml',
   active:    true,
 };
 
 // ─── Cycles ───────────────────────────────────────────────────────────────────
+// Système malien : l'École Fondamentale (9 ans, sanctionnée par le DEF) est un
+// cycle continu en deux sous-cycles — PAS un « Primaire » et un « Collège »
+// distincts comme en Côte d'Ivoire/France (docs/architecture/tenancy-model.md §8).
+// Les deux sous-cycles restent cependant modélisés séparément ici pour la
+// granularité des niveaux ; ils correspondent tous deux au même espace
+// (workspace_type = FUNDAMENTAL).
 export const MOCK_CYCLES: ICycle[] = [
-  { publicId: 'cyc-001', code: 'PRIM',    libelle: 'Primaire',                  ordre: 1, active: true },
-  { publicId: 'cyc-002', code: 'COLL',    libelle: 'Collège',                   ordre: 2, active: true },
+  { publicId: 'cyc-001', code: 'FOND1',   libelle: 'Fondamental — 1er cycle',   ordre: 1, active: true },
+  { publicId: 'cyc-002', code: 'FOND2',   libelle: 'Fondamental — 2nd cycle',   ordre: 2, active: true },
   { publicId: 'cyc-003', code: 'LYC',     libelle: 'Lycée',                     ordre: 3, active: true },
   { publicId: 'cyc-004', code: 'UNIV',    libelle: 'Université',                ordre: 4, active: true },
   { publicId: 'cyc-005', code: 'FORM',    libelle: 'Formation Professionnelle',  ordre: 5, active: false },
 ];
 
 // ─── Niveaux ──────────────────────────────────────────────────────────────────
+// Numérotation malienne : Fondamental compte 9 années continues (1ère à 9ème),
+// sanctionnées par le DEF (Diplôme d'Études Fondamentales) en fin de 9ème.
+// Le Lycée (10ème à 12ème/Terminale) est sanctionné par le Baccalauréat malien.
 export const MOCK_NIVEAUX: INiveau[] = [
-  // Primaire
-  { publicId: 'niv-001', code: 'CI',     libelle: 'CI',        cyclePublicId: 'cyc-001', cycleLibelle: 'Primaire',    ordre: 1,  active: false },
-  { publicId: 'niv-002', code: 'CP',     libelle: 'CP',        cyclePublicId: 'cyc-001', cycleLibelle: 'Primaire',    ordre: 2,  active: false },
-  { publicId: 'niv-003', code: 'CE1',    libelle: 'CE1',       cyclePublicId: 'cyc-001', cycleLibelle: 'Primaire',    ordre: 3,  active: false },
-  { publicId: 'niv-004', code: 'CE2',    libelle: 'CE2',       cyclePublicId: 'cyc-001', cycleLibelle: 'Primaire',    ordre: 4,  active: false },
-  { publicId: 'niv-005', code: 'CM1',    libelle: 'CM1',       cyclePublicId: 'cyc-001', cycleLibelle: 'Primaire',    ordre: 5,  active: false },
-  { publicId: 'niv-006', code: 'CM2',    libelle: 'CM2',       cyclePublicId: 'cyc-001', cycleLibelle: 'Primaire',    ordre: 6,  active: false },
-  // Collège
-  { publicId: 'niv-007', code: '6EME',   libelle: '6ème',      cyclePublicId: 'cyc-002', cycleLibelle: 'Collège',     ordre: 7,  active: true  },
-  { publicId: 'niv-008', code: '5EME',   libelle: '5ème',      cyclePublicId: 'cyc-002', cycleLibelle: 'Collège',     ordre: 8,  active: true  },
-  { publicId: 'niv-009', code: '4EME',   libelle: '4ème',      cyclePublicId: 'cyc-002', cycleLibelle: 'Collège',     ordre: 9,  active: true  },
-  { publicId: 'niv-010', code: '3EME',   libelle: '3ème',      cyclePublicId: 'cyc-002', cycleLibelle: 'Collège',     ordre: 10, active: true  },
-  // Lycée
-  { publicId: 'niv-011', code: 'SECD',   libelle: 'Seconde',   cyclePublicId: 'cyc-003', cycleLibelle: 'Lycée',       ordre: 11, active: true  },
-  { publicId: 'niv-012', code: 'PREM',   libelle: 'Première',  cyclePublicId: 'cyc-003', cycleLibelle: 'Lycée',       ordre: 12, active: true  },
-  { publicId: 'niv-013', code: 'TERM',   libelle: 'Terminale', cyclePublicId: 'cyc-003', cycleLibelle: 'Lycée',       ordre: 13, active: true  },
+  // Fondamental — 1er cycle (6 ans)
+  { publicId: 'niv-001', code: '1AF',    libelle: '1ère Année Fondamentale', cyclePublicId: 'cyc-001', cycleLibelle: 'Fondamental — 1er cycle', ordre: 1,  active: false },
+  { publicId: 'niv-002', code: '2AF',    libelle: '2ème Année Fondamentale', cyclePublicId: 'cyc-001', cycleLibelle: 'Fondamental — 1er cycle', ordre: 2,  active: false },
+  { publicId: 'niv-003', code: '3AF',    libelle: '3ème Année Fondamentale', cyclePublicId: 'cyc-001', cycleLibelle: 'Fondamental — 1er cycle', ordre: 3,  active: false },
+  { publicId: 'niv-004', code: '4AF',    libelle: '4ème Année Fondamentale', cyclePublicId: 'cyc-001', cycleLibelle: 'Fondamental — 1er cycle', ordre: 4,  active: false },
+  { publicId: 'niv-005', code: '5AF',    libelle: '5ème Année Fondamentale', cyclePublicId: 'cyc-001', cycleLibelle: 'Fondamental — 1er cycle', ordre: 5,  active: false },
+  { publicId: 'niv-006', code: '6AF',    libelle: '6ème Année Fondamentale', cyclePublicId: 'cyc-001', cycleLibelle: 'Fondamental — 1er cycle', ordre: 6,  active: false },
+  // Fondamental — 2nd cycle (3 ans, jusqu'au DEF)
+  { publicId: 'niv-007', code: '7AF',    libelle: '7ème Année Fondamentale', cyclePublicId: 'cyc-002', cycleLibelle: 'Fondamental — 2nd cycle', ordre: 7,  active: true  },
+  { publicId: 'niv-008', code: '8AF',    libelle: '8ème Année Fondamentale', cyclePublicId: 'cyc-002', cycleLibelle: 'Fondamental — 2nd cycle', ordre: 8,  active: true  },
+  { publicId: 'niv-009', code: '9AF',    libelle: '9ème Année Fondamentale (DEF)', cyclePublicId: 'cyc-002', cycleLibelle: 'Fondamental — 2nd cycle', ordre: 9,  active: true  },
+  { publicId: 'niv-010', code: '9AF-LEG',libelle: '9ème Année Fondamentale (legacy)', cyclePublicId: 'cyc-002', cycleLibelle: 'Fondamental — 2nd cycle', ordre: 10, active: false },
+  // Lycée (jusqu'au Baccalauréat)
+  { publicId: 'niv-011', code: '10E',    libelle: '10ème Année',              cyclePublicId: 'cyc-003', cycleLibelle: 'Lycée',       ordre: 11, active: true  },
+  { publicId: 'niv-012', code: '11E',    libelle: '11ème Année',              cyclePublicId: 'cyc-003', cycleLibelle: 'Lycée',       ordre: 12, active: true  },
+  { publicId: 'niv-013', code: 'TERM',   libelle: 'Terminale (12ème Année)',  cyclePublicId: 'cyc-003', cycleLibelle: 'Lycée',       ordre: 13, active: true  },
   // Université
   { publicId: 'niv-014', code: 'L1',     libelle: 'Licence 1', cyclePublicId: 'cyc-004', cycleLibelle: 'Université',  ordre: 14, active: true  },
   { publicId: 'niv-015', code: 'L2',     libelle: 'Licence 2', cyclePublicId: 'cyc-004', cycleLibelle: 'Université',  ordre: 15, active: true  },
@@ -62,12 +73,15 @@ export const MOCK_NIVEAUX: INiveau[] = [
 ];
 
 // ─── Filières ─────────────────────────────────────────────────────────────────
+// Séries du Baccalauréat malien (Lycée) : Sciences Exactes, Sciences Biologiques,
+// Lettres-Langues, Sciences Humaines — remplace les séries françaises/ivoiriennes
+// (S/L/ES) qui ne correspondent pas à la nomenclature malienne.
 export const MOCK_FILIERES: IFiliere[] = [
-  { publicId: 'fil-001', code: 'SCI',    libelle: 'Scientifique',          cyclePublicId: 'cyc-003', active: true  },
-  { publicId: 'fil-002', code: 'LITT',   libelle: 'Littéraire',            cyclePublicId: 'cyc-003', active: true  },
-  { publicId: 'fil-003', code: 'ECO',    libelle: 'Économique',            cyclePublicId: 'cyc-003', active: true  },
-  { publicId: 'fil-004', code: 'TECH',   libelle: 'Technologique',         cyclePublicId: 'cyc-003', active: false },
-  { publicId: 'fil-005', code: 'GEN',    libelle: 'Générale',              cyclePublicId: 'cyc-002', active: true  },
+  { publicId: 'fil-001', code: 'SE',     libelle: 'Sciences Exactes (SE)',      cyclePublicId: 'cyc-003', active: true  },
+  { publicId: 'fil-002', code: 'LL',     libelle: 'Lettres-Langues (LL)',       cyclePublicId: 'cyc-003', active: true  },
+  { publicId: 'fil-003', code: 'SH',     libelle: 'Sciences Humaines (SH)',     cyclePublicId: 'cyc-003', active: true  },
+  { publicId: 'fil-004', code: 'SBIO',   libelle: 'Sciences Biologiques (SBio)', cyclePublicId: 'cyc-003', active: false },
+  { publicId: 'fil-005', code: 'GEN',    libelle: 'Tronc commun',               cyclePublicId: 'cyc-002', active: true  },
   { publicId: 'fil-006', code: 'GL',     libelle: 'Génie Logiciel',        cyclePublicId: 'cyc-004', active: true  },
   { publicId: 'fil-007', code: 'RI',     libelle: 'Réseaux & Infra',       cyclePublicId: 'cyc-004', active: true  },
   { publicId: 'fil-008', code: 'GC',     libelle: 'Génie Civil',           cyclePublicId: 'cyc-004', active: true  },
@@ -76,10 +90,11 @@ export const MOCK_FILIERES: IFiliere[] = [
 ];
 
 // ─── Facultés ─────────────────────────────────────────────────────────────────
+// Nomenclature usuelle des universités maliennes (structure LMD, ex. USTTB/ULSHB).
 export const MOCK_FACULTES: IFaculteRef[] = [
-  { publicId: 'fac-001', code: 'FSEI',  libelle: "Faculté des Sciences et de l'Ingénierie", active: true },
-  { publicId: 'fac-002', code: 'FGSS',  libelle: 'Faculté de Gestion et Sciences Sociales',  active: true },
-  { publicId: 'fac-003', code: 'FDSP',  libelle: 'Faculté de Droit et Sciences Politiques',  active: false },
+  { publicId: 'fac-001', code: 'FST',   libelle: 'Faculté des Sciences et Techniques',           active: true },
+  { publicId: 'fac-002', code: 'FSEG',  libelle: 'Faculté des Sciences Économiques et de Gestion', active: true },
+  { publicId: 'fac-003', code: 'FLSH',  libelle: 'Faculté des Lettres et Sciences Humaines',     active: false },
 ];
 
 // ─── Départements ─────────────────────────────────────────────────────────────
@@ -119,45 +134,45 @@ export const MOCK_PERIODES: IPeriodeRef[] = [
 
 // ─── Classes (référentiel centralisé, remplace CLASSES_MAP & MOCK_CLASSES) ────
 export const MOCK_CLASSES: IClasseRef[] = [
-  // ─ Collège ─────────────────────────────────────────────────────────────────
+  // ─ Fondamental — 2nd cycle ────────────────────────────────────────────────
   {
-    publicId: 'cls-3eme-b', code: '3EME-B', libelle: '3ème B',
-    niveauPublicId: 'niv-010', niveauLibelle: '3ème',
-    cyclePublicId: 'cyc-002',  cycleLibelle:  'Collège',
-    filierePublicId: 'fil-005',filiereLibelle:'Générale',
+    publicId: 'cls-3eme-b', code: '9AF-B', libelle: '9ème Année B',
+    niveauPublicId: 'niv-009', niveauLibelle: '9ème Année Fondamentale (DEF)',
+    cyclePublicId: 'cyc-002',  cycleLibelle:  'Fondamental — 2nd cycle',
+    filierePublicId: 'fil-005',filiereLibelle:'Tronc commun',
     capacite: 50, effectif: 35, anneeAcademiquePublicId: 'ann-001',
     professeurPrincipal: 'M. Bah Ibrahim', sallePrincipale: 'D05', active: true,
   },
   // ─ Lycée ────────────────────────────────────────────────────────────────────
   {
-    publicId: 'cls-seconde-a', code: 'SECD-A', libelle: 'Seconde A',
-    niveauPublicId: 'niv-011', niveauLibelle: 'Seconde',
+    publicId: 'cls-seconde-a', code: '10E-A', libelle: '10ème Année A',
+    niveauPublicId: 'niv-011', niveauLibelle: '10ème Année',
     cyclePublicId: 'cyc-003',  cycleLibelle:  'Lycée',
-    filierePublicId: 'fil-003',filiereLibelle:'Générale',
+    filierePublicId: 'fil-003',filiereLibelle:'Sciences Humaines (SH)',
     capacite: 52, effectif: 52, anneeAcademiquePublicId: 'ann-001',
     professeurPrincipal: 'Mme Koné Mariame', sallePrincipale: 'A101', active: true,
   },
   {
-    publicId: 'cls-premiere-d', code: 'PREM-D', libelle: 'Première D',
-    niveauPublicId: 'niv-012', niveauLibelle: 'Première',
+    publicId: 'cls-premiere-d', code: '11E-D', libelle: '11ème Année D',
+    niveauPublicId: 'niv-012', niveauLibelle: '11ème Année',
     cyclePublicId: 'cyc-003',  cycleLibelle:  'Lycée',
-    filierePublicId: 'fil-001',filiereLibelle:'Scientifique',
+    filierePublicId: 'fil-001',filiereLibelle:'Sciences Exactes (SE)',
     capacite: 48, effectif: 45, anneeAcademiquePublicId: 'ann-001',
     professeurPrincipal: 'M. Touré Kader', sallePrincipale: 'C201', active: true,
   },
   {
-    publicId: 'cls-terminale-s1', code: 'TERM-S1', libelle: 'Terminale S1',
-    niveauPublicId: 'niv-013', niveauLibelle: 'Terminale',
+    publicId: 'cls-terminale-s1', code: 'TERM-SE1', libelle: 'Terminale SE1',
+    niveauPublicId: 'niv-013', niveauLibelle: 'Terminale (12ème Année)',
     cyclePublicId: 'cyc-003',  cycleLibelle:  'Lycée',
-    filierePublicId: 'fil-001',filiereLibelle:'Scientifique',
+    filierePublicId: 'fil-001',filiereLibelle:'Sciences Exactes (SE)',
     capacite: 45, effectif: 42, anneeAcademiquePublicId: 'ann-001',
     professeurPrincipal: 'Mme Coulibaly Fatou', sallePrincipale: 'B12', active: true,
   },
   {
-    publicId: 'cls-terminale-a1', code: 'TERM-A1', libelle: 'Terminale A1',
-    niveauPublicId: 'niv-013', niveauLibelle: 'Terminale',
+    publicId: 'cls-terminale-a1', code: 'TERM-LL1', libelle: 'Terminale LL1',
+    niveauPublicId: 'niv-013', niveauLibelle: 'Terminale (12ème Année)',
     cyclePublicId: 'cyc-003',  cycleLibelle:  'Lycée',
-    filierePublicId: 'fil-002',filiereLibelle:'Littéraire',
+    filierePublicId: 'fil-002',filiereLibelle:'Lettres-Langues (LL)',
     capacite: 40, effectif: 38, anneeAcademiquePublicId: 'ann-001',
     professeurPrincipal: 'M. Diallo Seydou', sallePrincipale: 'A102', active: true,
   },
@@ -259,11 +274,11 @@ export const MOCK_SALLES: ISalleRef[] = [
 // ─── Types de frais (remplace FRAIS_INSCRIPTION / FRAIS_SCOLARITE) ─────────────
 export const MOCK_TYPES_FRAIS: ITypeFraisRef[] = [
   { publicId: 'frais-001', code: 'INSCRIP',    libelle: 'Frais d\'inscription',  categorie: 'INSCRIPTION', montant: 50_000,  obligatoire: true,  active: true  },
-  { publicId: 'frais-002', code: 'SCOL-TERM',  libelle: 'Scolarité Terminale',   categorie: 'SCOLARITE',   montant: 750_000, obligatoire: true,  cyclePublicId: 'cyc-003', niveauPublicId: 'niv-013', active: true },
-  { publicId: 'frais-003', code: 'SCOL-PREM',  libelle: 'Scolarité Première',    categorie: 'SCOLARITE',   montant: 700_000, obligatoire: true,  cyclePublicId: 'cyc-003', niveauPublicId: 'niv-012', active: true },
-  { publicId: 'frais-004', code: 'SCOL-SECD',  libelle: 'Scolarité Seconde',     categorie: 'SCOLARITE',   montant: 650_000, obligatoire: true,  cyclePublicId: 'cyc-003', niveauPublicId: 'niv-011', active: true },
-  { publicId: 'frais-005', code: 'SCOL-3EME',  libelle: 'Scolarité 3ème',        categorie: 'SCOLARITE',   montant: 600_000, obligatoire: true,  cyclePublicId: 'cyc-002', niveauPublicId: 'niv-010', active: true },
-  { publicId: 'frais-006', code: 'SCOL-4EME',  libelle: 'Scolarité 4ème',        categorie: 'SCOLARITE',   montant: 580_000, obligatoire: true,  cyclePublicId: 'cyc-002', niveauPublicId: 'niv-009', active: true },
+  { publicId: 'frais-002', code: 'SCOL-TERM',  libelle: 'Scolarité Terminale',        categorie: 'SCOLARITE',   montant: 750_000, obligatoire: true,  cyclePublicId: 'cyc-003', niveauPublicId: 'niv-013', active: true },
+  { publicId: 'frais-003', code: 'SCOL-11E',   libelle: 'Scolarité 11ème Année',      categorie: 'SCOLARITE',   montant: 700_000, obligatoire: true,  cyclePublicId: 'cyc-003', niveauPublicId: 'niv-012', active: true },
+  { publicId: 'frais-004', code: 'SCOL-10E',   libelle: 'Scolarité 10ème Année',      categorie: 'SCOLARITE',   montant: 650_000, obligatoire: true,  cyclePublicId: 'cyc-003', niveauPublicId: 'niv-011', active: true },
+  { publicId: 'frais-005', code: 'SCOL-9AF',   libelle: 'Scolarité 9ème Année (DEF)', categorie: 'SCOLARITE',   montant: 600_000, obligatoire: true,  cyclePublicId: 'cyc-002', niveauPublicId: 'niv-009', active: true },
+  { publicId: 'frais-006', code: 'SCOL-8AF',   libelle: 'Scolarité 8ème Année',       categorie: 'SCOLARITE',   montant: 580_000, obligatoire: true,  cyclePublicId: 'cyc-002', niveauPublicId: 'niv-008', active: true },
   { publicId: 'frais-007', code: 'SCOL-L3',    libelle: 'Scolarité Licence 3',   categorie: 'SCOLARITE',   montant: 900_000, obligatoire: true,  cyclePublicId: 'cyc-004', niveauPublicId: 'niv-016', active: true },
   { publicId: 'frais-008', code: 'SCOL-M2',    libelle: 'Scolarité Master 2',    categorie: 'SCOLARITE',   montant: 1_200_000, obligatoire: true, cyclePublicId: 'cyc-004', niveauPublicId: 'niv-018', active: true },
   { publicId: 'frais-009', code: 'CANTINE',    libelle: 'Frais de cantine',      categorie: 'CANTINE',     montant: 75_000,  obligatoire: false, active: true  },
@@ -352,8 +367,8 @@ export function getFraisScolariteByNiveau(niveauPublicId: string): number {
 /** Calcule les frais de scolarité par libellé de niveau (rétro-compat) */
 export function getFraisScolariteByNiveauLibelle(niveauLibelle: string): number {
   const fraisMap: Record<string, number> = {
-    'Terminale': 750_000, 'Première': 700_000, 'Seconde': 650_000,
-    '3ème': 600_000, '4ème': 580_000,
+    'Terminale (12ème Année)': 750_000, '11ème Année': 700_000, '10ème Année': 650_000,
+    '9ème Année Fondamentale (DEF)': 600_000, '8ème Année Fondamentale': 580_000,
     'Licence 3': 900_000, 'Master 2': 1_200_000,
   };
   return fraisMap[niveauLibelle] ?? 650_000;

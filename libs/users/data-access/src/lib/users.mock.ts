@@ -20,7 +20,7 @@ export const MOCK_USERS: IUser[] = [
 ];
 
 export const MOCK_ETABLISSEMENTS: IEtablissement[] = [
-  { publicId: 'etab-001', code: 'LYCÉE-CI', libelle: 'Institut Supérieur de Technologie d\'Abidjan', ville: 'Abidjan', pays: 'Côte d\'Ivoire' },
+  { publicId: 'etab-001', code: 'CSH', libelle: 'Complexe Scolaire Horizon', ville: 'Bamako', pays: 'Mali' },
 ];
 
 export const MOCK_ANNEES: IAnneeAcademique[] = [
