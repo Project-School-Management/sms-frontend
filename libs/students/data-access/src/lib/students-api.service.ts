@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, delay } from 'rxjs';
 import { IStudent, IInscription, IAuditEntry, IDocument, StudentStatut, ActionAudit } from '@sms/shared/models';
+import { generateMatricule, workspaceTypeFromNiveauLibelle } from '@sms/shared/util';
 import {
   MOCK_STUDENTS,
   MOCK_INSCRIPTIONS,
   MOCK_AUDIT,
   MOCK_DOCUMENTS,
 } from './students.mock';
+
+// Code établissement démo — voir MOCK_ETABLISSEMENT (@sms/config-system/data-access)
+const ETABLISSEMENT_CODE = 'CSH';
+const COUNTRY_CODE = 'ML';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function newAuditEntry(
@@ -48,9 +53,11 @@ export class StudentsApiService {
   // ── Create ────────────────────────────────────────────────────────────────
 
   createStudent(req: Partial<IStudent>): Observable<IStudent> {
+    const publicId = `stu-${Date.now()}`;
+    const workspaceType = workspaceTypeFromNiveauLibelle(req.niveauLibelle ?? '');
     const created: IStudent = {
-      publicId:          `stu-${Date.now()}`,
-      matricule:         `LYCÉE-CI/2026/${String(MOCK_STUDENTS.length + 1).padStart(6, '0')}`,
+      publicId,
+      matricule: generateMatricule(COUNTRY_CODE, workspaceType, new Date().getFullYear(), ETABLISSEMENT_CODE, publicId),
       firstName:         req.firstName ?? '',
       lastName:          req.lastName ?? '',
       dateNaissance:     req.dateNaissance ?? '',

@@ -8,6 +8,7 @@ import { FormsModule }                                         from '@angular/fo
 import { MatIconModule }                                       from '@angular/material/icon';
 import { StudentsStore, MOCK_STUDENTS }                        from '@sms/students/data-access';
 import { ReferenceStore, getFraisScolariteByNiveauLibelle }    from '@sms/config-system/data-access';
+import { generateMatricule, workspaceTypeFromNiveauLibelle }   from '@sms/shared/util';
 
 // ── Données locales non-référentiels ─────────────────────────────────────────
 const REGIMES = [
@@ -381,7 +382,7 @@ const STEPS = [
                 <div class="relative">
                   <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
                             style="font-size:16px;height:16px;width:16px;color:var(--text-muted)">location_city</mat-icon>
-                  <input formControlName="lieuNaissance" type="text" placeholder="Ex : Abidjan"
+                  <input formControlName="lieuNaissance" type="text" placeholder="Ex : Bamako"
                          class="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none"
                          style="border-color:var(--border-color);background:var(--surface-2);color:var(--text-primary)">
                 </div>
@@ -1416,9 +1417,9 @@ export class StudentFormComponent implements OnInit, OnDestroy {
   });
 
   readonly generatedMatricule = computed(() => {
-    const year = new Date().getFullYear();
-    const num  = String(MOCK_STUDENTS.length + 1).padStart(6, '0');
-    return `LYCÉE-CI/${year}/${num}`;
+    const niveau = this.selectedClasseInfo()?.niveau ?? '';
+    const workspaceType = workspaceTypeFromNiveauLibelle(niveau);
+    return generateMatricule('ML', workspaceType, new Date().getFullYear(), 'CSH', `preview-${MOCK_STUDENTS.length + 1}`);
   });
 
   readonly fraisScolarite = computed(() => {

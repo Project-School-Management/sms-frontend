@@ -68,11 +68,11 @@ export interface DocSchool {
 // ── Default school config ──────────────────────────────────────────────────────
 
 const DEFAULT_SCHOOL: DocSchool = {
-  name:    'Établissement Scolaire SMS',
-  address: 'Abidjan, Côte d\'Ivoire',
-  phone:   '+225 XX XX XX XX',
-  email:   'contact@sms.ci',
-  bp:      'BP 1234 Abidjan',
+  name:    'Complexe Scolaire Horizon',
+  address: 'Hamdallaye ACI 2000, Bamako, Mali',
+  phone:   '+223 20 22 XX XX',
+  email:   'contact@complexe-horizon.edu.ml',
+  bp:      'BP 1234 Bamako',
 };
 
 // ── Shared CSS ─────────────────────────────────────────────────────────────────
@@ -355,7 +355,7 @@ export class DocumentService {
           </p>
         </div>
         <div style="margin:16px 0;text-align:right;font-style:italic;font-size:12px;color:#64748b">
-          Abidjan, le ${new Date().toLocaleDateString('fr-FR')}
+          Bamako, le ${new Date().toLocaleDateString('fr-FR')}
         </div>
         ${this.signatureBlock(['Le Directeur de l\'Établissement'])}
         ${this.footer()}
@@ -386,7 +386,7 @@ export class DocumentService {
           <p>${body}</p>
         </div>
         <p style="text-align:right;font-style:italic;font-size:12px;color:#64748b;margin:8px 0">
-          Fait à Abidjan, le ${new Date().toLocaleDateString('fr-FR')}
+          Fait à Bamako, le ${new Date().toLocaleDateString('fr-FR')}
         </p>
         ${this.signatureBlock(['Le Directeur'])}
         ${this.footer()}
@@ -468,7 +468,7 @@ export class DocumentService {
           </div>
         </div>
         <div style="margin:16px 0;text-align:right;font-style:italic;font-size:12px;color:#64748b">
-          Abidjan, le ${new Date().toLocaleDateString('fr-FR')}
+          Bamako, le ${new Date().toLocaleDateString('fr-FR')}
         </div>
         ${this.signatureBlock(['Le Directeur Pédagogique'])}
         ${this.footer()}
