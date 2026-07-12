@@ -10,19 +10,41 @@
 
       <nav class="landing__nav">
         <a (click)="scrollTo('fonctionnalites')">Fonctionnalités</a>
+        <a (click)="scrollTo('familles')">Familles</a>
         <a (click)="scrollTo('comment-ca-marche')">Comment ça marche</a>
         <a (click)="scrollTo('tarification')">Tarification</a>
+        <a (click)="scrollTo('faq')">FAQ</a>
         <a (click)="scrollTo('contact')">Contact</a>
       </nav>
 
-      <button class="landing__btn landing__btn--ghost" (click)="login()">
-        Se connecter
-      </button>
+      <div class="landing__header-actions">
+        <button class="landing__btn landing__btn--ghost landing__btn--desktop-only" (click)="login()">
+          Se connecter
+        </button>
+        <button class="landing__burger" (click)="toggleMobileMenu()" [attr.aria-expanded]="mobileMenuOpen()" aria-label="Ouvrir le menu">
+          <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+        </button>
+      </div>
     </div>
+
+    @if (mobileMenuOpen()) {
+      <nav class="landing__mobile-nav">
+        <a (click)="scrollTo('fonctionnalites')">Fonctionnalités</a>
+        <a (click)="scrollTo('familles')">Familles</a>
+        <a (click)="scrollTo('comment-ca-marche')">Comment ça marche</a>
+        <a (click)="scrollTo('tarification')">Tarification</a>
+        <a (click)="scrollTo('faq')">FAQ</a>
+        <a (click)="scrollTo('contact')">Contact</a>
+        <button class="landing__btn landing__btn--primary" (click)="login()">Se connecter</button>
+      </nav>
+    }
   </header>
 
   <!-- ── Hero ────────────────────────────────────────────────────────────── -->
   <section class="landing__hero">
+    <div class="landing__hero-glow landing__hero-glow--1"></div>
+    <div class="landing__hero-glow landing__hero-glow--2"></div>
+
     <div class="landing__hero-inner">
       <div class="landing__hero-text">
         <span class="landing__eyebrow">
@@ -117,6 +139,55 @@
     </div>
   </section>
 
+  <!-- ── Espace Parents & Élèves/Étudiants ──────────────────────────────── -->
+  <section class="landing__section landing__section--muted" id="familles">
+    <div class="landing__section-inner">
+      <h2 class="landing__section-title">Un espace pour chaque famille</h2>
+      <p class="landing__section-sub">
+        Parents, élèves et étudiants suivent la scolarité au quotidien,
+        chacun depuis son propre espace.
+      </p>
+
+      <div class="landing__personas">
+        <div class="landing__persona-card">
+          <div class="landing__persona-header">
+            <mat-icon>family_restroom</mat-icon>
+            <h3>Espace Parent</h3>
+          </div>
+          <ul class="landing__persona-list">
+            @for (f of parentFeatures; track f.title) {
+              <li>
+                <mat-icon>{{ f.icon }}</mat-icon>
+                <div>
+                  <strong>{{ f.title }}</strong>
+                  <span>{{ f.text }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="landing__persona-card">
+          <div class="landing__persona-header">
+            <mat-icon>school</mat-icon>
+            <h3>Espace Élève / Étudiant</h3>
+          </div>
+          <ul class="landing__persona-list">
+            @for (f of studentFeatures; track f.title) {
+              <li>
+                <mat-icon>{{ f.icon }}</mat-icon>
+                <div>
+                  <strong>{{ f.title }}</strong>
+                  <span>{{ f.text }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── Réalité malienne ───────────────────────────────────────────────── -->
   <section class="landing__mali">
     <div class="landing__mali-inner">
@@ -137,6 +208,60 @@
           <li><mat-icon>check_circle</mat-icon> Bulletins et diplômes aux standards maliens</li>
           <li><mat-icon>check_circle</mat-icon> Paiements adaptés au Mobile Money local</li>
         </ul>
+      </div>
+
+      <div class="landing__mali-stats">
+        @for (s of maliStats; track s.label) {
+          <div class="landing__mali-stat">
+            <mat-icon>{{ s.icon }}</mat-icon>
+            <div>
+              <strong>{{ s.value }}</strong>
+              <span>{{ s.label }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Application mobile (PWA) ───────────────────────────────────────── -->
+  <section class="landing__section" id="mobile">
+    <div class="landing__section-inner landing__mobile-section">
+      <div class="landing__mobile-text">
+        <span class="landing__eyebrow">
+          <mat-icon>smartphone</mat-icon>
+          Accessible partout
+        </span>
+        <h2>KalanBlonw vous suit aussi sur mobile</h2>
+        <p>
+          Une application web installable directement depuis le navigateur —
+          sur téléphone, tablette ou ordinateur — sans passer par un store d'applications.
+        </p>
+        <ul class="landing__mobile-points">
+          @for (p of mobilePoints; track p.text) {
+            <li>
+              <mat-icon>{{ p.icon }}</mat-icon>
+              <span>{{ p.text }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="landing__phone-mock">
+        <div class="landing__phone-frame">
+          <div class="landing__phone-notch"></div>
+          <div class="landing__phone-screen">
+            <div class="landing__phone-topbar"></div>
+            <div class="landing__phone-card"></div>
+            <div class="landing__phone-card landing__phone-card--wide"></div>
+            <div class="landing__phone-row">
+              <div class="landing__phone-chip"></div>
+              <div class="landing__phone-chip"></div>
+              <div class="landing__phone-chip"></div>
+            </div>
+            <div class="landing__phone-card landing__phone-card--tall"></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -161,15 +286,56 @@
 
   <!-- ── Tarification ───────────────────────────────────────────────────── -->
   <section class="landing__section landing__section--muted" id="tarification">
-    <div class="landing__section-inner landing__pricing">
+    <div class="landing__section-inner">
       <h2 class="landing__section-title">Une tarification adaptée à votre établissement</h2>
       <p class="landing__section-sub">
         Le coût dépend du nombre d'espaces, d'élèves et de fonctionnalités activées.
         Contactez-nous pour un devis personnalisé.
       </p>
-      <button class="landing__btn landing__btn--primary" (click)="scrollTo('contact')">
-        Demander un devis
-      </button>
+
+      <div class="landing__pricing-grid">
+        @for (tier of pricingTiers; track tier.name) {
+          <div class="landing__pricing-card" [class.landing__pricing-card--highlight]="tier.highlight">
+            @if (tier.highlight) {
+              <span class="landing__pricing-badge">Le plus choisi</span>
+            }
+            <h3>{{ tier.name }}</h3>
+            <p class="landing__pricing-desc">{{ tier.description }}</p>
+            <ul class="landing__pricing-features">
+              @for (feat of tier.features; track feat) {
+                <li><mat-icon>check</mat-icon>{{ feat }}</li>
+              }
+            </ul>
+            <button
+              class="landing__btn"
+              [class.landing__btn--primary]="tier.highlight"
+              [class.landing__btn--outline]="!tier.highlight"
+              (click)="scrollTo('contact')">
+              Nous contacter
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ────────────────────────────────────────────────────────────── -->
+  <section class="landing__section" id="faq">
+    <div class="landing__section-inner landing__faq">
+      <h2 class="landing__section-title">Questions fréquentes</h2>
+      <p class="landing__section-sub">Ce que nos prospects nous demandent le plus souvent.</p>
+
+      <div class="landing__faq-list">
+        @for (item of faqs; track item.q) {
+          <details class="landing__faq-item">
+            <summary>
+              {{ item.q }}
+              <mat-icon>expand_more</mat-icon>
+            </summary>
+            <p>{{ item.a }}</p>
+          </details>
+        }
+      </div>
     </div>
   </section>
 
@@ -192,11 +358,31 @@
 
   <!-- ── Footer ─────────────────────────────────────────────────────────── -->
   <footer class="landing__footer">
-    <div class="landing__footer-inner">
-      <div class="landing__brand">
-        <img src="assets/brand/kalanblonw-logo.jpeg" alt="KalanBlonw" class="landing__logo landing__logo--small" />
-        <span class="landing__brand-name">KalanBlonw</span>
+    <div class="landing__footer-top">
+      <div class="landing__footer-brand">
+        <div class="landing__brand">
+          <img src="assets/brand/kalanblonw-logo.jpeg" alt="KalanBlonw" class="landing__logo landing__logo--small" />
+          <span class="landing__brand-name">KalanBlonw</span>
+        </div>
+        <p class="landing__footer-tagline">L'infrastructure numérique des établissements scolaires maliens.</p>
       </div>
+
+      <div class="landing__footer-col">
+        <h4>Produit</h4>
+        <a (click)="scrollTo('fonctionnalites')">Fonctionnalités</a>
+        <a (click)="scrollTo('comment-ca-marche')">Comment ça marche</a>
+        <a (click)="scrollTo('tarification')">Tarification</a>
+      </div>
+
+      <div class="landing__footer-col">
+        <h4>Support</h4>
+        <a (click)="scrollTo('faq')">FAQ</a>
+        <a (click)="scrollTo('contact')">Contact</a>
+        <a href="mailto:contact@kalanblonw.com">contact&#64;kalanblonw.com</a>
+      </div>
+    </div>
+
+    <div class="landing__footer-inner">
       <p>&copy; {{ currentYear }} KalanBlonw — L'infrastructure du savoir.</p>
     </div>
   </footer>

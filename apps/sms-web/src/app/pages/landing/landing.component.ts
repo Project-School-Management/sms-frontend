@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '@sms/shared/auth';
@@ -17,6 +17,35 @@ interface Step {
   n:     string;
   title: string;
   text:  string;
+}
+
+interface MaliStat {
+  icon:  string;
+  label: string;
+  value: string;
+}
+
+interface PricingTier {
+  name:        string;
+  description: string;
+  highlight:   boolean;
+  features:    string[];
+}
+
+interface Faq {
+  q: string;
+  a: string;
+}
+
+interface PersonaFeature {
+  icon: string;
+  title: string;
+  text:  string;
+}
+
+interface MobilePoint {
+  icon: string;
+  text: string;
 }
 
 /**
@@ -38,6 +67,7 @@ export class LandingComponent implements OnInit {
   private readonly keycloak = inject(KeycloakService, { optional: true });
 
   readonly currentYear = new Date().getFullYear();
+  readonly mobileMenuOpen = signal(false);
 
   readonly features: Feature[] = [
     { icon: 'groups',          color: '#0a2540', bg: 'rgba(10,37,64,0.08)',   title: 'Élèves & inscriptions',      text: 'Dossiers complets, réinscriptions, documents et matricule généré automatiquement.' },
@@ -56,6 +86,92 @@ export class LandingComponent implements OnInit {
     { n: '3', title: 'Vos équipes travaillent au quotidien', text: 'Direction, enseignants, comptabilité et familles accèdent à leur espace, chacun selon son rôle.' },
   ];
 
+  readonly maliStats: MaliStat[] = [
+    { icon: 'child_care',     label: 'École Fondamentale', value: '9 années · DEF' },
+    { icon: 'auto_stories',   label: 'Lycée',              value: 'SE · LL · SH · SBio' },
+    { icon: 'account_balance',label: 'Université',          value: 'Système LMD' },
+  ];
+
+  readonly pricingTiers: PricingTier[] = [
+    {
+      name: 'Essentiel',
+      description: 'Un établissement, un espace pédagogique.',
+      highlight: false,
+      features: [
+        'Élèves & inscriptions',
+        'Emploi du temps & absences',
+        'Notes & bulletins',
+        'Messagerie & annonces',
+      ],
+    },
+    {
+      name: 'Croissance',
+      description: 'Plusieurs cycles au sein du même établissement.',
+      highlight: true,
+      features: [
+        'Tout Essentiel',
+        'Multi-espaces (Fondamental, Lycée, Université…)',
+        'Finances & Mobile Money',
+        'Bibliothèque numérique',
+      ],
+    },
+    {
+      name: 'Entreprise',
+      description: 'Groupe scolaire multi-établissements.',
+      highlight: false,
+      features: [
+        'Tout Croissance',
+        'Multi-établissements',
+        'Accompagnement à la mise en route',
+        'Support dédié',
+      ],
+    },
+  ];
+
+  readonly parentFeatures: PersonaFeature[] = [
+    { icon: 'insights',                title: 'Suivi des résultats',            text: 'Notes, moyennes et bulletins consultables dès leur publication.' },
+    { icon: 'event_available',         title: 'Absences & emploi du temps',     text: 'Alerte en cas d\'absence, planning toujours à jour.' },
+    { icon: 'forum',                   title: 'Contact direct',                 text: 'Messagerie avec les enseignants et la direction de l\'établissement.' },
+    { icon: 'account_balance_wallet',  title: 'Suivi des paiements',            text: 'Échéances de scolarité, historique et reçus de paiement.' },
+  ];
+
+  readonly studentFeatures: PersonaFeature[] = [
+    { icon: 'menu_book',   title: 'Cours & devoirs',  text: 'Supports de cours, devoirs et examens réunis au même endroit.' },
+    { icon: 'edit_note',   title: 'Mes résultats',     text: 'Notes et bulletins personnels consultables à tout moment.' },
+    { icon: 'local_library', title: 'Bibliothèque',    text: 'Emprunts et réservations directement depuis son espace.' },
+    { icon: 'campaign',    title: 'Annonces',          text: 'Informations officielles de l\'établissement, sans rien manquer.' },
+  ];
+
+  readonly mobilePoints: MobilePoint[] = [
+    { icon: 'add_to_home_screen',   text: "Installation en un geste sur l'écran d'accueil, sans passer par un store" },
+    { icon: 'wifi_off',             text: 'Conçu pour rester utilisable même avec une connexion limitée' },
+    { icon: 'notifications_active', text: 'Notifications pour les absences, les notes et les nouveaux messages' },
+    { icon: 'devices',              text: 'Une seule application, adaptée aux téléphones, tablettes et ordinateurs' },
+  ];
+
+  readonly faqs: Faq[] = [
+    {
+      q: 'Où sont hébergées nos données ?',
+      a: "Vos données sont hébergées sur une infrastructure dédiée, isolée par établissement, avec authentification unique sécurisée (SSO) pour chaque utilisateur.",
+    },
+    {
+      q: 'Peut-on gérer plusieurs cycles (Fondamental, Lycée, Université) avec un seul compte ?',
+      a: "Oui — chaque établissement peut déclarer plusieurs « espaces » pédagogiques indépendants, et les utilisateurs affectés à plusieurs espaces basculent de l'un à l'autre sans se reconnecter.",
+    },
+    {
+      q: 'La plateforme gère-t-elle les paiements Mobile Money ?',
+      a: 'Oui, le module Finances suit les frais de scolarité, les échéanciers, les bourses et les paiements Mobile Money.',
+    },
+    {
+      q: "Comment démarrer avec notre établissement existant ?",
+      a: "Notre équipe vous accompagne pour créer votre établissement, configurer vos espaces et importer vos données existantes (élèves, classes, enseignants).",
+    },
+    {
+      q: 'Les parents et les élèves ont-ils aussi accès à la plateforme ?',
+      a: "Oui — chaque parent, élève ou étudiant dispose de son propre espace (notes, absences, messagerie, paiements), accessible sur ordinateur comme sur mobile.",
+    },
+  ];
+
   async ngOnInit(): Promise<void> {
     if (!this.keycloak) return;
     try {
@@ -68,7 +184,12 @@ export class LandingComponent implements OnInit {
     }
   }
 
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
   scrollTo(id: string): void {
+    this.mobileMenuOpen.set(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   }
 
