@@ -3,6 +3,17 @@ import { authGuard, espaceGuard } from '@sms/shared/auth';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
 
 export const APP_ROUTES: Routes = [
+  // ── Landing page publique (marketing/commercialisation) ───────────────────
+  // Route exacte '/' sans guard — interceptée AVANT le shell protégé (voir
+  // plus bas) grâce à pathMatch:'full'. Un visiteur déjà connecté est
+  // redirigé vers /dashboard côté composant (LandingComponent.ngOnInit).
+  {
+    path:      '',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./pages/landing/landing.component').then((m) => m.LandingComponent),
+  },
+
   // ── Sélection d'espace (docs/architecture/tenancy-model.md §6) ────────────
   // Authentifié mais hors du shell/layout, et sans espaceGuard (sinon boucle).
   {
