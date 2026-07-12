@@ -56,6 +56,7 @@ interface MockNote {
 }
 interface MockFacture {
   numero: string; montant: number; paye: number; statut: string; echeance: string;
+  typeFrais: string; dateEmission: string;
 }
 interface MockAbsence {
   date: string; matiere: string; type: 'ABSENCE' | 'RETARD'; justifie: boolean; motif: string | null;
@@ -755,7 +756,7 @@ interface MockBulletin {
         <table class="w-full text-sm">
           <thead style="background:var(--surface-2)">
             <tr>
-              @for (h of ['Numéro','Montant (XOF)','Payé (XOF)','Solde (XOF)','Statut','Échéance']; track h) {
+              @for (h of ['Numéro','Montant (XOF)','Payé (XOF)','Solde (XOF)','Statut','Échéance','']; track h) {
                 <th class="text-left px-4 py-3 font-medium" style="color:var(--text-secondary)">{{ h }}</th>
               }
             </tr>
@@ -782,6 +783,13 @@ interface MockBulletin {
                   </span>
                 </td>
                 <td class="px-4 py-3 text-xs" style="color:var(--text-secondary)">{{ f.echeance }}</td>
+                <td class="px-4 py-3 text-right">
+                  <button (click)="printRecu(f)" title="Imprimer le reçu"
+                          class="p-1.5 rounded-lg hover:opacity-70"
+                          style="color:var(--accent);background:var(--surface-2)">
+                    <mat-icon style="font-size:16px;height:16px;width:16px">receipt</mat-icon>
+                  </button>
+                </td>
               </tr>
             }
           </tbody>
@@ -798,7 +806,7 @@ interface MockBulletin {
                   [style.color]="soldeFact() > 0 ? '#ef4444' : '#16a34a'">
                 {{ soldeFact() | number }}
               </td>
-              <td colspan="2" class="px-4 py-3 text-xs" style="color:var(--text-muted)">
+              <td colspan="3" class="px-4 py-3 text-xs" style="color:var(--text-muted)">
                 Taux : {{ tauxRecouvrement() }}%
                 <div class="w-24 rounded-full h-1.5 mt-1 inline-block ml-2" style="background:var(--border-color)">
                   <div class="h-1.5 rounded-full" style="background:#16a34a"
@@ -1060,6 +1068,53 @@ interface MockBulletin {
 
     <!-- ════ TAB : DOCUMENTS ════ -->
     @if (activeTab() === 'documents') {
+      <!-- ════ Documents à générer (imprimables, données mockées) ════ -->
+      <div class="sms-card overflow-hidden mb-4">
+        <div class="px-5 py-4 border-b flex items-center gap-2" style="border-color:var(--border-color)">
+          <mat-icon style="font-size:18px;height:18px;width:18px;color:#6366f1">print</mat-icon>
+          <h3 class="font-semibold" style="color:var(--text-primary)">Documents à générer</h3>
+        </div>
+        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <button (click)="printCard(store.selectedStudent()!)"
+                  class="flex flex-col items-start gap-2 p-4 rounded-xl text-left transition-opacity hover:opacity-80"
+                  style="background:var(--surface-2);border:1px solid var(--border-color)">
+            <mat-icon style="color:#7c3aed">badge</mat-icon>
+            <span class="text-sm font-semibold" style="color:var(--text-primary)">Carte virtuelle</span>
+            <span class="text-xs" style="color:var(--text-muted)">Format ISO ID-1, QR code</span>
+          </button>
+          <button (click)="printCertificat()"
+                  class="flex flex-col items-start gap-2 p-4 rounded-xl text-left transition-opacity hover:opacity-80"
+                  style="background:var(--surface-2);border:1px solid var(--border-color)">
+            <mat-icon style="color:#0891b2">verified</mat-icon>
+            <span class="text-sm font-semibold" style="color:var(--text-primary)">Certificat de scolarité</span>
+            <span class="text-xs" style="color:var(--text-muted)">Année académique en cours</span>
+          </button>
+          <button (click)="printAttestationInscription()"
+                  class="flex flex-col items-start gap-2 p-4 rounded-xl text-left transition-opacity hover:opacity-80"
+                  style="background:var(--surface-2);border:1px solid var(--border-color)">
+            <mat-icon style="color:#16a34a">how_to_reg</mat-icon>
+            <span class="text-sm font-semibold" style="color:var(--text-primary)">Attestation d'inscription</span>
+            <span class="text-xs" style="color:var(--text-muted)">Preuve d'inscription officielle</span>
+          </button>
+          <button (click)="printAttestationPresence()"
+                  class="flex flex-col items-start gap-2 p-4 rounded-xl text-left transition-opacity hover:opacity-80"
+                  style="background:var(--surface-2);border:1px solid var(--border-color)">
+            <mat-icon style="color:#d97706">event_available</mat-icon>
+            <span class="text-sm font-semibold" style="color:var(--text-primary)">Attestation de présence</span>
+            <span class="text-xs" style="color:var(--text-muted)">Assiduité aux cours</span>
+          </button>
+          @for (bulletin of mockBulletins; track bulletin.periode) {
+            <button (click)="printReleve(bulletin.periode)"
+                    class="flex flex-col items-start gap-2 p-4 rounded-xl text-left transition-opacity hover:opacity-80"
+                    style="background:var(--surface-2);border:1px solid var(--border-color)">
+              <mat-icon style="color:#2563eb">summarize</mat-icon>
+              <span class="text-sm font-semibold" style="color:var(--text-primary)">Relevé de notes</span>
+              <span class="text-xs" style="color:var(--text-muted)">{{ bulletin.periode }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
       @if (store.loading()) {
         <sms-skeleton-document [count]="5" />
       } @else if (store.documents().length === 0) {
@@ -1345,9 +1400,9 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
   ];
 
   protected readonly mockFactures: MockFacture[] = [
-    { numero: 'FACT-2025-0123', montant: 350_000, paye: 350_000, statut: 'PAYEE',      echeance: '31/01/2026' },
-    { numero: 'FACT-2025-0247', montant: 350_000, paye: 175_000, statut: 'EN_ATTENTE', echeance: '30/04/2026' },
-    { numero: 'FACT-2025-0389', montant:  50_000, paye:       0, statut: 'EN_ATTENTE', echeance: '30/06/2026' },
+    { numero: 'FACT-2025-0123', montant: 350_000, paye: 350_000, statut: 'PAYEE',      echeance: '31/01/2026', typeFrais: 'Scolarité — 1er Semestre', dateEmission: '02/01/2026' },
+    { numero: 'FACT-2025-0247', montant: 350_000, paye: 175_000, statut: 'EN_ATTENTE', echeance: '30/04/2026', typeFrais: 'Scolarité — 2ème Semestre', dateEmission: '01/04/2026' },
+    { numero: 'FACT-2025-0389', montant:  50_000, paye:       0, statut: 'EN_ATTENTE', echeance: '30/06/2026', typeFrais: 'Frais d\'examen',           dateEmission: '01/06/2026' },
   ];
 
   protected readonly mockAbsences: MockAbsence[] = [
@@ -1526,6 +1581,42 @@ export class StudentDetailComponent implements OnInit, OnDestroy {
       moyenne: bulletin.moyenne, rang: bulletin.rang,
       effectif: bulletin.effectif, mention: bulletin.mention,
       notes: bulletin.notes,
+    });
+  }
+
+  protected printCertificat(): void {
+    const s = this.store.selectedStudent();
+    if (!s) return;
+    this.docSvc.printCertificatScolarite(s);
+  }
+
+  protected printAttestationInscription(): void {
+    const s = this.store.selectedStudent();
+    if (!s) return;
+    this.docSvc.printAttestation(s, 'inscription');
+  }
+
+  protected printAttestationPresence(): void {
+    const s = this.store.selectedStudent();
+    if (!s) return;
+    this.docSvc.printAttestation(s, 'presence');
+  }
+
+  protected printReleve(periode: string): void {
+    const s = this.store.selectedStudent();
+    if (!s) return;
+    const bulletin = this.mockBulletins.find(b => b.periode === periode) ?? this.mockBulletins[0];
+    if (!bulletin) return;
+    this.docSvc.printReleveNotes(s, bulletin.notes, bulletin.periode);
+  }
+
+  protected printRecu(f: MockFacture): void {
+    const s = this.store.selectedStudent();
+    if (!s) return;
+    this.docSvc.printPaymentReceipt({
+      numero: f.numero, student: s, montant: f.montant, paye: f.paye,
+      solde: f.montant - f.paye, statut: f.statut, dateEmission: f.dateEmission,
+      dateEcheance: f.echeance, typeFrais: f.typeFrais,
     });
   }
 
