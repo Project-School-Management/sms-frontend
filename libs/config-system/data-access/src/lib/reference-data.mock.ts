@@ -8,7 +8,7 @@ import {
   IDepartementRef, IFaculteRef, IClasseRef, IMatiereRef,
   IAnneeAcademiqueRef, IPeriodeRef, IBatimentRef, ISalleRef,
   ITypeFraisRef, ITypeBourseRef, IGradeRef, ITypeDocumentRef,
-  ITypeEvaluationRef, IConfigSnapshot,
+  ITypeEvaluationRef, IConfigSnapshot, IEspaceConfig,
 } from './reference.types';
 
 // ─── Établissement ────────────────────────────────────────────────────────────
@@ -18,6 +18,7 @@ export const MOCK_ETABLISSEMENT: IEtablissement = {
   publicId:  'etab-001',
   code:      'CSH',
   libelle:   'Complexe Scolaire Horizon',
+  nomCourt:  'Horizon',
   type:      'LYCEE',
   adresse:   'Hamdallaye ACI 2000',
   ville:     'Bamako',
@@ -26,6 +27,16 @@ export const MOCK_ETABLISSEMENT: IEtablissement = {
   email:     'contact@complexe-horizon.edu.ml',
   active:    true,
 };
+
+// ─── Espaces (docs/architecture/tenancy-model.md §2-3) ───────────────────────
+// « Complexe Horizon » regroupe 3 espaces — exactement l'exemple canonique du
+// document de tenancy. IDs alignés sur EspaceApiService (@sms/shared/auth,
+// switcher de connexion) pour rester cohérents d'un bout à l'autre du frontend.
+export const MOCK_ESPACES: IEspaceConfig[] = [
+  { publicId: 'esp-fondamental-01', workspaceType: 'FUNDAMENTAL', label: 'École Fondamentale', groupPath: '/complexe-horizon/fondamental', active: true, dateCreation: '2023-09-01' },
+  { publicId: 'esp-lycee-01',       workspaceType: 'LYCEUM',      label: 'Lycée',               groupPath: '/complexe-horizon/lycee',       active: true, dateCreation: '2023-09-01' },
+  { publicId: 'esp-universite-01',  workspaceType: 'UNIVERSITY',  label: 'Université',           groupPath: '/complexe-horizon/universite', active: true, dateCreation: '2025-09-01' },
+];
 
 // ─── Cycles ───────────────────────────────────────────────────────────────────
 // Système malien : l'École Fondamentale (9 ans, sanctionnée par le DEF) est un

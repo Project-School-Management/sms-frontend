@@ -167,6 +167,32 @@ export class ConfigDashboardComponent implements OnInit {
 
   readonly sections = [
     {
+      title:       "Identité de l'établissement",
+      description: 'Nom, logo, adresse et coordonnées',
+      icon:        'account_balance',
+      color:       '#0f766e',
+      bg:          'rgba(15,118,110,0.1)',
+      route:       'etablissement',
+      stats: [
+        { label: 'Établissement', value: () => this.refStore.etablissement()?.nomCourt ?? '—' },
+        { label: 'Ville',         value: () => this.refStore.etablissement()?.ville ?? '—' },
+        { label: 'Pays',          value: () => this.refStore.etablissement()?.pays ?? '—' },
+      ],
+    },
+    {
+      title:       'Espaces',
+      description: 'Cycles pédagogiques déclarés (Fondamental, Lycée, Université…)',
+      icon:        'domain',
+      color:       '#7c3aed',
+      bg:          'rgba(124,58,237,0.1)',
+      route:       'espaces',
+      stats: [
+        { label: 'Espaces actifs', value: () => this.refStore.espacesActifs().length },
+        { label: 'Total déclarés', value: () => this.refStore.espaces().length },
+        { label: 'Disponibles',    value: () => this.refStore.workspaceTypesDisponibles().length },
+      ],
+    },
+    {
       title:       'Référentiels académiques',
       description: 'Cycles, niveaux, filières, classes, matières',
       icon:        'school',
@@ -224,5 +250,6 @@ export class ConfigDashboardComponent implements OnInit {
     if (!this.refStore.loaded()) {
       this.refStore.loadAll();
     }
+    this.refStore.loadEspaces();
   }
 }
