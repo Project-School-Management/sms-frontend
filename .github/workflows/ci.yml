@@ -24,6 +24,19 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Retire le plugin Nx eslint incompatible
+        # @nx/eslint/plugin crashe le graphe de projet car typescript-eslint v8
+        # est absent (projet sur v7) — même contournement que le Dockerfile.
+        # On garde @nx/jest/plugin (sinon les targets "test" inférées des libs
+        # disparaissent et `test --all` ne testerait plus rien silencieusement).
+        run: |
+          node -e "
+            const fs=require('fs');
+            const nx=JSON.parse(fs.readFileSync('nx.json','utf8'));
+            nx.plugins=nx.plugins.filter(p=>{const n=typeof p==='string'?p:p.plugin;return !n.includes('eslint');});
+            fs.writeFileSync('nx.json',JSON.stringify(nx,null,2));
+          "
+
       - name: Run unit tests
         run: npx nx run-many --target=test --all --parallel=3
 
