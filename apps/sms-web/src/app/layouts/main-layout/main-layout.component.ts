@@ -152,13 +152,17 @@ const NAV_GROUPS: NavGroup[] = [
       {
         id: 'config', path: '/config',
         label: 'Configuration', icon: 'settings',
-        roles: [Role.SUPER_ADMIN, Role.ADMIN],
+        // DIR inclus : l'identité établissement et le calendrier sont configurés
+        // par la direction (Phase 2 — docs/architecture/tenancy-model.md §5.2/§5.3).
+        roles: [Role.SUPER_ADMIN, Role.ADMIN, Role.DIR],
         children: [
-          { path: '/config',          label: "Vue d'ensemble"           },
-          { path: '/config/academic', label: 'Référentiels académiques' },
-          { path: '/config/rooms',    label: 'Salles & bâtiments'       },
-          { path: '/config/finance',  label: 'Référentiels financiers'  },
-          { path: '/config/calendar', label: 'Calendrier académique'    },
+          { path: '/config',              label: "Vue d'ensemble"           },
+          { path: '/config/etablissement', label: 'Identité établissement'   },
+          { path: '/config/espaces',      label: 'Espaces'                  },
+          { path: '/config/academic',     label: 'Référentiels académiques' },
+          { path: '/config/rooms',        label: 'Salles & bâtiments'       },
+          { path: '/config/finance',      label: 'Référentiels financiers'  },
+          { path: '/config/calendar',     label: 'Calendrier académique'    },
         ],
       },
       {

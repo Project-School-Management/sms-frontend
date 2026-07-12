@@ -1,0 +1,112 @@
+<div class="p-6 max-w-4xl mx-auto">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Espaces de l'établissement</h1>
+      <p class="text-sm mt-0.5" style="color: var(--text-secondary)">
+        Cycles pédagogiques déclarés pour {{ refStore.etablissement()?.libelle ?? 'cet établissement' }}
+      </p>
+    </div>
+    <a routerLink="/config" class="flex items-center gap-1 text-sm hover:opacity-80" style="color: var(--accent)">
+      <mat-icon style="font-size: 16px; height: 16px; width: 16px">arrow_back</mat-icon>
+      Configuration
+    </a>
+  </div>
+
+  <!-- Bannière explicative -->
+  <div class="sms-card p-4 mb-5 flex items-start gap-3"
+       style="background: rgba(99,102,241,0.06); border-color: rgba(99,102,241,0.2)">
+    <mat-icon style="color: var(--accent); flex-shrink: 0">info</mat-icon>
+    <p class="text-xs" style="color: var(--text-secondary)">
+      Un espace correspond à un cycle pédagogique (Fondamental, Lycée, Université…). Chaque espace pilote
+      automatiquement le vocabulaire (Élève/Étudiant, Classe/Faculté…) et les modules visibles pour ses utilisateurs.
+      Un établissement à plusieurs espaces est un « complexe scolaire ».
+    </p>
+  </div>
+
+  <!-- Liste des espaces -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+    @for (espace of refStore.espaces(); track espace.publicId) {
+      <div class="sms-card p-5" [style.opacity]="espace.active ? 1 : 0.55">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+               [style.background]="iconBg(espace.workspaceType)">
+            <mat-icon [style.color]="iconColor(espace.workspaceType)">{{ icon(espace.workspaceType) }}</mat-icon>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="font-semibold" style="color: var(--text-primary)">{{ espace.label }}</h3>
+              @if (!espace.active) {
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold" style="background: var(--surface-2); color: var(--text-muted)">Inactif</span>
+              }
+            </div>
+            <p class="text-xs font-mono mt-1" style="color: var(--text-muted)">{{ espace.groupPath }}</p>
+            <p class="text-xs mt-1" style="color: var(--text-secondary)">Déclaré le {{ espace.dateCreation | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+
+        <!-- Action toggle réservée à SUPER_ADMIN / ADMIN -->
+        @if (canManage()) {
+          <div class="flex justify-end mt-3">
+            <button (click)="toggle(espace)"
+                    class="text-xs font-medium px-3 py-1.5 rounded-lg hover:opacity-80"
+                    [style.color]="espace.active ? '#dc2626' : '#16a34a'"
+                    style="background: var(--surface-2)">
+              {{ espace.active ? 'Désactiver' : 'Réactiver' }}
+            </button>
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="sms-card p-8 flex flex-col items-center justify-center gap-2 md:col-span-2">
+        <mat-icon style="font-size: 32px; height: 32px; width: 32px; color: var(--text-muted)">domain_disabled</mat-icon>
+        <p style="color: var(--text-secondary)">Aucun espace déclaré pour cet établissement</p>
+      </div>
+    }
+  </div>
+
+  <!-- Ajouter un espace — réservé au Super-Admin (Phase 1, tenancy-model §5.1/§13.3) -->
+  @if (isSuperAdmin()) {
+    <div class="sms-card p-5">
+      <h3 class="font-semibold mb-1" style="color: var(--text-primary)">Déclarer un nouvel espace</h3>
+      <p class="text-xs mb-4" style="color: var(--text-secondary)">
+        Réservé au Super-Administrateur — crée le Group Keycloak correspondant.
+      </p>
+      @if (refStore.workspaceTypesDisponibles().length === 0) {
+        <p class="text-sm" style="color: var(--text-muted)">Tous les types d'espace sont déjà déclarés.</p>
+      } @else {
+        <div class="flex flex-wrap items-end gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-medium" style="color: var(--text-secondary)">Type d'espace</label>
+            <select [(ngModel)]="selectedType"
+                    class="px-3 py-2 rounded-lg border text-sm min-w-[200px]"
+                    style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+              @for (t of refStore.workspaceTypesDisponibles(); track t) {
+                <option [value]="t">{{ typeLabel(t) }}</option>
+              }
+            </select>
+          </div>
+          <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+            <label class="text-xs font-medium" style="color: var(--text-secondary)">Libellé affiché</label>
+            <input type="text" [(ngModel)]="customLabel" [placeholder]="typeLabel(selectedType)"
+                   class="px-3 py-2 rounded-lg border text-sm w-full"
+                   style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+          </div>
+          <button (click)="create()" [disabled]="refStore.saving()"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+                  style="background: var(--accent)">
+            <mat-icon style="font-size: 16px; height: 16px; width: 16px">add</mat-icon>
+            Ajouter
+          </button>
+        </div>
+      }
+    </div>
+  } @else if (!canManage()) {
+    <div class="sms-card p-4 flex items-center gap-3" style="background: var(--surface-2)">
+      <mat-icon style="color: var(--text-muted)">lock</mat-icon>
+      <p class="text-xs" style="color: var(--text-secondary)">
+        Seuls les administrateurs peuvent gérer les espaces de l'établissement.
+      </p>
+    </div>
+  }
+</div>

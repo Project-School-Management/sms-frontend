@@ -6,13 +6,14 @@ import {
   IAnneeAcademiqueRef, IPeriodeRef, IBatimentRef, ISalleRef,
   ITypeFraisRef, ITypeBourseRef, IGradeRef, ITypeDocumentRef,
   ITypeEvaluationRef, CategoriePersonnel, TypeSalle, IConfigSnapshot,
+  IEspaceConfig, EspaceWorkspaceType,
 } from './reference.types';
 import {
   MOCK_ETABLISSEMENT, MOCK_CYCLES, MOCK_NIVEAUX, MOCK_FILIERES,
   MOCK_SPECIALITES, MOCK_DEPARTEMENTS, MOCK_FACULTES, MOCK_CLASSES,
   MOCK_MATIERES, MOCK_ANNEES, MOCK_PERIODES, MOCK_BATIMENTS, MOCK_SALLES,
   MOCK_TYPES_FRAIS, MOCK_TYPES_BOURSES, MOCK_GRADES, MOCK_TYPES_DOCUMENTS,
-  MOCK_TYPES_EVALUATION, MOCK_CONFIG_SNAPSHOT,
+  MOCK_TYPES_EVALUATION, MOCK_CONFIG_SNAPSHOT, MOCK_ESPACES,
 } from './reference-data.mock';
 
 /**
@@ -30,6 +31,45 @@ export class ReferenceApiService {
   // ── Établissement ──────────────────────────────────────────────────────────
   getEtablissement(): Observable<IEtablissement> {
     return of(MOCK_ETABLISSEMENT).pipe(delay(this._d));
+  }
+
+  /** PUT /api/v1/etablissements/{id} (docs/api-contracts/06-administration-service.md). */
+  updateEtablissement(data: Partial<IEtablissement>): Observable<IEtablissement> {
+    Object.assign(MOCK_ETABLISSEMENT, data);
+    return of({ ...MOCK_ETABLISSEMENT }).pipe(delay(300));
+  }
+
+  /** POST /api/v1/etablissements/{id}/logo — mock : URL locale (objectURL) du fichier choisi. */
+  uploadLogo(file: File): Observable<{ logoUrlSignee: string }> {
+    const logoUrlSignee = URL.createObjectURL(file);
+    MOCK_ETABLISSEMENT.logoUrl = logoUrlSignee;
+    return of({ logoUrlSignee }).pipe(delay(400));
+  }
+
+  // ── Espaces (docs/architecture/tenancy-model.md §2-3, §5, §13.3) ──────────
+  getEspaces(): Observable<IEspaceConfig[]> {
+    return of([...MOCK_ESPACES]).pipe(delay(this._d));
+  }
+
+  /** Déclare un nouvel espace pour ce tenant — action Phase 1 (super-admin), doc §5.1/§13.3. */
+  createEspace(workspaceType: EspaceWorkspaceType, label: string): Observable<IEspaceConfig> {
+    const slug = label.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-');
+    const created: IEspaceConfig = {
+      publicId: `esp-${Date.now()}`,
+      workspaceType,
+      label,
+      groupPath: `/complexe-horizon/${slug}`,
+      active: true,
+      dateCreation: new Date().toISOString().split('T')[0],
+    };
+    MOCK_ESPACES.push(created);
+    return of(created).pipe(delay(400));
+  }
+
+  toggleEspace(publicId: string, active: boolean): Observable<void> {
+    const espace = MOCK_ESPACES.find(e => e.publicId === publicId);
+    if (espace) espace.active = active;
+    return of(undefined).pipe(delay(150));
   }
 
   // ── Structure pédagogique ──────────────────────────────────────────────────

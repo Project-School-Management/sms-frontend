@@ -9,6 +9,20 @@ export const CONFIG_SYSTEM_ROUTES: Routes = [
     title: 'Configuration système',
   },
   {
+    path: 'etablissement',
+    loadComponent: () =>
+      import('./pages/etablissement-config/etablissement-config.component')
+        .then(m => m.EtablissementConfigComponent),
+    title: "Identité de l'établissement",
+  },
+  {
+    path: 'espaces',
+    loadComponent: () =>
+      import('./pages/espaces-config/espaces-config.component')
+        .then(m => m.EspacesConfigComponent),
+    title: 'Espaces',
+  },
+  {
     path: 'academic',
     loadComponent: () =>
       import('./pages/academic-config/academic-config.component')

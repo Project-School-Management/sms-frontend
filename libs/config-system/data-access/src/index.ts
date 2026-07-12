@@ -14,6 +14,7 @@ export type {
   ITypeBourseRef, IGradeRef, CategoriePersonnel,
   ITypeDocumentRef, ITypeEvaluationRef,
   IConfigSnapshot, IReferenceServiceContract,
+  IEspaceConfig, EspaceWorkspaceType,
 } from './lib/reference.types';
 
 // ── Mock Data (accès direct aux constantes si nécessaire) ────────────────────
@@ -23,6 +24,7 @@ export {
   MOCK_MATIERES, MOCK_ANNEES, MOCK_PERIODES, MOCK_BATIMENTS, MOCK_SALLES,
   MOCK_TYPES_FRAIS, MOCK_TYPES_BOURSES, MOCK_GRADES,
   MOCK_TYPES_DOCUMENTS, MOCK_TYPES_EVALUATION, MOCK_CONFIG_SNAPSHOT,
+  MOCK_ESPACES,
   // Helpers
   getFraisScolariteByNiveau,
   getFraisScolariteByNiveauLibelle,

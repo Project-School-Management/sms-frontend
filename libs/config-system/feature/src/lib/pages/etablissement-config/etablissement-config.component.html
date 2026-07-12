@@ -1,0 +1,106 @@
+<div class="p-6 max-w-3xl mx-auto">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Identité de l'établissement</h1>
+      <p class="text-sm mt-0.5" style="color: var(--text-secondary)">Nom, logo et coordonnées visibles sur tous les documents officiels</p>
+    </div>
+    <a routerLink="/config" class="flex items-center gap-1 text-sm hover:opacity-80" style="color: var(--accent)">
+      <mat-icon style="font-size: 16px; height: 16px; width: 16px">arrow_back</mat-icon>
+      Configuration
+    </a>
+  </div>
+
+  @if (refStore.etablissement(); as etab) {
+    <!-- Logo -->
+    <div class="sms-card p-5 mb-4 flex items-center gap-5">
+      <div class="w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden"
+           style="background: var(--accent-light)">
+        @if (etab.logoUrl) {
+          <img [src]="etab.logoUrl" alt="Logo" class="w-full h-full object-cover">
+        } @else {
+          <mat-icon style="color: var(--accent); font-size: 36px; height: 36px; width: 36px">account_balance</mat-icon>
+        }
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-semibold" style="color: var(--text-primary)">Logo de l'établissement</p>
+        <p class="text-xs mt-0.5" style="color: var(--text-secondary)">Affiché sur les bulletins, cartes et documents officiels (PNG/JPG, max 2 Mo)</p>
+        <label class="inline-flex items-center gap-2 mt-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer hover:opacity-80"
+               style="border: 1px solid var(--border-color); color: var(--accent); background: var(--surface-2)">
+          <mat-icon style="font-size: 14px; height: 14px; width: 14px">upload</mat-icon>
+          {{ refStore.saving() ? 'Envoi en cours…' : 'Changer le logo' }}
+          <input type="file" accept="image/png,image/jpeg" class="hidden" (change)="onLogoSelected($event)">
+        </label>
+      </div>
+    </div>
+
+    <!-- Formulaire identité -->
+    <form class="sms-card p-5 mb-4" (ngSubmit)="submit()">
+      <h3 class="font-semibold mb-4" style="color: var(--text-primary)">Informations générales</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1 md:col-span-2">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Nom complet *</label>
+          <input type="text" [(ngModel)]="form.libelle" name="libelle" required
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Nom court</label>
+          <input type="text" [(ngModel)]="form.nomCourt" name="nomCourt"
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Code établissement</label>
+          <input type="text" [value]="etab.code" disabled
+                 class="px-3 py-2 rounded-lg border text-sm opacity-60"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-secondary)">
+        </div>
+        <div class="flex flex-col gap-1 md:col-span-2">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Adresse</label>
+          <input type="text" [(ngModel)]="form.adresse" name="adresse"
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Ville</label>
+          <input type="text" [(ngModel)]="form.ville" name="ville"
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Pays</label>
+          <input type="text" [(ngModel)]="form.pays" name="pays"
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Téléphone</label>
+          <input type="text" [(ngModel)]="form.telephone" name="telephone"
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-medium" style="color: var(--text-secondary)">Email de contact</label>
+          <input type="email" [(ngModel)]="form.email" name="email"
+                 class="px-3 py-2 rounded-lg border text-sm"
+                 style="background: var(--surface-2); border-color: var(--border-color); color: var(--text-primary)">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 mt-5">
+        <button type="submit" [disabled]="refStore.saving()"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50"
+                style="background: var(--accent)">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px">{{ refStore.saving() ? 'hourglass_empty' : 'save' }}</mat-icon>
+          Enregistrer
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="sms-card p-12 flex flex-col items-center justify-center gap-3">
+      <mat-icon style="font-size: 40px; height: 40px; width: 40px; color: var(--text-muted)">hourglass_empty</mat-icon>
+      <p style="color: var(--text-secondary)">Chargement de l'établissement…</p>
+    </div>
+  }
+</div>

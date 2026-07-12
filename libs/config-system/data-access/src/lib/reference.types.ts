@@ -13,6 +13,8 @@ export interface IEtablissement {
   publicId:    string;
   code:        string;
   libelle:     string;
+  /** Nom court (contrat UpdateEtablissementRequest — docs/api-contracts/06-administration-service.md). */
+  nomCourt?:   string;
   type:        TypeEtablissement;
   adresse?:    string;
   ville?:      string;
@@ -21,6 +23,23 @@ export interface IEtablissement {
   email?:      string;
   logoUrl?:    string;
   active:      boolean;
+}
+
+// ── Espaces (docs/architecture/tenancy-model.md §2-3, §5, §13.3) ──────────────
+// Un « espace » = un cycle pédagogique déclaré pour ce tenant (workspace_type
+// Keycloak). Distinct du référentiel « cycles » ci-dessous (plus granulaire —
+// ex. Fondamental 1er/2nd cycle) : un espace = l'axe multi-tenancy, un cycle =
+// une subdivision pédagogique fine à l'intérieur d'un espace.
+export type EspaceWorkspaceType = 'FUNDAMENTAL' | 'COLLEGE' | 'LYCEUM' | 'UNIVERSITY';
+
+export interface IEspaceConfig {
+  publicId:      string;
+  workspaceType: EspaceWorkspaceType;
+  label:         string;
+  /** Chemin du Group Keycloak `/{tenant}/{espace}` (docs tenancy §3.1). */
+  groupPath:     string;
+  active:        boolean;
+  dateCreation:  string;
 }
 
 // ── Cycles ────────────────────────────────────────────────────────────────────

@@ -7,7 +7,7 @@ import {
   IDepartementRef, IFaculteRef, IClasseRef, IMatiereRef,
   IAnneeAcademiqueRef, IPeriodeRef, IBatimentRef, ISalleRef,
   ITypeFraisRef, ITypeBourseRef, IGradeRef, ITypeDocumentRef,
-  ITypeEvaluationRef,
+  ITypeEvaluationRef, IEspaceConfig, EspaceWorkspaceType,
 } from './reference.types';
 import { ReferenceApiService } from './reference-api.service';
 import { MOCK_ANNEES } from './reference-data.mock';
@@ -15,6 +15,7 @@ import { MOCK_ANNEES } from './reference-data.mock';
 // ── State ─────────────────────────────────────────────────────────────────────
 interface ReferenceState {
   etablissement:   IEtablissement | null;
+  espaces:         IEspaceConfig[];
   cycles:          ICycle[];
   niveaux:         INiveau[];
   filieres:        IFiliere[];
@@ -39,7 +40,7 @@ interface ReferenceState {
 }
 
 const initialState: ReferenceState = {
-  etablissement: null, cycles: [], niveaux: [], filieres: [],
+  etablissement: null, espaces: [], cycles: [], niveaux: [], filieres: [],
   facultes: [], departements: [], specialites: [], classes: [],
   matieres: [], annees: [], periodes: [], batiments: [], salles: [],
   typesFrais: [], typesBourses: [], grades: [], typesDocuments: [],
@@ -53,8 +54,16 @@ export const ReferenceStore = signalStore(
 
   withComputed(({
     classes, niveaux, cycles, matieres, salles,
-    typesFrais, annees, batiments,
+    typesFrais, annees, batiments, espaces,
   }) => ({
+    // ── Espaces (docs/architecture/tenancy-model.md §2-3) ───────────────────
+    espacesActifs:      computed(() => espaces().filter(e => e.active)),
+    /** Types d'espace pas encore déclarés pour ce tenant — pour le formulaire d'ajout. */
+    workspaceTypesDisponibles: computed((): EspaceWorkspaceType[] => {
+      const tous: EspaceWorkspaceType[] = ['FUNDAMENTAL', 'COLLEGE', 'LYCEUM', 'UNIVERSITY'];
+      const declares = new Set(espaces().map(e => e.workspaceType));
+      return tous.filter(t => !declares.has(t));
+    }),
     // ── Classes par cycle ────────────────────────────────────────────────────
     classesByLycee:  computed(() => classes().filter(c => c.cyclePublicId === 'cyc-003')),
     classesByUniv:   computed(() => classes().filter(c => c.cyclePublicId === 'cyc-004')),
@@ -289,6 +298,51 @@ export const ReferenceStore = signalStore(
       switchMap(({ publicId, active }) => api.toggleActive('matieres', publicId, active).pipe(
         tap(() => patchState(store, s => ({
           matieres: s.matieres.map(m => m.publicId === publicId ? { ...m, active } : m),
+        }))),
+        catchError(() => EMPTY)
+      ))
+    )),
+
+    // ── Établissement (story 3-1 — identité) ─────────────────────────────────
+    saveEtablissement: rxMethod<Partial<IEtablissement>>(pipe(
+      tap(() => patchState(store, { saving: true, error: null })),
+      switchMap(data => api.updateEtablissement(data).pipe(
+        tap(saved => patchState(store, { etablissement: saved, saving: false })),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    uploadLogo: rxMethod<File>(pipe(
+      tap(() => patchState(store, { saving: true, error: null })),
+      switchMap(file => api.uploadLogo(file).pipe(
+        tap(({ logoUrlSignee }) => patchState(store, s => ({
+          saving: false,
+          etablissement: s.etablissement ? { ...s.etablissement, logoUrl: logoUrlSignee } : s.etablissement,
+        }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    // ── Espaces (docs/architecture/tenancy-model.md §2-3, §5, §13.3) ────────
+    loadEspaces: rxMethod<void>(pipe(
+      switchMap(() => api.getEspaces().pipe(
+        tap(espaces => patchState(store, { espaces })),
+        catchError(() => EMPTY)
+      ))
+    )),
+
+    createEspace: rxMethod<{ workspaceType: EspaceWorkspaceType; label: string }>(pipe(
+      tap(() => patchState(store, { saving: true, error: null })),
+      switchMap(({ workspaceType, label }) => api.createEspace(workspaceType, label).pipe(
+        tap(created => patchState(store, s => ({ espaces: [...s.espaces, created], saving: false }))),
+        catchError((e: Error) => { patchState(store, { saving: false, error: e.message }); return EMPTY; })
+      ))
+    )),
+
+    toggleEspace: rxMethod<{ publicId: string; active: boolean }>(pipe(
+      switchMap(({ publicId, active }) => api.toggleEspace(publicId, active).pipe(
+        tap(() => patchState(store, s => ({
+          espaces: s.espaces.map(e => e.publicId === publicId ? { ...e, active } : e),
         }))),
         catchError(() => EMPTY)
       ))
