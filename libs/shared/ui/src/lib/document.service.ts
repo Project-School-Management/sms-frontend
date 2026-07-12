@@ -159,40 +159,10 @@ export class DocumentService {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CARTE ÉTUDIANT
+  // NOTE : la carte étudiant/élève est gérée par `EleveCarteComponent`
+  // (`@sms/students/ui`, format ISO/IEC 7810 ID-1 + QR code, story 12.1) —
+  // pas par ce service générique, pour éviter deux implémentations concurrentes.
   // ─────────────────────────────────────────────────────────────────────────────
-  printStudentCard(s: DocStudent): void {
-    const html = this.wrap('Carte Étudiant', `
-      <div style="max-width:320px;margin:0 auto;background:#fff;border-radius:12px;
-        box-shadow:0 2px 16px rgba(0,0,0,.12);overflow:hidden">
-        <!-- Top gradient band -->
-        <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:20px;color:#fff;display:flex;align-items:center;gap:14px">
-          <div style="width:56px;height:56px;border-radius:10px;background:rgba(255,255,255,.2);
-            display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800">
-            ${s.firstName[0]}${s.lastName[0]}
-          </div>
-          <div>
-            <div style="font-size:16px;font-weight:800">${s.firstName} ${s.lastName}</div>
-            <div style="font-size:12px;opacity:.85;margin-top:2px">${s.classeLibelle ?? '—'}</div>
-            <span class="badge badge-green" style="margin-top:4px">${s.statut}</span>
-          </div>
-        </div>
-        <!-- Info grid -->
-        <div style="padding:16px">
-          <div class="info-grid">
-            <div class="info-label">Matricule</div><div class="info-value">${s.matricule}</div>
-            <div class="info-label">Né(e) le</div><div class="info-value">${this.fmt(s.dateNaissance)}</div>
-            <div class="info-label">Genre</div><div class="info-value">${s.genre === 'M' ? 'Masculin' : 'Féminin'}</div>
-            <div class="info-label">Niveau</div><div class="info-value">${s.niveauLibelle ?? '—'}</div>
-            <div class="info-label">Filière</div><div class="info-value">${s.filiereLibelle ?? '—'}</div>
-            <div class="info-label">Nationalité</div><div class="info-value">${s.nationalite ?? '—'}</div>
-          </div>
-        </div>
-        <div class="doc-footer">Année 2025-2026 • ${this.school.name}</div>
-      </div>
-    `);
-    this.print(html);
-  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // FICHE COMPLÈTE ÉTUDIANT
