@@ -10,6 +10,7 @@
 
       <nav class="landing__nav">
         <a (click)="scrollTo('fonctionnalites')">Fonctionnalités</a>
+        <a (click)="scrollTo('familles')">Familles</a>
         <a (click)="scrollTo('comment-ca-marche')">Comment ça marche</a>
         <a (click)="scrollTo('tarification')">Tarification</a>
         <a (click)="scrollTo('faq')">FAQ</a>
@@ -29,6 +30,7 @@
     @if (mobileMenuOpen()) {
       <nav class="landing__mobile-nav">
         <a (click)="scrollTo('fonctionnalites')">Fonctionnalités</a>
+        <a (click)="scrollTo('familles')">Familles</a>
         <a (click)="scrollTo('comment-ca-marche')">Comment ça marche</a>
         <a (click)="scrollTo('tarification')">Tarification</a>
         <a (click)="scrollTo('faq')">FAQ</a>
@@ -137,6 +139,55 @@
     </div>
   </section>
 
+  <!-- ── Espace Parents & Élèves/Étudiants ──────────────────────────────── -->
+  <section class="landing__section landing__section--muted" id="familles">
+    <div class="landing__section-inner">
+      <h2 class="landing__section-title">Un espace pour chaque famille</h2>
+      <p class="landing__section-sub">
+        Parents, élèves et étudiants suivent la scolarité au quotidien,
+        chacun depuis son propre espace.
+      </p>
+
+      <div class="landing__personas">
+        <div class="landing__persona-card">
+          <div class="landing__persona-header">
+            <mat-icon>family_restroom</mat-icon>
+            <h3>Espace Parent</h3>
+          </div>
+          <ul class="landing__persona-list">
+            @for (f of parentFeatures; track f.title) {
+              <li>
+                <mat-icon>{{ f.icon }}</mat-icon>
+                <div>
+                  <strong>{{ f.title }}</strong>
+                  <span>{{ f.text }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div class="landing__persona-card">
+          <div class="landing__persona-header">
+            <mat-icon>school</mat-icon>
+            <h3>Espace Élève / Étudiant</h3>
+          </div>
+          <ul class="landing__persona-list">
+            @for (f of studentFeatures; track f.title) {
+              <li>
+                <mat-icon>{{ f.icon }}</mat-icon>
+                <div>
+                  <strong>{{ f.title }}</strong>
+                  <span>{{ f.text }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── Réalité malienne ───────────────────────────────────────────────── -->
   <section class="landing__mali">
     <div class="landing__mali-inner">
@@ -169,6 +220,48 @@
             </div>
           </div>
         }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Application mobile (PWA) ───────────────────────────────────────── -->
+  <section class="landing__section" id="mobile">
+    <div class="landing__section-inner landing__mobile-section">
+      <div class="landing__mobile-text">
+        <span class="landing__eyebrow">
+          <mat-icon>smartphone</mat-icon>
+          Accessible partout
+        </span>
+        <h2>KalanBlonw vous suit aussi sur mobile</h2>
+        <p>
+          Une application web installable directement depuis le navigateur —
+          sur téléphone, tablette ou ordinateur — sans passer par un store d'applications.
+        </p>
+        <ul class="landing__mobile-points">
+          @for (p of mobilePoints; track p.text) {
+            <li>
+              <mat-icon>{{ p.icon }}</mat-icon>
+              <span>{{ p.text }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="landing__phone-mock">
+        <div class="landing__phone-frame">
+          <div class="landing__phone-notch"></div>
+          <div class="landing__phone-screen">
+            <div class="landing__phone-topbar"></div>
+            <div class="landing__phone-card"></div>
+            <div class="landing__phone-card landing__phone-card--wide"></div>
+            <div class="landing__phone-row">
+              <div class="landing__phone-chip"></div>
+              <div class="landing__phone-chip"></div>
+              <div class="landing__phone-chip"></div>
+            </div>
+            <div class="landing__phone-card landing__phone-card--tall"></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
