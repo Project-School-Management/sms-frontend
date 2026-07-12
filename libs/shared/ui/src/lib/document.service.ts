@@ -76,45 +76,71 @@ const DEFAULT_SCHOOL: DocSchool = {
 };
 
 // ── Shared CSS ─────────────────────────────────────────────────────────────────
+// Palette KalanBlonw : bleu institutionnel #0a2540 (sérieux, officiel),
+// or #d4af37 (accent, jamais utilisé en grande surface). Format A4 simulé à
+// l'écran (aperçu) ; l'impression retire le chrome écran et cadre en A4 réel.
 
 const DOC_CSS = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', 'Arial', sans-serif; background: #fff; color: #0f172a; font-size: 13px; padding: 24px; }
-  .page { max-width: 760px; margin: 0 auto; }
+  html, body { background: #e2e8f0; }
+  body { font-family: 'Segoe UI', 'Arial', sans-serif; color: #1e293b; font-size: 12.5px; -webkit-font-smoothing: antialiased; }
+
+  /* ── Barre d'outils d'aperçu (jamais imprimée) ──────────────────────────── */
+  .doc-toolbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; padding: 12px 22px; background: #0a2540;
+    color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+  .doc-toolbar-title { display: flex; align-items: center; gap: 9px; font-size: 12.5px; font-weight: 600; }
+  .doc-toolbar-title .dot { width: 7px; height: 7px; border-radius: 50%; background: #16a34a; flex-shrink: 0; }
+  .doc-toolbar-actions { display: flex; gap: 10px; flex-shrink: 0; }
+  .doc-toolbar button { border: none; border-radius: 8px; padding: 8px 16px; font-size: 12.5px;
+    font-weight: 700; font-family: inherit; cursor: pointer; }
+  .doc-toolbar .btn-print { background: #d4af37; color: #0a2540; }
+  .doc-toolbar .btn-print:hover { background: #e8c75a; }
+  .doc-toolbar .btn-close { background: rgba(255,255,255,.12); color: #fff; }
+  .doc-toolbar .btn-close:hover { background: rgba(255,255,255,.2); }
+
+  /* ── Feuille A4 simulée (aperçu écran) ───────────────────────────────────── */
+  .print-sheet-outer { padding: 26px 16px 60px; display: flex; justify-content: center; }
+  .print-sheet { width: 210mm; min-height: 297mm; background: #fff;
+    box-shadow: 0 6px 28px rgba(0,0,0,.16); padding: 16mm 15mm; }
+  .page { max-width: 100%; }
 
   /* Header */
   .doc-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; color: #fff; margin-bottom: 20px; }
-  .doc-header-left h1 { font-size: 18px; font-weight: 800; }
-  .doc-header-left .sub { font-size: 11px; opacity: .80; margin-top: 2px; }
-  .doc-header-right { text-align: right; font-size: 11px; opacity: .85; line-height: 1.6; }
+    background: linear-gradient(135deg, #0a2540, #123a61); border-radius: 10px; color: #fff; margin-bottom: 6px; }
+  .doc-header-left h1 { font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+  .doc-header-left .sub { font-size: 10.5px; opacity: .78; margin-top: 2px; }
+  .doc-header-right { text-align: right; font-size: 10.5px; opacity: .88; line-height: 1.6; }
+  .doc-header-right > div:first-child { font-size: 16px; font-weight: 800; }
+  .doc-accent-line { height: 3px; border-radius: 2px; margin-bottom: 22px;
+    background: linear-gradient(90deg, #d4af37, #e8c75a 40%, transparent); }
   .doc-title-band { text-align: center; margin-bottom: 20px; }
   .doc-title-band h2 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-    color: #6366f1; border-bottom: 2px solid #6366f1; display: inline-block; padding-bottom: 4px; }
+    color: #0a2540; border-bottom: 2px solid #d4af37; display: inline-block; padding-bottom: 4px; }
   .doc-title-band .subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
 
   /* Sections */
-  .section { margin-bottom: 16px; }
-  .section h3 { font-size: 13px; font-weight: 700; color: #6366f1; border-left: 3px solid #6366f1;
-    padding-left: 8px; margin-bottom: 10px; }
+  .section { margin-bottom: 18px; page-break-inside: avoid; }
+  .section h3 { font-size: 12.5px; font-weight: 700; color: #0a2540; border-left: 3px solid #d4af37;
+    padding-left: 9px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .03em; }
 
   /* Info grid */
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
   .info-row { display: contents; }
-  .info-label { padding: 7px 12px; background: #f8fafc; font-weight: 600; color: #475569; font-size: 12px;
+  .info-label { padding: 7px 12px; background: #f8fafc; font-weight: 600; color: #475569; font-size: 11.5px;
     border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }
   .info-value { padding: 7px 12px; color: #0f172a; border-bottom: 1px solid #e2e8f0; font-size: 12px; }
 
   /* Table */
-  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
-  th { background: #f1f5f9; padding: 8px 10px; text-align: left; font-weight: 700; color: #475569;
-    border-bottom: 2px solid #e2e8f0; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 4px; }
+  th { background: #0a2540; padding: 8px 10px; text-align: left; font-weight: 700; color: #fff; }
   td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
   tr:last-child td { border-bottom: none; }
   .good  { color: #16a34a; font-weight: 700; }
   .bad   { color: #dc2626; font-weight: 700; }
   .avg   { color: #d97706; font-weight: 700; }
-  tfoot td { background: #f1f5f9; font-weight: 700; border-top: 2px solid #e2e8f0; }
+  tfoot td { background: #f1f5f9; font-weight: 700; border-top: 2px solid #0a2540; }
 
   /* Badges */
   .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
@@ -124,25 +150,28 @@ const DOC_CSS = `
   .badge-blue   { background: #dbeafe; color: #2563eb; }
 
   /* Summary box */
-  .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px;
-    display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px;
+    display: flex; gap: 24px; flex-wrap: wrap; align-items: center; margin: 14px 0; page-break-inside: avoid; }
   .summary-item { text-align: center; }
-  .summary-item .val { font-size: 20px; font-weight: 800; color: #6366f1; }
+  .summary-item .val { font-size: 21px; font-weight: 800; color: #0a2540; }
   .summary-item .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
 
   /* Signature block */
-  .signature-block { display: flex; justify-content: space-between; margin-top: 28px; }
+  .signature-block { display: flex; justify-content: space-between; margin-top: 32px; page-break-inside: avoid; }
   .signature-line { width: 180px; }
   .signature-line .title { font-size: 12px; font-weight: 600; color: #475569; text-align: center; }
   .signature-line .line  { border-top: 1px solid #94a3b8; margin: 24px 0 6px; }
 
   /* Footer */
-  .doc-footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0;
+  .doc-footer { margin-top: 26px; padding-top: 12px; border-top: 1px solid #e2e8f0;
     text-align: center; font-size: 10px; color: #94a3b8; }
 
   @media print {
-    body { padding: 0; }
-    .no-print { display: none; }
+    html, body { background: #fff; }
+    .no-print { display: none !important; }
+    .print-sheet-outer { padding: 0; }
+    .print-sheet { width: auto; min-height: auto; box-shadow: none; padding: 0; margin: 0; }
+    @page { size: A4; margin: 14mm 15mm; }
   }
 `;
 
@@ -306,10 +335,10 @@ export class DocumentService {
       <div class="page">
         ${this.docHeader('CERTIFICAT DE SCOLARITÉ', 'Année académique 2025–2026')}
         <div style="margin:28px 0;text-align:center;font-size:14px;line-height:2.2;color:#0f172a;
-          padding:20px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px">
+          padding:24px 20px 20px;background:#f8fafc;border:1px solid #e2e8f0;border-top:3px solid #d4af37;border-radius:4px 4px 10px 10px">
           <p>Je soussigné(e), <strong>Directeur de l'Établissement ${this.school.name}</strong>,</p>
           <p>certifie que l'élève :</p>
-          <p style="font-size:18px;font-weight:800;color:#6366f1;margin:10px 0">
+          <p style="font-size:18px;font-weight:800;color:#0a2540;margin:10px 0">
             ${s.firstName.toUpperCase()} ${s.lastName.toUpperCase()}
           </p>
           <p>né(e) le <strong>${this.fmt(s.dateNaissance)}</strong>,
@@ -346,9 +375,9 @@ export class DocumentService {
       <div class="page">
         ${this.docHeader(`ATTESTATION DE ${typeLabel}`, this.school.name)}
         <div style="margin:24px 0;line-height:2.0;font-size:14px;padding:20px;
-          background:#f8fafc;border-left:4px solid #6366f1;border-radius:0 8px 8px 0">
+          background:#f8fafc;border-left:4px solid #d4af37;border-radius:0 8px 8px 0">
           <p>Nous certifions que l'élève :</p>
-          <p style="font-size:18px;font-weight:800;color:#6366f1;margin:8px 0">
+          <p style="font-size:18px;font-weight:800;color:#0a2540;margin:8px 0">
             ${s.firstName.toUpperCase()} ${s.lastName.toUpperCase()}
           </p>
           <p>Matricule : <strong>${s.matricule}</strong></p>
@@ -455,8 +484,17 @@ export class DocumentService {
     return `<!DOCTYPE html><html lang="fr"><head>
       <meta charset="UTF-8"><title>${title} — ${this.school.name}</title>
       <style>${DOC_CSS}</style>
-    </head><body>${content}
-    <script>window.onload=()=>{window.print();window.close();}<\/script>
+    </head><body>
+      <div class="doc-toolbar no-print">
+        <div class="doc-toolbar-title"><span class="dot"></span> Aperçu avant impression — ${title}</div>
+        <div class="doc-toolbar-actions">
+          <button class="btn-print" onclick="window.print()">Imprimer</button>
+          <button class="btn-close" onclick="window.close()">Fermer</button>
+        </div>
+      </div>
+      <div class="print-sheet-outer">
+        <div class="print-sheet">${content}</div>
+      </div>
     </body></html>`;
   }
 
@@ -469,11 +507,12 @@ export class DocumentService {
           <div class="sub">${this.school.email}${this.school.bp ? ' &nbsp;·&nbsp; ' + this.school.bp : ''}</div>
         </div>
         <div class="doc-header-right">
-          <div style="font-size:18px;font-weight:800">${title}</div>
+          <div>${title}</div>
           <div>${subtitle}</div>
           <div>Imprimé le ${new Date().toLocaleDateString('fr-FR')}</div>
         </div>
-      </div>`;
+      </div>
+      <div class="doc-accent-line"></div>`;
   }
 
   private signatureBlock(signers: string[]): string {
@@ -497,7 +536,7 @@ export class DocumentService {
   }
 
   private print(html: string): void {
-    const win = window.open('', '_blank', 'width=860,height=1000');
+    const win = window.open('', '_blank', 'width=980,height=1080');
     if (!win) {
       console.warn('[DocumentService] Popup bloqué. Autorisez les popups pour imprimer.');
       return;
