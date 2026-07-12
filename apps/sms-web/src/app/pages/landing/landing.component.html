@@ -1,0 +1,204 @@
+<div class="landing">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <header class="landing__header">
+    <div class="landing__header-inner">
+      <div class="landing__brand">
+        <img src="assets/brand/kalanblonw-logo.jpeg" alt="KalanBlonw" class="landing__logo" />
+        <span class="landing__brand-name">KalanBlonw</span>
+      </div>
+
+      <nav class="landing__nav">
+        <a (click)="scrollTo('fonctionnalites')">Fonctionnalités</a>
+        <a (click)="scrollTo('comment-ca-marche')">Comment ça marche</a>
+        <a (click)="scrollTo('tarification')">Tarification</a>
+        <a (click)="scrollTo('contact')">Contact</a>
+      </nav>
+
+      <button class="landing__btn landing__btn--ghost" (click)="login()">
+        Se connecter
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Hero ────────────────────────────────────────────────────────────── -->
+  <section class="landing__hero">
+    <div class="landing__hero-inner">
+      <div class="landing__hero-text">
+        <span class="landing__eyebrow">
+          <mat-icon>location_on</mat-icon>
+          Conçu pour le système éducatif malien
+        </span>
+        <h1>L'infrastructure numérique de votre établissement scolaire</h1>
+        <p class="landing__hero-sub">
+          Élèves, emplois du temps, notes, finances, bibliothèque et communication —
+          une seule plateforme pour piloter l'École Fondamentale, le Lycée et l'Université,
+          du DEF au Baccalauréat jusqu'à la Licence-Master-Doctorat.
+        </p>
+        <div class="landing__hero-cta">
+          <button class="landing__btn landing__btn--primary" (click)="login()">
+            Se connecter
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+          <button class="landing__btn landing__btn--outline" (click)="scrollTo('contact')">
+            Demander une démonstration
+          </button>
+        </div>
+      </div>
+
+      <div class="landing__hero-visual">
+        <div class="landing__stat-card">
+          <mat-icon>domain</mat-icon>
+          <div>
+            <strong>3 espaces</strong>
+            <span>Fondamental · Lycée · Université</span>
+          </div>
+        </div>
+        <div class="landing__stat-card">
+          <mat-icon>apps</mat-icon>
+          <div>
+            <strong>9 modules métier</strong>
+            <span>Élèves, académique, finances, bibliothèque…</span>
+          </div>
+        </div>
+        <div class="landing__stat-card">
+          <mat-icon>verified_user</mat-icon>
+          <div>
+            <strong>Connexion unique sécurisée</strong>
+            <span>Un rôle, un accès adapté</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Douleurs / constat ─────────────────────────────────────────────── -->
+  <section class="landing__pains">
+    <div class="landing__pains-inner">
+      <h2>La gestion scolaire ne devrait plus reposer sur des cahiers et des tableurs</h2>
+      <div class="landing__pains-grid">
+        <div class="landing__pain">
+          <mat-icon>description</mat-icon>
+          <p>Dossiers d'élèves dispersés entre papier, Excel et mémoire des secrétariats.</p>
+        </div>
+        <div class="landing__pain">
+          <mat-icon>schedule</mat-icon>
+          <p>Retards et erreurs de saisie dans les emplois du temps, absences et bulletins.</p>
+        </div>
+        <div class="landing__pain">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <p>Suivi des frais de scolarité et des paiements difficile à consolider.</p>
+        </div>
+        <div class="landing__pain">
+          <mat-icon>forum</mat-icon>
+          <p>Communication fragmentée entre direction, enseignants et familles.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Fonctionnalités ────────────────────────────────────────────────── -->
+  <section class="landing__section" id="fonctionnalites">
+    <div class="landing__section-inner">
+      <h2 class="landing__section-title">Tout ce qu'il faut pour piloter votre établissement</h2>
+      <p class="landing__section-sub">Une seule plateforme, des modules pensés pour chaque équipe.</p>
+
+      <div class="landing__features-grid">
+        @for (f of features; track f.title) {
+          <div class="landing__feature-card">
+            <div class="landing__feature-icon" [style.background]="f.bg">
+              <mat-icon [style.color]="f.color">{{ f.icon }}</mat-icon>
+            </div>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.text }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Réalité malienne ───────────────────────────────────────────────── -->
+  <section class="landing__mali">
+    <div class="landing__mali-inner">
+      <div class="landing__mali-text">
+        <span class="landing__eyebrow landing__eyebrow--light">
+          <mat-icon>flag</mat-icon>
+          Aligné sur la réalité locale
+        </span>
+        <h2>Pensé pour le Mali, pas adapté après coup</h2>
+        <p>
+          Nomenclature, cycles et examens suivent fidèlement le système éducatif malien :
+          École Fondamentale en neuf années jusqu'au DEF, Lycée avec ses séries
+          (Sciences Exactes, Lettres-Langues, Sciences Humaines, Sciences Biologiques)
+          jusqu'au Baccalauréat, puis Université en système LMD.
+        </p>
+        <ul class="landing__mali-list">
+          <li><mat-icon>check_circle</mat-icon> Matricule national conforme au format établissement</li>
+          <li><mat-icon>check_circle</mat-icon> Bulletins et diplômes aux standards maliens</li>
+          <li><mat-icon>check_circle</mat-icon> Paiements adaptés au Mobile Money local</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Comment ça marche ──────────────────────────────────────────────── -->
+  <section class="landing__section" id="comment-ca-marche">
+    <div class="landing__section-inner">
+      <h2 class="landing__section-title">Opérationnel en trois étapes</h2>
+      <p class="landing__section-sub">De la création de votre établissement à son utilisation quotidienne.</p>
+
+      <div class="landing__steps">
+        @for (s of steps; track s.n) {
+          <div class="landing__step">
+            <div class="landing__step-n">{{ s.n }}</div>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.text }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Tarification ───────────────────────────────────────────────────── -->
+  <section class="landing__section landing__section--muted" id="tarification">
+    <div class="landing__section-inner landing__pricing">
+      <h2 class="landing__section-title">Une tarification adaptée à votre établissement</h2>
+      <p class="landing__section-sub">
+        Le coût dépend du nombre d'espaces, d'élèves et de fonctionnalités activées.
+        Contactez-nous pour un devis personnalisé.
+      </p>
+      <button class="landing__btn landing__btn--primary" (click)="scrollTo('contact')">
+        Demander un devis
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Contact ────────────────────────────────────────────────────────── -->
+  <section class="landing__contact" id="contact">
+    <div class="landing__contact-inner">
+      <h2>Prêt à moderniser la gestion de votre établissement ?</h2>
+      <p>Parlons de vos besoins — nous répondons sous 48 heures ouvrées.</p>
+      <div class="landing__contact-actions">
+        <a class="landing__btn landing__btn--primary" href="mailto:contact@kalanblonw.com">
+          <mat-icon>mail</mat-icon>
+          contact&#64;kalanblonw.com
+        </a>
+        <button class="landing__btn landing__btn--outline" (click)="login()">
+          Se connecter
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────────── -->
+  <footer class="landing__footer">
+    <div class="landing__footer-inner">
+      <div class="landing__brand">
+        <img src="assets/brand/kalanblonw-logo.jpeg" alt="KalanBlonw" class="landing__logo landing__logo--small" />
+        <span class="landing__brand-name">KalanBlonw</span>
+      </div>
+      <p>&copy; {{ currentYear }} KalanBlonw — L'infrastructure du savoir.</p>
+    </div>
+  </footer>
+
+</div>
