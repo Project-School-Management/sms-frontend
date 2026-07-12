@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '@sms/shared/auth';
@@ -17,6 +17,24 @@ interface Step {
   n:     string;
   title: string;
   text:  string;
+}
+
+interface MaliStat {
+  icon:  string;
+  label: string;
+  value: string;
+}
+
+interface PricingTier {
+  name:        string;
+  description: string;
+  highlight:   boolean;
+  features:    string[];
+}
+
+interface Faq {
+  q: string;
+  a: string;
 }
 
 /**
@@ -38,6 +56,7 @@ export class LandingComponent implements OnInit {
   private readonly keycloak = inject(KeycloakService, { optional: true });
 
   readonly currentYear = new Date().getFullYear();
+  readonly mobileMenuOpen = signal(false);
 
   readonly features: Feature[] = [
     { icon: 'groups',          color: '#0a2540', bg: 'rgba(10,37,64,0.08)',   title: 'Élèves & inscriptions',      text: 'Dossiers complets, réinscriptions, documents et matricule généré automatiquement.' },
@@ -56,6 +75,67 @@ export class LandingComponent implements OnInit {
     { n: '3', title: 'Vos équipes travaillent au quotidien', text: 'Direction, enseignants, comptabilité et familles accèdent à leur espace, chacun selon son rôle.' },
   ];
 
+  readonly maliStats: MaliStat[] = [
+    { icon: 'child_care',     label: 'École Fondamentale', value: '9 années · DEF' },
+    { icon: 'auto_stories',   label: 'Lycée',              value: 'SE · LL · SH · SBio' },
+    { icon: 'account_balance',label: 'Université',          value: 'Système LMD' },
+  ];
+
+  readonly pricingTiers: PricingTier[] = [
+    {
+      name: 'Essentiel',
+      description: 'Un établissement, un espace pédagogique.',
+      highlight: false,
+      features: [
+        'Élèves & inscriptions',
+        'Emploi du temps & absences',
+        'Notes & bulletins',
+        'Messagerie & annonces',
+      ],
+    },
+    {
+      name: 'Croissance',
+      description: 'Plusieurs cycles au sein du même établissement.',
+      highlight: true,
+      features: [
+        'Tout Essentiel',
+        'Multi-espaces (Fondamental, Lycée, Université…)',
+        'Finances & Mobile Money',
+        'Bibliothèque numérique',
+      ],
+    },
+    {
+      name: 'Entreprise',
+      description: 'Groupe scolaire multi-établissements.',
+      highlight: false,
+      features: [
+        'Tout Croissance',
+        'Multi-établissements',
+        'Accompagnement à la mise en route',
+        'Support dédié',
+      ],
+    },
+  ];
+
+  readonly faqs: Faq[] = [
+    {
+      q: 'Où sont hébergées nos données ?',
+      a: "Vos données sont hébergées sur une infrastructure dédiée, isolée par établissement, avec authentification unique sécurisée (SSO) pour chaque utilisateur.",
+    },
+    {
+      q: 'Peut-on gérer plusieurs cycles (Fondamental, Lycée, Université) avec un seul compte ?',
+      a: "Oui — chaque établissement peut déclarer plusieurs « espaces » pédagogiques indépendants, et les utilisateurs affectés à plusieurs espaces basculent de l'un à l'autre sans se reconnecter.",
+    },
+    {
+      q: 'La plateforme gère-t-elle les paiements Mobile Money ?',
+      a: 'Oui, le module Finances suit les frais de scolarité, les échéanciers, les bourses et les paiements Mobile Money.',
+    },
+    {
+      q: "Comment démarrer avec notre établissement existant ?",
+      a: "Notre équipe vous accompagne pour créer votre établissement, configurer vos espaces et importer vos données existantes (élèves, classes, enseignants).",
+    },
+  ];
+
   async ngOnInit(): Promise<void> {
     if (!this.keycloak) return;
     try {
@@ -68,7 +148,12 @@ export class LandingComponent implements OnInit {
     }
   }
 
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
   scrollTo(id: string): void {
+    this.mobileMenuOpen.set(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   }
 
